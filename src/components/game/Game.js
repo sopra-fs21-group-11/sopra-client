@@ -27,6 +27,10 @@ const Label = styled.label`
   margin-bottom: 10px;
   text-transform: uppercase;
 `;
+const Link = styled.a`
+ margin: 10px;
+ color: green
+`;
 
 
 class Game extends React.Component {
@@ -98,7 +102,7 @@ class Game extends React.Component {
       <Container>
         <h2>List of all Registered users </h2>
         <p>Click to open the user details:</p>
-        <a
+        <Link
           style={{ color: "red" }}
           width="25%"
           onClick={() => {
@@ -106,7 +110,15 @@ class Game extends React.Component {
           }}
         >
           Logout
-        </a>
+        </Link>
+        <Link
+          width="25%"
+          onClick={() => {
+            this.goToDetails(localStorage.getItem("loginUserid"));
+          }}
+        >
+          Edit profile
+        </Link>
         {!this.state.users ? (
           <Spinner />
         ) : (

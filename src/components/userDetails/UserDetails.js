@@ -105,7 +105,7 @@ class UserDetails extends React.Component {
       localStorage.setItem("token", user.token);
 
       // registration successfully worked --> navigate to the route /game in the GameRouter
-      this.props.history.push(`/userDetails`);
+      this.props.history.push(`/game`);
     } catch (error) {
       //alert(`Something went wrong during the registration: \n${handleError(error)}`);
       this.setState({
