@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
@@ -52,8 +51,6 @@ const Label = styled.label`
   text-transform: uppercase;
 `;
 
-
-
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -66,6 +63,7 @@ const Link = styled.a`
 `;
 
 
+
 /**
  * Classes in React allow you to have an internal state within the class and to have the React life-cycle for your component.
  * You should have a class (instead of a functional component) when:
@@ -75,7 +73,7 @@ const Link = styled.a`
  * https://reactjs.org/docs/react-component.html
  * @Class
  */
-class Login extends React.Component {
+class Registration extends React.Component {
   /**
    * If you don’t initialize the state and you don’t bind methods, you don’t need to implement a constructor for your React component.
    * The constructor for a React component is called before it is mounted (rendered).
@@ -85,9 +83,9 @@ class Login extends React.Component {
   constructor() {
     super();
     this.state = {
+      name: null,
       username: null,
       password: null,
-      erroMessage: null,
     };
   }
   /**
@@ -95,13 +93,14 @@ class Login extends React.Component {
    * If the request is successful, a new user is returned to the front-end
    * and its token is stored in the localStorage.
    */
-  async login() {
+  async registration() {
     try {
       const requestBody = JSON.stringify({
         username: this.state.username,
+        name: this.state.name,
         password: this.state.password,
       });
-      const response = await api.post("/users/login", requestBody);
+      const response = await api.post("/users", requestBody);
 
       // Get the returned user and update a new object.
       const user = new User(response.data);
@@ -110,13 +109,13 @@ class Login extends React.Component {
       localStorage.setItem("token", user.token);
       localStorage.setItem("loginUserid", user.id);
 
-      // Login successfully worked --> navigate to the route /game in the GameRouter
+      // registration successfully worked --> navigate to the route /game in the GameRouter
       this.props.history.push("/game");
     } catch (error) {
       this.setState({
         erroMessage: error.message,
       });
-      //alert(`Something went wrong during the login: \n${handleError(error)}`);
+      //alert(`Something went wrong during the registration: \n${handleError(error)}`);
     }
   }
 
@@ -152,9 +151,16 @@ class Login extends React.Component {
                 this.handleInputChange("username", e.target.value);
               }}
             />
-            <Label>password</Label>
+            <Label>Name</Label>
             <InputField
-              type="password"
+              placeholder="Enter here.."
+              onChange={(e) => {
+                this.handleInputChange("name", e.target.value);
+              }}
+            />
+            <Label>Password</Label>
+            <InputField
+              type="Password"
               placeholder="Enter here.."
               onChange={(e) => {
                 this.handleInputChange("password", e.target.value);
@@ -162,26 +168,25 @@ class Login extends React.Component {
             />
             <ButtonContainer>
               <Button
-                disabled={!this.state.username || !this.state.password}
+                disabled={!this.state.username || !this.state.name}
                 width="50%"
                 style={{ margin: "5px" }}
                 onClick={() => {
-                  this.login();
+                  this.registration();
                 }}
               >
-                Login
+                registration
               </Button>
               <Link
                 width="25%"
                 onClick={() => {
-                  this.props.history.push("/Registration");
+                  this.props.history.push("/login");
                 }}
               >
-                Go to Registration
+                Go to Login
               </Link>
             </ButtonContainer>
             <Error message={this.state.erroMessage}/>
-              
           </Form>
         </FormContainer>
       </BaseContainer>
@@ -193,4 +198,4 @@ class Login extends React.Component {
  * You can get access to the history object's properties via the withRouter.
  * withRouter will pass updated match, location, and history props to the wrapped component whenever it renders.
  */
-export default withRouter(Login);
+export default withRouter(Registration);

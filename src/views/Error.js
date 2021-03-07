@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { ReactLogo } from "./ReactLogo";
 
 /**
  * Using styled-components you can visual HTML primitives and use props with it!
@@ -8,18 +7,17 @@ import { ReactLogo } from "./ReactLogo";
  * Using styled-components, you can have styling conditions using the following syntax: ${props => ...}
  * https://www.styled-components.com/
  */
-const Container = styled.div`
-  height: ${(props) => props.height}px;
-  background: ${(props) => props.background};
+const ErroLabel = styled.label`
+  color: red;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+`;
+const ErrorDiv = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
-`;
-
-const Title = styled.h1`
-  font-weight: bold;
-  color: white;
-  text-align: center;
+  margin-top: 20px;
+  alignitems: "center";
+  background-color: aqua;
 `;
 /**
  * This is an example of a Functional and stateless component (View) in React. Functional components are not classes and thus don't handle internal state changes.
@@ -29,16 +27,20 @@ const Title = styled.h1`
  * https://reactjs.org/docs/components-and-props.html
  * @FunctionalComponent
  */
-const Header = (props) => {
+
+const Error = ({ message }) => {
   return (
-    <Container height={props.height}>
-      <Title>SoPra FS21 Tanzil K. Mohammed</Title>
-      <ReactLogo width={60} height={60} />
-    </Container>
+    <div>
+      {message ? (
+        <ErrorDiv>
+          <ErroLabel style={{ color: "black" }}>Error Message : </ErroLabel>
+          <ErroLabel>{message} </ErroLabel>
+        </ErrorDiv>
+      ) : (
+        ""
+      )}
+    </div>
   );
 };
 
-/**
- * Don't forget to export your component!
- */
-export default Header;
+export default Error;
