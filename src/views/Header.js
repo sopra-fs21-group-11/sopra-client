@@ -32,7 +32,7 @@ const Title = styled.h1`
 const Header = (props) => {
   return (
     <Container height={props.height}>
-      <Title>SoPra FS21 Tanzil K. Mohammed</Title>
+      <Title>SoPra FS21 Group 11 USGRÄCHNET BÜNZEN</Title>
       <ReactLogo width={60} height={60} />
     </Container>
   );
