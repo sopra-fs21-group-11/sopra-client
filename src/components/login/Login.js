@@ -28,26 +28,27 @@ const Form = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: linear-gradient(rgb(27, 124, 186), rgb(2, 46, 101));
+  background: rgb(255, 213, 0, 0.35);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
 const InputField = styled.input`
   &::placeholder {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1);
   }
   height: 35px;
   padding-left: 15px;
   margin-left: -4px;
-  border: none;
-  border-radius: 20px;
+  font-weight: 200;
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(0, 102, 0, 0.2);
+  color: black;
+  border-color: rgb(0, 0, 0, 0.4);
 `;
 
 const Label = styled.label`
-  color: white;
+  color: black;
+  font-weight: 900;
   margin-bottom: 10px;
   text-transform: uppercase;
 `;
@@ -111,7 +112,7 @@ class Login extends React.Component {
       localStorage.setItem("loginUserid", user.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      this.props.history.push("/game");
+      this.props.history.push("/main");
     } catch (error) {
       this.setState({
         erroMessage: error.message,
@@ -171,15 +172,19 @@ class Login extends React.Component {
               >
                 Login
               </Button>
-              <Link
-                width="25%"
+              
+            </ButtonContainer>
+            <ButtonContainer>
+              <Button
+                width ="50%"
                 onClick={() => {
                   this.props.history.push("/Registration");
                 }}
               >
                 Go to Registration
-              </Link>
+              </Button>
             </ButtonContainer>
+
             <Error message={this.state.erroMessage}/>
               
           </Form>

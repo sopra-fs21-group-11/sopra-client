@@ -27,29 +27,32 @@ const Form = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: linear-gradient(rgb(27, 124, 186), rgb(2, 46, 101));
+  background: rgb(255, 213, 0, 0.35);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
 const InputField = styled.input`
   &::placeholder {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1);
   }
   height: 35px;
   padding-left: 15px;
   margin-left: -4px;
-  border: none;
-  border-radius: 20px;
+  font-weight: 200;
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(0, 102, 0, 0.2);
+  color: black;
+  border-color: rgb(0, 0, 0, 0.4);
 `;
 
 const Label = styled.label`
-  color: white;
+  color: black;
+  font-weight: 900;
   margin-bottom: 10px;
   text-transform: uppercase;
 `;
+
+
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -83,7 +86,6 @@ class Registration extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: null,
       username: null,
       password: null,
     };
@@ -110,7 +112,7 @@ class Registration extends React.Component {
       localStorage.setItem("loginUserid", user.id);
 
       // registration successfully worked --> navigate to the route /game in the GameRouter
-      this.props.history.push("/game");
+      this.props.history.push("/main");
     } catch (error) {
       this.setState({
         erroMessage: error.message,
@@ -151,13 +153,6 @@ class Registration extends React.Component {
                 this.handleInputChange("username", e.target.value);
               }}
             />
-            <Label>Name</Label>
-            <InputField
-              placeholder="Enter here.."
-              onChange={(e) => {
-                this.handleInputChange("name", e.target.value);
-              }}
-            />
             <Label>Password</Label>
             <InputField
               type="Password"
@@ -168,7 +163,7 @@ class Registration extends React.Component {
             />
             <ButtonContainer>
               <Button
-                disabled={!this.state.username || !this.state.name}
+                disabled={!this.state.username || !this.state.password}
                 width="50%"
                 style={{ margin: "5px" }}
                 onClick={() => {
@@ -177,14 +172,16 @@ class Registration extends React.Component {
               >
                 registration
               </Button>
-              <Link
-                width="25%"
+            </ButtonContainer>
+            <ButtonContainer>
+              <Button
+                width ="50%"
                 onClick={() => {
                   this.props.history.push("/login");
                 }}
               >
                 Go to Login
-              </Link>
+              </Button>
             </ButtonContainer>
             <Error message={this.state.erroMessage}/>
           </Form>
