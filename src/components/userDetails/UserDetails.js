@@ -82,7 +82,7 @@ class UserDetails extends React.Component {
       users: {},
       userId: null,
       editable: false,
-      erroMessage:null
+      errorMessage:null
     };
   }
 
@@ -109,7 +109,7 @@ class UserDetails extends React.Component {
     } catch (error) {
       //alert(`Something went wrong during the registration: \n${handleError(error)}`);
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
 
     }

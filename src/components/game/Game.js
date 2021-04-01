@@ -39,7 +39,7 @@ class Game extends React.Component {
     this.state = {
       users: null,
       userId: null,
-      erroMessage:null
+      errorMessage:null
     };
   }
 
@@ -53,7 +53,7 @@ class Game extends React.Component {
     } catch (error) {
       //console.log( `Something went wrong while logout the users: \n${handleError(error)}`);
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
     } finally {
       localStorage.removeItem("token");
@@ -91,7 +91,7 @@ class Game extends React.Component {
       console.log(response);
     } catch (error) {
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
       //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
@@ -151,7 +151,7 @@ class Game extends React.Component {
                 })}
               </Users>
             </Container>
-            <Error message={this.state.erroMessage}/>
+            <Error message={this.state.errorMessage}/>
           </Container>
         )}
       </Container>
