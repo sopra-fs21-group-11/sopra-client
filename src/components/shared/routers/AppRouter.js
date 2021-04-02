@@ -8,7 +8,7 @@ import { RegistrationGuard } from "../routeProtectors/RegistrationGuard";
 import Registration from "../../registration/Registration";
 import { UserDetailsGuard } from "../routeProtectors/UserDetailsGuard";
 import UserDetails from "../../userDetails/UserDetails";
-import Main from "../../main/Main";
+import Main from "../../mainView/MainView";
 
 /**
  * Main router of your application.
@@ -61,12 +61,12 @@ class AppRouter extends React.Component {
               )}
             />
             <Route
-              path="/main"
+              path="/mainView"
               exact
               render={() => (
-                <RegistrationGuard>
+                
                   <Main />
-                </RegistrationGuard>
+                
               )}
             />
 

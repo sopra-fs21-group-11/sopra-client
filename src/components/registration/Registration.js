@@ -6,6 +6,7 @@ import User from "../shared/models/User";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import Error from "../../views/Error";
+import Header from "../../views/Header";
 
 const FormContainer = styled.div`
   margin-top: 2em;
@@ -21,15 +22,30 @@ const Form = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 60%;
-  height: 375px;
+  height: 450px;
   font-size: 16px;
   font-weight: 300;
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: rgb(255, 213, 0, 0.35);
+  background: rgb(255, 213, 0, 0.25);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
+
+const FormTitleContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+`;
+
+
+const FormTitle = styled.div`
+  font-size: 30px;
+
+`;
+
+
 
 const InputField = styled.input`
   &::placeholder {
@@ -110,9 +126,10 @@ class Registration extends React.Component {
       // Store the token into the local storage.
       localStorage.setItem("token", user.token);
       localStorage.setItem("loginUserid", user.id);
+      localStorage.setItem("username", user.username);
 
       // registration successfully worked --> navigate to the route /game in the GameRouter
-      this.props.history.push("/main");
+      this.props.history.push("/mainView");
     } catch (error) {
       this.setState({
         erroMessage: error.message,
@@ -143,50 +160,59 @@ class Registration extends React.Component {
 
   render() {
     return (
-      <BaseContainer>
-        <FormContainer>
-          <Form>
-            <Label>Username</Label>
-            <InputField
-              placeholder="Enter here.."
-              onChange={(e) => {
-                this.handleInputChange("username", e.target.value);
-              }}
-            />
-            <Label>Password</Label>
-            <InputField
-              type="Password"
-              placeholder="Enter here.."
-              onChange={(e) => {
-                this.handleInputChange("password", e.target.value);
-              }}
-            />
-            <ButtonContainer>
-              <Button
-                disabled={!this.state.username || !this.state.password}
-                width="50%"
-                style={{ margin: "5px" }}
-                onClick={() => {
-                  this.registration();
+      <div>
+        
+        <Header height={"100"} />
+        <BaseContainer>
+          <FormContainer>
+            <Form>
+              <FormTitleContainer>
+                <FormTitle>
+                  Registration
+                </FormTitle>
+              </FormTitleContainer>
+              <Label>Username</Label>
+              <InputField
+                placeholder="Enter here.."
+                onChange={(e) => {
+                  this.handleInputChange("username", e.target.value);
                 }}
-              >
-                registration
-              </Button>
-            </ButtonContainer>
-            <ButtonContainer>
-              <Button
-                width ="50%"
-                onClick={() => {
-                  this.props.history.push("/login");
+              />
+              <Label>Password</Label>
+              <InputField
+                type="Password"
+                placeholder="Enter here.."
+                onChange={(e) => {
+                  this.handleInputChange("password", e.target.value);
                 }}
-              >
-                Go to Login
-              </Button>
-            </ButtonContainer>
-            <Error message={this.state.erroMessage}/>
-          </Form>
-        </FormContainer>
-      </BaseContainer>
+              />
+              <ButtonContainer>
+                <Button
+                  disabled={!this.state.username || !this.state.password}
+                  width="50%"
+                  style={{ margin: "5px" }}
+                  onClick={() => {
+                    this.registration();
+                  }}
+                >
+                  Register
+                </Button>
+              </ButtonContainer>
+              <ButtonContainer>
+                <Button
+                  width ="50%"
+                  onClick={() => {
+                    this.props.history.push("/login");
+                  }}
+                >
+                  Go to Login
+                </Button>
+              </ButtonContainer>
+              <Error message={this.state.erroMessage}/>
+            </Form>
+          </FormContainer>
+        </BaseContainer>
+      </div>
     );
   }
 }

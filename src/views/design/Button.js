@@ -18,6 +18,6 @@ export const Button = styled.button`
   border-style: solid;
   cursor: ${props => (props.disabled ? "default" : "pointer")};
   opacity: ${props => (props.disabled ? 0.4 : 1)};
-  background: rgb(0, 102, 0, 1);
+  background: rgb(0, 132, 0, 1);
   transition: all 0.3s ease;
 `;
