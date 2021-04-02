@@ -42,7 +42,7 @@ const FormTitleContainer = styled.div`
 
 const FormTitle = styled.div`
   font-size: 30px;
-
+  font-weight: 900;
 `;
 
 
