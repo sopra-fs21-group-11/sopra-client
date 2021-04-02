@@ -6,6 +6,7 @@ import { Button } from "../../views/design/Button";
 import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
 import {api} from "../../helpers/api";
+import GameModel from "../shared/models/GameModel";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -103,32 +104,33 @@ const InputField = styled.input`
 
 
 class Lobby extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-          users: [1, 2, 3, 4],
-          hostId: null,
-          errorMessage:null,
-          horizontalCategories: [1, 2, 3],
-          verticalCategories: [1, 2, 3],
-          nrOfEvaluations: null,
-          doubtCountdown: null,
-          visibleAfterDoubtCountdown: null,
-          playerTurnCountdown: null,
-          horizontalValueCategoryId: null,
-          verticalValueCategoryId: null,
-          editable: null,
-        };
-    }
+  constructor() {
+    super();
+    this.state = {
+      users: [1, 2, 3, 4],
+      hostId: null,
+      gameId: null,
+      errorMessage: null,
+      horizontalCategories: [1, 2, 3],
+      verticalCategories: [1, 2, 3],
+      nrOfEvaluations: 2,
+      doubtCountdown: 30,
+      visibleAfterDoubtCountdown: 5,
+      playerTurnCountdown: 30,
+      horizontalValueCategoryId: null,
+      verticalValueCategoryId: null,
+      editable: null,
+    };
+  }
 
   exitLobby() {
-      this.props.history.push("/game")
+    this.props.history.push("/game")
   }
 
   handleInputChange(key, value) {
     // Example: if the key is username, this statement is the equivalent to the following one:
     // this.setState({'username': value});
-    this.setState({ [key]: value });
+    this.setState({[key]: value});
   }
 
   async componentDidMount() {
@@ -138,23 +140,30 @@ class Lobby extends React.Component {
         editable: localStorage.getItem("loginUserid") == id ? true : false,
       });
 
-      this.setState({ hostId: id });
+      this.setState({hostId: id});
 
-      const response = await api.get("/games");
+      await this.getPlayers();
+      this.timerId = setInterval(() => this.getPlayers(), 20000)
 
-      this.setState({ users: response.data });
-
-      console.log("request to:", response.request.responseURL);
-      console.log("status code:", response.status);
-      console.log("status text:", response.statusText);
-      console.log("requested data:", response.data);
-
-      console.log(response);
     } catch (error) {
       this.setState({
         errorMessage: error.message,
       });
       //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
+    }
+  }
+
+  async getPlayers() {
+    try {
+      const response = await api.get("/games/" + this.state.gameId);
+      const game = new GameModel(response.data);
+
+      this.setState({users: game.players});
+    } catch (error) {
+      this.setState({
+        errorMessage: error.message,
+      });
+
     }
   }
 
@@ -171,7 +180,7 @@ class Lobby extends React.Component {
         verticalValueCategoryId: this.state.verticalValueCategoryId
       });
 
-      const response = await api.post("/games", requestBody);
+      const response = await api.put("/games/" + this.state.gameId, requestBody);
 
 
     } catch (error) {
@@ -184,152 +193,156 @@ class Lobby extends React.Component {
   }
 
 
-
-
   render() {
-        return (
-            <Container>
-                <h2>Game Lobby</h2>
-              <div   style={{ display: "flex", flexDirection: "row", justifyContent: "right" }}>
-              <ButtonContainer>
-                <Button style={{marginRight: 60}}>
-                <Link
-                    style={{ color: "black" }}
-                    width="25%"
-                    onClick={() => {
-                        this.exitLobby();
-                    }}
-                >
-                    Exit Lobby
-                </Link>
-                </Button>
-              </ButtonContainer>
-              <ButtonContainer>
-                <Button
-                  style={{marginRight: 16}}
-                >
-                  <Link
-                    style={{ color: "black" }}
-                    width="25%"
-                    onClick={() => {
-                      this.createGame();
-                    }}
-                  >
-                    Start Game
-                  </Link>
-                </Button>
-              </ButtonContainer>
-              </div>
-              <Container  style={{ display: "flex" }}>
-                <Heading style={{width: "30%", marginRight: 103}}>Players</Heading>
-                <Heading style={{width: "70%"}}>Game Settings</Heading>
-              </Container>
-              <Container style={{ display: "flex"}}>
-                <Users>
-                    {this.state.users.map((user) => {
-                    return (<Name>{user}</Name>);
-                  })}
-                </Users>
-                  <Form>
-                      <Label>Number of evaluations</Label>
-                      <select
-                        name="evaluations"
-                        style={{marginBottom: 10}}
-                        defaultValue={2}
-                        onChange={(e) => {
-                        this.handleInputChange("nrOfEvaluations", e.target.value);
-                      }}>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
-                      </select>
-                      <Label>Doubt countdown time</Label>
-                      <InputField
-                        type={"time"}
-                        defaultValue={"00:00:30"}
-                        step="1"
-                        placeholder="Enter here.."
-                        onChange={(e) => {
-                          this.handleInputChange("doubtCountdown", e.target.value);
-                        }}
-                      />
-                      <Label>How long cards are visible after doubt</Label>
-                      <InputField
-                        type={"time"}
-                        step="1"
-                        defaultValue={"00:00:05"}
-                        placeholder="Enter here.."
-                        onChange={(e) => {
-                          this.handleInputChange("visibleAfterDoubtCountdown", e.target.value);
-                        }}
-                      />
-                      <Label>Countdown for one player turn</Label>
-                      <InputField
-                        type={"time"}
-                        step="1"
-                        defaultValue={"00:00:30"}
-                        placeholder="Enter here.."
-                        onChange={(e) => {
-                          this.handleInputChange("playerTurnCountdown", e.target.value);
-                        }}
-                      />
-                      <Label>Tokens for correct Guess</Label>
-                    <select
-                      name="tokenGainOnCorrectGuess"
-                      style={{marginBottom: 10}}
-                      defaultValue={2}
-                      onChange={(e) => {
-                        this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
-                      }}>
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                    </select>
-                      <Label>Tokens on nearest guess</Label>
-                    <select
-                      name="tokenGainOnNearestGuess"
-                      style={{marginBottom: 10}}
-                      defaultValue={1}
-                      onChange={(e) => {
-                        this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
-                      }}>
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                    </select>
-                      <Label>Horizontal comparison type</Label>
-                      <select
-                        placeholder="Enter here.."
-                        onChange={(e) => {
-                          this.handleInputChange("horizontalValueCategoryId", e.target.value);
-                        }}
-                      >{this.state.horizontalCategories.map((category) => {
-                        return (<option>{category}</option>);
-                      })}
-                      </select>
-                    <Label>Vertical comparison type</Label>
-                    <select
-                      placeholder="Enter here.."
-                      onChange={(e) => {
-                        this.handleInputChange("verticalValueCategoryId", e.target.value);
-                      }}
-                    >{this.state.verticalCategories.map((category) => {
-                      return (<option>{category}</option>);
-                    })}
-                    </select>
-                    </Form>
+    return (
+      <Container>
+        <h2>Game Lobby</h2>
+        <div style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
+          <ButtonContainer>
+            <Button style={{marginRight: 60}}>
+              <Link
+                style={{color: "black"}}
+                width="25%"
+                onClick={() => {
+                  this.exitLobby();
+                }}
+              >
+                Exit Lobby
+              </Link>
+            </Button>
+          </ButtonContainer>
+          <ButtonContainer>
+            <Button
+              style={{marginRight: 16}}
+            >
+              <Link
+                style={{color: "black"}}
+                width="25%"
+                onClick={() => {
+                  this.createGame();
+                }}
+              >
+                Start Game
+              </Link>
+            </Button>
+          </ButtonContainer>
+        </div>
+        <Container style={{display: "flex"}}>
+          <Heading style={{width: "30%", marginRight: 103}}>Players</Heading>
+          <Heading style={{width: "70%"}}>Game Settings</Heading>
+        </Container>
+        <Container style={{display: "flex"}}>
+          <Users>
+            {this.state.users.map((user) => {
+              return (<Name>{user}</Name>);
+            })}
+          </Users>
+          <Form>
+            <Label>Number of evaluations</Label>
+            <select
+              disabled={!this.state.editable}
+              name="evaluations"
+              style={{marginBottom: 10}}
+              defaultValue={2}
+              onChange={(e) => {
+                this.handleInputChange("nrOfEvaluations", e.target.value);
+              }}>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+            <Label>Doubt countdown time</Label>
+            <InputField
+              disabled={!this.state.editable}
+              type={"time"}
+              defaultValue={"00:00:30"}
+              step="1"
+              placeholder="Enter here.."
+              onChange={(e) => {
+                this.handleInputChange("doubtCountdown", e.target.value);
+              }}
+            />
+            <Label>How long cards are visible after doubt</Label>
+            <InputField
+              disabled={!this.state.editable}
+              type={"time"}
+              step="1"
+              defaultValue={"00:00:05"}
+              placeholder="Enter here.."
+              onChange={(e) => {
+                this.handleInputChange("visibleAfterDoubtCountdown", e.target.value);
+              }}
+            />
+            <Label>Countdown for one player turn</Label>
+            <InputField
+              disabled={!this.state.editable}
+              type={"time"}
+              step="1"
+              defaultValue={"00:00:30"}
+              placeholder="Enter here.."
+              onChange={(e) => {
+                this.handleInputChange("playerTurnCountdown", e.target.value);
+              }}
+            />
+            <Label>Tokens for correct Guess</Label>
+            <select
+              disabled={!this.state.editable}
+              name="tokenGainOnCorrectGuess"
+              style={{marginBottom: 10}}
+              defaultValue={2}
+              onChange={(e) => {
+                this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
+              }}>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+            <Label>Tokens on nearest guess</Label>
+            <select
+              disabled={!this.state.editable}
+              name="tokenGainOnNearestGuess"
+              style={{marginBottom: 10}}
+              defaultValue={1}
+              onChange={(e) => {
+                this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
+              }}>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+            <Label>Horizontal comparison type</Label>
+            <select
+              disabled={!this.state.editable}
+              onChange={(e) => {
+                this.handleInputChange("horizontalValueCategoryId", e.target.value);
+              }}
+            >{this.state.horizontalCategories.map((category) => {
+              return (<option>{category}</option>);
+            })}
+            </select>
+            <Label>Vertical comparison type</Label>
+            <select
+              disabled={!this.state.editable}
+              onChange={(e) => {
+                this.handleInputChange("verticalValueCategoryId", e.target.value);
+              }}
+            >{this.state.verticalCategories.map((category) => {
+              return (<option>{category}</option>);
+            })}
+            </select>
+          </Form>
 
-              </Container>
-              <Error message={this.state.errorMessage}/>
-            </Container>
-        );
-    }
+        </Container>
+        <Error message={this.state.errorMessage}/>
+      </Container>
+    );
+  }
 }
 
 export default withRouter(Lobby);
