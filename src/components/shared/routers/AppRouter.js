@@ -61,7 +61,7 @@ class AppRouter extends React.Component {
               )}
             />
               <Route
-                  path="/gameLobby"
+                  path="/lobby"
                   exact
                   render={() => (
                       <Lobby />
