@@ -8,6 +8,7 @@ import { RegistrationGuard } from "../routeProtectors/RegistrationGuard";
 import Registration from "../../registration/Registration";
 import { UserDetailsGuard } from "../routeProtectors/UserDetailsGuard";
 import UserDetails from "../../userDetails/UserDetails";
+import Main from "../../mainView/MainView";
 import Lobby from "../../lobby/Lobby";
 
 /**
@@ -60,6 +61,16 @@ class AppRouter extends React.Component {
                 </UserDetailsGuard>
               )}
             />
+            <Route
+              path="/mainView"
+              exact
+              render={() => (
+
+                  <Main />
+
+              )}
+            />
+
               <Route
                   path="/lobby"
                   exact

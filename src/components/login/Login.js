@@ -7,6 +7,7 @@ import User from "../shared/models/User";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import Error from "../../views/Error";
+import Header from "../../views/Header";
 
 const FormContainer = styled.div`
   margin-top: 2em;
@@ -22,32 +23,48 @@ const Form = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 60%;
-  height: 375px;
+  height: 450px;
   font-size: 16px;
   font-weight: 300;
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: linear-gradient(rgb(27, 124, 186), rgb(2, 46, 101));
+  background: rgb(255, 213, 0, 0.25);
   transition: opacity 0.5s ease, transform 0.5s ease;
+`;
+
+
+const FormTitleContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+`;
+
+
+const FormTitle = styled.div`
+  font-size: 30px;
+  font-weight: 900;
+
 `;
 
 const InputField = styled.input`
   &::placeholder {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1);
   }
   height: 35px;
   padding-left: 15px;
   margin-left: -4px;
-  border: none;
-  border-radius: 20px;
+  font-weight: 200;
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(0, 102, 0, 0.2);
+  color: black;
+  border-color: rgb(0, 0, 0, 0.4);
 `;
 
 const Label = styled.label`
-  color: white;
+  color: black;
+  font-weight: 900;
   margin-bottom: 10px;
   text-transform: uppercase;
 `;
@@ -109,9 +126,10 @@ class Login extends React.Component {
       // Store the token into the local storage.
       localStorage.setItem("token", user.token);
       localStorage.setItem("loginUserid", user.id);
+      localStorage.setItem("username", user.username)
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      this.props.history.push("/game");
+      this.props.history.push("/mainView");
     } catch (error) {
       this.setState({
         errorMessage: error.message,
@@ -142,49 +160,61 @@ class Login extends React.Component {
 
   render() {
     return (
-      <BaseContainer>
-        <FormContainer>
-          <Form>
-            <Label>Username</Label>
-            <InputField
-              placeholder="Enter here.."
-              onChange={(e) => {
-                this.handleInputChange("username", e.target.value);
-              }}
-            />
-            <Label>password</Label>
-            <InputField
-              type="password"
-              placeholder="Enter here.."
-              onChange={(e) => {
-                this.handleInputChange("password", e.target.value);
-              }}
-            />
-            <ButtonContainer>
-              <Button
-                disabled={!this.state.username || !this.state.password}
-                width="50%"
-                style={{ margin: "5px" }}
-                onClick={() => {
-                  this.login();
+      <div>
+        <Header height={"100"} />
+        <BaseContainer>
+          <FormContainer>
+            <Form>
+              <FormTitleContainer>
+                <FormTitle>
+                  Login
+                </FormTitle>
+              </FormTitleContainer>
+              <Label>Username</Label>
+              <InputField
+                placeholder="Enter here.."
+                onChange={(e) => {
+                  this.handleInputChange("username", e.target.value);
                 }}
-              >
-                Login
-              </Button>
-              <Link
-                width="25%"
-                onClick={() => {
-                  this.props.history.push("/Registration");
+              />
+              <Label>password</Label>
+              <InputField
+                type="password"
+                placeholder="Enter here.."
+                onChange={(e) => {
+                  this.handleInputChange("password", e.target.value);
                 }}
-              >
-                Go to Registration
-              </Link>
-            </ButtonContainer>
-            <Error message={this.state.errorMessage}/>
-              
-          </Form>
-        </FormContainer>
-      </BaseContainer>
+              />
+              <ButtonContainer>
+                <Button
+                  disabled={!this.state.username || !this.state.password}
+                  width="50%"
+                  style={{ margin: "5px" }}
+                  onClick={() => {
+                    this.login();
+                  }}
+                >
+                  Login
+                </Button>
+
+              </ButtonContainer>
+              <ButtonContainer>
+                <Button
+                  width ="50%"
+                  onClick={() => {
+                    this.props.history.push("/Registration");
+                  }}
+                >
+                  Go to Registration
+                </Button>
+              </ButtonContainer>
+
+              <Error message={this.state.erroMessage}/>
+
+            </Form>
+          </FormContainer>
+        </BaseContainer>
+      </div>
     );
   }
 }
