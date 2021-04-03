@@ -168,7 +168,7 @@ class UserDetails extends React.Component {
       console.log(response);
     } catch (error) {
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
       //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
@@ -244,7 +244,7 @@ class UserDetails extends React.Component {
                 Back
               </Button>
             </ButtonContainer>
-            <Error message={this.state.erroMessage}/>
+            <Error message={this.state.errorMessage}/>
           </Form>
         </FormContainer>
       </BaseContainer>

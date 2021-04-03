@@ -18,7 +18,6 @@ const Users = styled.ul`
   list-style: none;
   width: 30%;
   margin-top: 0;
-  margin-right: 103px;
   padding-left: 17px;
   padding-right: 17px;
   height: 600px;
@@ -45,7 +44,7 @@ const Label = styled.label`
 
 const Link = styled.a`
  margin: 10px;
- color: green
+ color: black
 `;
 
 const Name = styled.p`
@@ -58,7 +57,7 @@ const Name = styled.p`
 const Heading = styled.h3`
   color: black;
   border: 4px black solid;
-  background: green;
+  background: rgb(0, 132, 0, 1);
   width: 100%;
   padding-bottom: 0;
   margin-bottom: 0;
@@ -71,7 +70,7 @@ const Heading = styled.h3`
 
 
 
-const Form = styled.div`
+const SettingsForm = styled.div`
   display: flex;
   flex-direction: column;
   width: 70%;
@@ -108,18 +107,18 @@ class Lobby extends React.Component {
     super();
     this.state = {
       users: [1, 2, 3, 4],
-      hostId: null,
+      userId: null,
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
       verticalCategories: [1, 2, 3],
-      nrOfEvaluations: 2,
-      doubtCountdown: 30,
-      visibleAfterDoubtCountdown: 5,
-      playerTurnCountdown: 30,
+      nrOfEvaluations: null,
+      doubtCountdown: null,
+      visibleAfterDoubtCountdown: null,
+      playerTurnCountdown: null,
       horizontalValueCategoryId: null,
       verticalValueCategoryId: null,
-      editable: null,
+      editable: true,
     };
   }
 
@@ -140,34 +139,22 @@ class Lobby extends React.Component {
         editable: localStorage.getItem("loginUserid") == id ? true : false,
       });
 
-      this.setState({hostId: id});
+      this.setState({userId: id});
 
-      await this.getPlayers();
-      this.timerId = setInterval(() => this.getPlayers(), 20000)
-
-    } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-      //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
-    }
-  }
-
-  async getPlayers() {
-    try {
       const response = await api.get("/games/" + this.state.gameId);
       const game = new GameModel(response.data);
 
       this.setState({users: game.players});
+
     } catch (error) {
       this.setState({
         errorMessage: error.message,
       });
-
     }
   }
 
-  async createGame() {
+
+  async startGame() {
     try {
 
       const requestBody = JSON.stringify({
@@ -197,11 +184,11 @@ class Lobby extends React.Component {
     return (
       <Container>
         <h2>Game Lobby</h2>
-        <div style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
+        <Container
+          style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
           <ButtonContainer>
             <Button style={{marginRight: 60}}>
               <Link
-                style={{color: "black"}}
                 width="25%"
                 onClick={() => {
                   this.exitLobby();
@@ -212,38 +199,37 @@ class Lobby extends React.Component {
             </Button>
           </ButtonContainer>
           <ButtonContainer>
-            <Button
-              style={{marginRight: 16}}
-            >
+            <Button>
               <Link
-                style={{color: "black"}}
                 width="25%"
                 onClick={() => {
-                  this.createGame();
+                  this.startGame();
                 }}
               >
                 Start Game
               </Link>
             </Button>
           </ButtonContainer>
-        </div>
+        </Container>
         <Container style={{display: "flex"}}>
-          <Heading style={{width: "30%", marginRight: 103}}>Players</Heading>
+          <Heading style={{width: "30%", marginRight: "50px"}}>Players</Heading>
           <Heading style={{width: "70%"}}>Game Settings</Heading>
         </Container>
         <Container style={{display: "flex"}}>
-          <Users>
+          <Users
+            style={{marginRight: "50px"}}
+          >
             {this.state.users.map((user) => {
               return (<Name>{user}</Name>);
             })}
           </Users>
-          <Form>
+          <SettingsForm>
             <Label>Number of evaluations</Label>
             <select
               disabled={!this.state.editable}
               name="evaluations"
               style={{marginBottom: 10}}
-              defaultValue={2}
+              defaultValue={this.state.nrOfEvaluations}
               onChange={(e) => {
                 this.handleInputChange("nrOfEvaluations", e.target.value);
               }}>
@@ -257,9 +243,8 @@ class Lobby extends React.Component {
             <InputField
               disabled={!this.state.editable}
               type={"time"}
-              defaultValue={"00:00:30"}
+              defaultValue={this.state.doubtCountdown}
               step="1"
-              placeholder="Enter here.."
               onChange={(e) => {
                 this.handleInputChange("doubtCountdown", e.target.value);
               }}
@@ -269,8 +254,7 @@ class Lobby extends React.Component {
               disabled={!this.state.editable}
               type={"time"}
               step="1"
-              defaultValue={"00:00:05"}
-              placeholder="Enter here.."
+              defaultValue={this.state.visibleAfterDoubtCountdown}
               onChange={(e) => {
                 this.handleInputChange("visibleAfterDoubtCountdown", e.target.value);
               }}
@@ -280,8 +264,7 @@ class Lobby extends React.Component {
               disabled={!this.state.editable}
               type={"time"}
               step="1"
-              defaultValue={"00:00:30"}
-              placeholder="Enter here.."
+              defaultValue={this.state.playerTurnCountdown}
               onChange={(e) => {
                 this.handleInputChange("playerTurnCountdown", e.target.value);
               }}
@@ -291,7 +274,7 @@ class Lobby extends React.Component {
               disabled={!this.state.editable}
               name="tokenGainOnCorrectGuess"
               style={{marginBottom: 10}}
-              defaultValue={2}
+              defaultValue={this.state.tokenGainOnCorrectGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
               }}>
@@ -306,7 +289,7 @@ class Lobby extends React.Component {
               disabled={!this.state.editable}
               name="tokenGainOnNearestGuess"
               style={{marginBottom: 10}}
-              defaultValue={1}
+              defaultValue={this.state.tokenGainOnNearestGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
               }}>
@@ -319,6 +302,8 @@ class Lobby extends React.Component {
             <Label>Horizontal comparison type</Label>
             <select
               disabled={!this.state.editable}
+              style={{marginBottom: 10}}
+              defaultValue={this.state.horizontalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("horizontalValueCategoryId", e.target.value);
               }}
@@ -329,6 +314,8 @@ class Lobby extends React.Component {
             <Label>Vertical comparison type</Label>
             <select
               disabled={!this.state.editable}
+              style={{marginBottom: 10}}
+              defaultValue={this.state.verticalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("verticalValueCategoryId", e.target.value);
               }}
@@ -336,7 +323,7 @@ class Lobby extends React.Component {
               return (<option>{category}</option>);
             })}
             </select>
-          </Form>
+          </SettingsForm>
 
         </Container>
         <Error message={this.state.errorMessage}/>
