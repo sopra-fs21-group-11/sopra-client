@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
 import {api} from "../../helpers/api";
 import GameModel from "../shared/models/GameModel";
+import {Overlay, OverlayContainer} from "../../views/design/Overlay";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -68,8 +69,6 @@ const Heading = styled.h3`
   justify-content: center;
 `;
 
-
-
 const SettingsForm = styled.div`
   display: flex;
   flex-direction: column;
@@ -101,6 +100,11 @@ const InputField = styled.input`
   color: black;
 `;
 
+const CustomOverlay = styled.div`
+  background: rgb(255, 213, 0, 0.25);
+`;
+
+
 
 class Lobby extends React.Component {
   constructor() {
@@ -108,6 +112,7 @@ class Lobby extends React.Component {
     this.state = {
       users: [1, 2, 3, 4],
       userId: null,
+      hostId: null,
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
@@ -123,28 +128,33 @@ class Lobby extends React.Component {
   }
 
   exitLobby() {
-    this.props.history.push("/game")
+    this.props.history.push("/mainView")
   }
 
   handleInputChange(key, value) {
-    // Example: if the key is username, this statement is the equivalent to the following one:
-    // this.setState({'username': value});
     this.setState({[key]: value});
   }
 
   async componentDidMount() {
     try {
       let id = this.props.location.state.userId;
-      this.setState({
-        editable: localStorage.getItem("loginUserid") == id ? true : false,
-      });
+
+      //TODO: only host can edit stuff?
 
       this.setState({userId: id});
 
       const response = await api.get("/games/" + this.state.gameId);
       const game = new GameModel(response.data);
 
-      this.setState({users: game.players});
+      this.setState(
+        {users: game.players,
+              nrOfEvaluations: game.nrOfEvaluations,
+              doubtCountdown: game.doubtCountdown,
+              visibleAfterDoubtCountdown: game.visibleAfterDoubtCountdown,
+              playerTurnCountdown: game.playerTurnCountdown,
+              horizontalValueCategoryId: game.horizontalValueCategoryId,
+              verticalValueCategoryId: game.verticalValueCategoryId,
+        });
 
     } catch (error) {
       this.setState({
@@ -167,6 +177,7 @@ class Lobby extends React.Component {
         verticalValueCategoryId: this.state.verticalValueCategoryId
       });
 
+      // update the game
       const response = await api.put("/games/" + this.state.gameId, requestBody);
 
 
@@ -182,35 +193,10 @@ class Lobby extends React.Component {
 
   render() {
     return (
-      <Container>
-        <h2>Game Lobby</h2>
-        <Container
-          style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
-          <ButtonContainer>
-            <Button style={{marginRight: 60}}>
-              <Link
-                width="25%"
-                onClick={() => {
-                  this.exitLobby();
-                }}
-              >
-                Exit Lobby
-              </Link>
-            </Button>
-          </ButtonContainer>
-          <ButtonContainer>
-            <Button>
-              <Link
-                width="25%"
-                onClick={() => {
-                  this.startGame();
-                }}
-              >
-                Start Game
-              </Link>
-            </Button>
-          </ButtonContainer>
-        </Container>
+      <OverlayContainer>
+        <CustomOverlay>
+        <h2
+        style={{textAlign: "center", paddingTop: "20px"}}>Game Lobby</h2>
         <Container style={{display: "flex"}}>
           <Heading style={{width: "30%", marginRight: "50px"}}>Players</Heading>
           <Heading style={{width: "70%"}}>Game Settings</Heading>
@@ -272,7 +258,6 @@ class Lobby extends React.Component {
             <Label>Tokens for correct Guess</Label>
             <select
               disabled={!this.state.editable}
-              name="tokenGainOnCorrectGuess"
               style={{marginBottom: 10}}
               defaultValue={this.state.tokenGainOnCorrectGuess}
               onChange={(e) => {
@@ -324,10 +309,37 @@ class Lobby extends React.Component {
             })}
             </select>
           </SettingsForm>
-
         </Container>
+        <Container
+          style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
+          <ButtonContainer>
+            <Button style={{marginRight: 60}}>
+              <Link
+                width="25%"
+                onClick={() => {
+                  this.exitLobby();
+                }}
+              >
+                Exit Lobby
+              </Link>
+            </Button>
+          </ButtonContainer>
+          <ButtonContainer>
+            <Button>
+              <Link
+                width="25%"
+                onClick={() => {
+                  this.startGame();
+                }}
+              >
+                Start Game
+              </Link>
+            </Button>
+          </ButtonContainer>
+        </Container>
+        </CustomOverlay>
         <Error message={this.state.errorMessage}/>
-      </Container>
+      </OverlayContainer>
     );
   }
 }
