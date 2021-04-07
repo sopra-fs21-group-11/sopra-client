@@ -104,7 +104,7 @@ class Login extends React.Component {
     this.state = {
       username: null,
       password: null,
-      erroMessage: null,
+      errorMessage: null,
     };
   }
   /**
@@ -132,7 +132,7 @@ class Login extends React.Component {
       this.props.history.push("/mainView");
     } catch (error) {
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
       //alert(`Something went wrong during the login: \n${handleError(error)}`);
     }
@@ -196,7 +196,7 @@ class Login extends React.Component {
                 >
                   Login
                 </Button>
-                
+
               </ButtonContainer>
               <ButtonContainer>
                 <Button
@@ -210,7 +210,7 @@ class Login extends React.Component {
               </ButtonContainer>
 
               <Error message={this.state.erroMessage}/>
-                
+
             </Form>
           </FormContainer>
         </BaseContainer>

@@ -9,6 +9,7 @@ import Registration from "../../registration/Registration";
 import { UserDetailsGuard } from "../routeProtectors/UserDetailsGuard";
 import UserDetails from "../../userDetails/UserDetails";
 import Main from "../../mainView/MainView";
+import Lobby from "../../lobby/Lobby";
 
 /**
  * Main router of your application.
@@ -64,12 +65,19 @@ class AppRouter extends React.Component {
               path="/mainView"
               exact
               render={() => (
-                
+
                   <Main />
-                
+
               )}
             />
 
+              <Route
+                  path="/lobby"
+                  exact
+                  render={() => (
+                      <Lobby />
+                  )}
+              />
             <Route path="/" exact render={() => <Redirect to={"/game"} />} />
           </div>
         </Switch>
