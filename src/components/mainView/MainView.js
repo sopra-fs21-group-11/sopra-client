@@ -92,10 +92,10 @@ class MainView extends React.Component {
                     width="50%"
                     style={{ margin: "5px" }}
                     onClick={() => {
-                      this.login();
+                      this.props.history.push("/lobby");
                     }}
                   >
-                    Create Game
+                    New Game
                   </Button>
                   
                 </ButtonContainer>
@@ -103,7 +103,7 @@ class MainView extends React.Component {
                   <Button
                     width ="50%"
                     onClick={() => {
-                      this.props.history.push("/Registration");
+                      this.props.history.push("/joinGame");
                     }}
                   >
                     Join Game

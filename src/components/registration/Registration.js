@@ -103,7 +103,7 @@ class Registration extends React.Component {
     super();
     this.state = {
       username: null,
-      password: null,
+      password: null
     };
   }
   /**
@@ -115,8 +115,7 @@ class Registration extends React.Component {
     try {
       const requestBody = JSON.stringify({
         username: this.state.username,
-        name: this.state.name,
-        password: this.state.password,
+        password: this.state.password
       });
       const response = await api.post("/users", requestBody);
 
