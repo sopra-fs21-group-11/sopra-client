@@ -111,19 +111,18 @@ class Lobby extends React.Component {
     super();
     this.state = {
       users: [1, 2, 3, 4],
-      userId: null,
-      hostId: null,
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
       verticalCategories: [1, 2, 3],
-      nrOfEvaluations: null,
-      doubtCountdown: null,
-      visibleAfterDoubtCountdown: null,
-      playerTurnCountdown: null,
+      nrOfEvaluations: 2,
+      doubtCountdown: 5,
+      visibleAfterDoubtCountdown: 5,
+      playerTurnCountdown: 30,
       horizontalValueCategoryId: null,
       verticalValueCategoryId: null,
       editable: true,
+      created: null,
     };
   }
 
@@ -135,36 +134,8 @@ class Lobby extends React.Component {
     this.setState({[key]: value});
   }
 
-  async componentDidMount() {
-    try {
-      let id = this.props.location.state.userId;
 
-      //TODO: only host can edit stuff?
-
-      this.setState({userId: id});
-
-      const response = await api.get("/games/" + this.state.gameId);
-      const game = new GameModel(response.data);
-
-      this.setState(
-        {users: game.players,
-              nrOfEvaluations: game.nrOfEvaluations,
-              doubtCountdown: game.doubtCountdown,
-              visibleAfterDoubtCountdown: game.visibleAfterDoubtCountdown,
-              playerTurnCountdown: game.playerTurnCountdown,
-              horizontalValueCategoryId: game.horizontalValueCategoryId,
-              verticalValueCategoryId: game.verticalValueCategoryId,
-        });
-
-    } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-    }
-  }
-
-
-  async startGame() {
+  async createGame() {
     try {
 
       const requestBody = JSON.stringify({
@@ -178,7 +149,15 @@ class Lobby extends React.Component {
       });
 
       // update the game
-      const response = await api.put("/games/" + this.state.gameId, requestBody);
+      const response = await api.post("/games", requestBody, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      console.log(response);
+
+      this.handleInputChange("created", 1);
 
 
     } catch (error) {
@@ -189,6 +168,11 @@ class Lobby extends React.Component {
     }
 
   }
+
+  startGame() {
+
+  }
+
 
 
   render() {
@@ -325,14 +309,16 @@ class Lobby extends React.Component {
             </Button>
           </ButtonContainer>
           <ButtonContainer>
-            <Button>
+            <Button
+              style={{marginRight: 60}}>
               <Link
+
                 width="25%"
-                onClick={() => {
-                  this.startGame();
-                }}
+                onClick={() => {this.state.created ?
+                  this.startGame(): this.createGame()}
+                }
               >
-                Start Game
+                {this.state.created ?  "Start Game": "Create Game"}
               </Link>
             </Button>
           </ButtonContainer>

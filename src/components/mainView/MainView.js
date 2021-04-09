@@ -92,7 +92,7 @@ class MainView extends React.Component {
                     width="50%"
                     style={{ margin: "5px" }}
                     onClick={() => {
-                      this.login();
+                      this.props.history.push("/lobby");
                     }}
                   >
                     Create Game

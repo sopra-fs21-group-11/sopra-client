@@ -120,13 +120,14 @@ class Login extends React.Component {
       });
       const response = await api.post("/users/login", requestBody);
 
-      // Get the returned user and update a new object.
-      const user = new User(response.data);
+      // Get the returned user and update a new object
+
+
+      console.log(response);
 
       // Store the token into the local storage.
-      localStorage.setItem("token", user.token);
-      localStorage.setItem("loginUserid", user.id);
-      localStorage.setItem("username", user.username)
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("username", this.state.username);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
       this.props.history.push("/mainView");
@@ -209,7 +210,7 @@ class Login extends React.Component {
                 </Button>
               </ButtonContainer>
 
-              <Error message={this.state.erroMessage}/>
+              <Error message={this.state.errorMessage}/>
 
             </Form>
           </FormContainer>
