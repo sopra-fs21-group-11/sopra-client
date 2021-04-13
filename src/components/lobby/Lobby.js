@@ -111,19 +111,20 @@ class Lobby extends React.Component {
     super();
     this.state = {
       users: [1, 2, 3, 4],
-      userId: null,
-      hostId: null,
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
       verticalCategories: [1, 2, 3],
-      nrOfEvaluations: null,
-      doubtCountdown: null,
-      visibleAfterDoubtCountdown: null,
-      playerTurnCountdown: null,
-      horizontalValueCategoryId: null,
-      verticalValueCategoryId: null,
+      nrOfEvaluations: 2,
+      doubtCountdown: 5,
+      visibleAfterDoubtCountdown: 5,
+      playerTurnCountdown: 30,
+      horizontalValueCategoryId: 1,
+      verticalValueCategoryId: 1,
+      tokenGainOnCorrectGuess: 2,
+      tokenGainOnNearestGuess: 2,
       editable: true,
+      created: null,
     };
   }
 
@@ -135,60 +136,73 @@ class Lobby extends React.Component {
     this.setState({[key]: value});
   }
 
-  async componentDidMount() {
-    try {
-      let id = this.props.location.state.userId;
 
-      //TODO: only host can edit stuff?
-
-      this.setState({userId: id});
-
-      const response = await api.get("/games/" + this.state.gameId);
-      const game = new GameModel(response.data);
-
-      this.setState(
-        {users: game.players,
-              nrOfEvaluations: game.nrOfEvaluations,
-              doubtCountdown: game.doubtCountdown,
-              visibleAfterDoubtCountdown: game.visibleAfterDoubtCountdown,
-              playerTurnCountdown: game.playerTurnCountdown,
-              horizontalValueCategoryId: game.horizontalValueCategoryId,
-              verticalValueCategoryId: game.verticalValueCategoryId,
-        });
-
-    } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-    }
-  }
-
-
-  async startGame() {
+  async createGame() {
     try {
 
       const requestBody = JSON.stringify({
-        hostId: this.state.hostId,
+        hostId: localStorage.getItem("loginUserId"),
+        token: localStorage.getItem("token"),
+        name: localStorage.getItem("username"),
+        playerMin: 3,
+        playerMax: 5,
+        cardEvaluationNumber: 2,
         nrOfEvaluations: this.state.nrOfEvaluations,
         doubtCountdown: this.state.doubtCountdown,
         visibleAfterDoubtCountdown: this.state.visibleAfterDoubtCountdown,
         playerTurnCountdown: this.state.playerTurnCountdown,
         horizontalValueCategoryId: this.state.horizontalValueCategoryId,
-        verticalValueCategoryId: this.state.verticalValueCategoryId
+        verticalValueCategoryId: this.state.verticalValueCategoryId,
+        tokenGainOnCorrectGuess: 2,
+        tokenGainOnNearestGuess: 2
       });
 
-      // update the game
-      const response = await api.put("/games/" + this.state.gameId, requestBody);
+      // create game
+      const response = await api.post("/games", requestBody, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}}
+        );
+
+      console.log(response);
+
+      const url = response.data.location;
+      const id = url.match(/\d+$/)
+
+      localStorage.setItem("gameId", id);
+
+      // create variable for created game
+      this.handleInputChange("created", 1);
 
 
     } catch (error) {
       this.setState({
         errorMessage: error.message,
       });
-      //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
 
   }
+
+  async startGame() {
+    try {
+
+      // start game
+      const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
+        {token: localStorage.getItem("token")},
+        {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      console.log(response);
+
+    } catch (error) {
+      this.setState({
+        errorMessage: error.message,
+      });
+    }
+  }
+
 
 
   render() {
@@ -325,14 +339,16 @@ class Lobby extends React.Component {
             </Button>
           </ButtonContainer>
           <ButtonContainer>
-            <Button>
+            <Button
+              style={{marginRight: 60}}>
               <Link
+
                 width="25%"
-                onClick={() => {
-                  this.startGame();
-                }}
+                onClick={() => {this.state.created ?
+                  this.startGame(): this.createGame()}
+                }
               >
-                Start Game
+                {this.state.created ?  "Start Game": "Create Game"}
               </Link>
             </Button>
           </ButtonContainer>

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
 import User from "../shared/models/User";
-import { withRouter } from "react-router-dom";
+import { withRouter, useParams } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import Error from "../../views/Error";
 import Header from "../../views/Header";
@@ -119,19 +119,21 @@ class Registration extends React.Component {
       });
       const response = await api.post("/users", requestBody);
 
-      // Get the returned user and update a new object.
-      const user = new User(response.data);
+      console.log(response);
+
+      const url = response.data.location;
+      const id = url.match(/\d+$/)
 
       // Store the token into the local storage.
-      localStorage.setItem("token", user.token);
-      localStorage.setItem("loginUserid", user.id);
-      localStorage.setItem("username", user.username);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("loginUserId", id);
+      localStorage.setItem("username", this.state.username);
 
       // registration successfully worked --> navigate to the route /game in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
       //alert(`Something went wrong during the registration: \n${handleError(error)}`);
     }
@@ -207,7 +209,7 @@ class Registration extends React.Component {
                   Go to Login
                 </Button>
               </ButtonContainer>
-              <Error message={this.state.erroMessage}/>
+              <Error message={this.state.errorMessage}/>
             </Form>
           </FormContainer>
         </BaseContainer>

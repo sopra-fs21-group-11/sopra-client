@@ -49,7 +49,7 @@ class MainView extends React.Component {
   logout() {
     try {
       api
-        .get("/users/logout/" + localStorage.getItem("loginUserid"))
+        .get("/users/logout/" + localStorage.getItem("loginUserId"))
         .then((res) => {
           console.log(res);
         });
@@ -60,7 +60,7 @@ class MainView extends React.Component {
       });
     } finally {
       localStorage.removeItem("token");
-      localStorage.removeItem("loginUserid");
+      localStorage.removeItem("loginUserId");
       this.props.history.push("/login");
     }
   }
