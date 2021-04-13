@@ -119,8 +119,10 @@ class Lobby extends React.Component {
       doubtCountdown: 5,
       visibleAfterDoubtCountdown: 5,
       playerTurnCountdown: 30,
-      horizontalValueCategoryId: null,
-      verticalValueCategoryId: null,
+      horizontalValueCategoryId: 1,
+      verticalValueCategoryId: 1,
+      tokenGainOnCorrectGuess: 2,
+      tokenGainOnNearestGuess: 2,
       editable: true,
       created: null,
     };
@@ -139,23 +141,34 @@ class Lobby extends React.Component {
     try {
 
       const requestBody = JSON.stringify({
-        hostId: this.state.hostId,
+        hostId: localStorage.getItem("loginUserId"),
+        token: localStorage.getItem("token"),
+        name: localStorage.getItem("username"),
+        playerMin: 3,
+        playerMax: 5,
+        cardEvaluationNumber: 2,
         nrOfEvaluations: this.state.nrOfEvaluations,
         doubtCountdown: this.state.doubtCountdown,
         visibleAfterDoubtCountdown: this.state.visibleAfterDoubtCountdown,
         playerTurnCountdown: this.state.playerTurnCountdown,
         horizontalValueCategoryId: this.state.horizontalValueCategoryId,
-        verticalValueCategoryId: this.state.verticalValueCategoryId
+        verticalValueCategoryId: this.state.verticalValueCategoryId,
+        tokenGainOnCorrectGuess: 2,
+        tokenGainOnNearestGuess: 2
       });
 
-      // update the game
+      // create game
       const response = await api.post("/games", requestBody, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      });
+          Authorization: `Bearer ${localStorage.getItem("token")}`}}
+        );
 
       console.log(response);
+
+      const url = response.data.location;
+      const id = url.match(/\d+$/)
+
+      localStorage.setItem("gameId", id);
 
       this.handleInputChange("created", 1);
 
@@ -164,13 +177,29 @@ class Lobby extends React.Component {
       this.setState({
         errorMessage: error.message,
       });
-      //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
 
   }
 
-  startGame() {
+  async startGame() {
+    try {
 
+      // start game
+      const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
+        {token: localStorage.getItem("token")},
+        {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      console.log(response);
+
+    } catch (error) {
+      this.setState({
+        errorMessage: error.message,
+      });
+    }
   }
 
 

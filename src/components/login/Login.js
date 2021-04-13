@@ -120,13 +120,14 @@ class Login extends React.Component {
       });
       const response = await api.post("/users/login", requestBody);
 
-      // Get the returned user and update a new object
-
-
       console.log(response);
 
-      // Store the token into the local storage.
+      const url = response.data.location;
+      const id = url.match(/\d+$/)
+
+      // Store the token, id and username into the local storage.
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("loginUserId", id);
       localStorage.setItem("username", this.state.username);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
