@@ -82,7 +82,7 @@ class UserDetails extends React.Component {
       users: {},
       userId: null,
       editable: false,
-      erroMessage:null
+      errorMessage:null
     };
   }
 
@@ -109,7 +109,7 @@ class UserDetails extends React.Component {
     } catch (error) {
       //alert(`Something went wrong during the registration: \n${handleError(error)}`);
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
 
     }
@@ -168,7 +168,7 @@ class UserDetails extends React.Component {
       console.log(response);
     } catch (error) {
       this.setState({
-        erroMessage: error.message,
+        errorMessage: error.message,
       });
       //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
@@ -244,7 +244,7 @@ class UserDetails extends React.Component {
                 Back
               </Button>
             </ButtonContainer>
-            <Error message={this.state.erroMessage}/>
+            <Error message={this.state.errorMessage}/>
           </Form>
         </FormContainer>
       </BaseContainer>
