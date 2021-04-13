@@ -170,7 +170,7 @@ class Lobby extends React.Component {
 
       localStorage.setItem("gameId", id);
 
-      //
+      // create variable for created game
       this.handleInputChange("created", 1);
 
 
