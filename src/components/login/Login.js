@@ -122,12 +122,9 @@ class Login extends React.Component {
 
       console.log(response);
 
-      const url = response.data.location;
-      const id = url.match(/\d+$/)
-
       // Store the token, id and username into the local storage.
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("loginUserId", id);
+      localStorage.setItem("loginUserId", response.data.id);
       localStorage.setItem("username", this.state.username);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter

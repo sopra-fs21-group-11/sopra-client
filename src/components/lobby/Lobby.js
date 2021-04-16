@@ -113,7 +113,7 @@ class Lobby extends React.Component {
   constructor() {
     super();
     this.state = {
-      users: [1, 2, 3, 4],
+      users: [1, 2],
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
@@ -189,10 +189,7 @@ class Lobby extends React.Component {
 
       console.log(response);
 
-      const url = response.data.location;
-      const id = url.match(/\d+$/)
-
-      localStorage.setItem("gameId", id);
+      localStorage.setItem("gameId", response.data.id);
 
       // create variable for created game
       this.handleInputChange("created", true);
@@ -241,7 +238,6 @@ class Lobby extends React.Component {
 
     if (this.state.created) {
       users = <Users
-        disabled={!this.state.created}
         style={{marginRight: "50px"}}
       >
         {this.state.users.map((user) => {
