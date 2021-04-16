@@ -17,6 +17,6 @@ export const Overlay = styled.div`
   align-items: center;
   justify-content: center;
   height: 80vh;
-  background: rgb(255, 213, 0, 0.25);
+  background: rgb(200, 213, 0, 0.25);
   
 `;

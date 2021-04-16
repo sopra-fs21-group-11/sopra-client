@@ -6,8 +6,10 @@ import { Button } from "../../views/design/Button";
 import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
 import {api} from "../../helpers/api";
-import GameModel from "../shared/models/GameModel";
-import {Overlay, OverlayContainer} from "../../views/design/Overlay";
+import {OverlayContainer} from "../../views/design/Overlay";
+
+import SockJS from "sockjs-client";
+import * as Stomp from "@stomp/stompjs";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -17,13 +19,14 @@ const Container = styled(BaseContainer)`
 
 const Users = styled.ul`
   list-style: none;
-  width: 30%;
+  width: 25%;
   margin-top: 0;
   padding-left: 17px;
   padding-right: 17px;
   height: 600px;
   font-size: 16px;
   font-weight: 300;
+  marginRight: "50px";
   background: rgb(255, 255, 255);
   border-left: 4px black solid;
   border-right: 4px black solid;
@@ -38,8 +41,8 @@ const ButtonContainer = styled.div`
 `;
 const Label = styled.label`
   color: black;
-  margin-bottom: 10px;
   text-align: left;
+  margin-top: 5px;
 `;
 
 
@@ -63,7 +66,6 @@ const Heading = styled.h3`
   padding-bottom: 0;
   margin-bottom: 0;
   height: 50px;
-  text-align: center;
   align-items: center;
   display: flex;
   justify-content: center;
@@ -72,6 +74,7 @@ const Heading = styled.h3`
 const SettingsForm = styled.div`
   display: flex;
   flex-direction: column;
+  margin-left: auto;
   width: 70%;
   height: 600px;
   font-size: 16px;
@@ -88,29 +91,29 @@ const SettingsForm = styled.div`
 
 const InputField = styled.input`
   &::placeholder {
-    color: rgba(255, 255, 255, 1);
+    color: rgb(100, 100, 100);
   }
   height: 35px;
   padding-left: 15px;
   margin-left: -4px;
-  border: none;
   border-radius: 20px;
   margin-bottom: 20px;
-  background: rgba(140, 140, 140, 0.2);
+  background: rgba(0, 102, 0, 0.2);
+  border-color: rgb(0, 0, 0, 0.4);
   color: black;
 `;
 
 const CustomOverlay = styled.div`
-  background: rgb(255, 213, 0, 0.25);
+  background: rgb(200, 213, 0, 0.25);
 `;
 
-
+let stompClient;
 
 class Lobby extends React.Component {
   constructor() {
     super();
     this.state = {
-      users: [1, 2, 3, 4],
+      users: [1, 2],
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
@@ -123,6 +126,8 @@ class Lobby extends React.Component {
       verticalValueCategoryId: 1,
       tokenGainOnCorrectGuess: 2,
       tokenGainOnNearestGuess: 2,
+      playerMin: 2,
+      playerMax: 6,
       editable: true,
       created: null,
     };
@@ -134,6 +139,25 @@ class Lobby extends React.Component {
 
   handleInputChange(key, value) {
     this.setState({[key]: value});
+  }
+
+  initializeStomp(){
+    const socket = new SockJS('http://localhost:8080/gs-guide-websocket');
+    stompClient = Stomp.Stomp.over(socket);
+    var sessionId;
+    stompClient.connect({}, function() {
+      var url = stompClient.ws._transport.url;
+      url = url.replace("ws://localhost:8080/gs-guide-websocket/",  "");
+      url = url.replace("/websocket", "");
+      url = url.replace(/^[0-9]+\//, "");
+      sessionId = url;
+
+      stompClient.subscribe('/topic/game/queue/specific-game-game'+sessionId, function(test){ //
+        alert(JSON.parse(test.body).content);
+      });
+      stompClient.send("/app/game", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
+
+    });
   }
 
 
@@ -165,13 +189,13 @@ class Lobby extends React.Component {
 
       console.log(response);
 
-      const url = response.data.location;
-      const id = url.match(/\d+$/)
-
-      localStorage.setItem("gameId", id);
+      localStorage.setItem("gameId", response.data.id);
 
       // create variable for created game
-      this.handleInputChange("created", 1);
+      this.handleInputChange("created", true);
+      this.handleInputChange("editable", false);
+
+      this.initializeStomp();
 
 
     } catch (error) {
@@ -206,29 +230,87 @@ class Lobby extends React.Component {
 
 
   render() {
+    let users;
+    let titleUsers;
+    let settingsStyle;
+    let styleHeading;
+    let settingsText;
+
+    if (this.state.created) {
+      users = <Users
+        style={{marginRight: "50px"}}
+      >
+        {this.state.users.map((user) => {
+          return (<Name>{user}</Name>);
+        })}
+      </Users>
+      titleUsers = <Heading style={{width: "25%", marginRight: "50px"}}>Players</Heading>
+      settingsStyle = {}
+      styleHeading = {width: "70%", marginLeft: "auto"}
+    }
+
+    else {
+      settingsStyle = {marginRight: "auto"}
+      styleHeading = {width: "70%", marginLeft: "auto", marginRight: "auto"}
+      settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
+        " You cannot change them anymore once the game is created."
+    }
+
+
     return (
       <OverlayContainer>
         <CustomOverlay>
         <h2
         style={{textAlign: "center", paddingTop: "20px"}}>Game Lobby</h2>
         <Container style={{display: "flex"}}>
-          <Heading style={{width: "30%", marginRight: "50px"}}>Players</Heading>
-          <Heading style={{width: "70%"}}>Game Settings</Heading>
+          {titleUsers}
+          <Heading style={styleHeading}>Game Settings</Heading>
         </Container>
         <Container style={{display: "flex"}}>
-          <Users
-            style={{marginRight: "50px"}}
-          >
-            {this.state.users.map((user) => {
-              return (<Name>{user}</Name>);
-            })}
-          </Users>
-          <SettingsForm>
+          {users}
+          <SettingsForm
+          style={settingsStyle}>
+            <p
+              style={{color: "black", textAlign: "left", fontSize: 18}}
+            >
+              {settingsText}
+            </p>
+            <Label>Min Players</Label>
+            <select
+              disabled={!this.state.editable}
+              name="playerMin"
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
+              defaultValue={this.state.playerMin}
+              onChange={(e) => {
+                this.handleInputChange("playerMin", e.target.value);
+              }}>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+            <Label>Max Players</Label>
+            <select
+              disabled={!this.state.editable}
+              name="playerMax"
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
+              defaultValue={this.state.playerMax}
+              onChange={(e) => {
+                this.handleInputChange("playerMax", e.target.value);
+              }}>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+            </select>
             <Label>Number of evaluations</Label>
             <select
               disabled={!this.state.editable}
               name="evaluations"
-              style={{marginBottom: 10}}
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.nrOfEvaluations}
               onChange={(e) => {
                 this.handleInputChange("nrOfEvaluations", e.target.value);
@@ -242,9 +324,8 @@ class Lobby extends React.Component {
             <Label>Doubt countdown time</Label>
             <InputField
               disabled={!this.state.editable}
-              type={"time"}
-              defaultValue={this.state.doubtCountdown}
-              step="1"
+              placeholder="Enter time in seconds ..."
+              defaultValue={this.state.created ? this.state.doubtCountdown + " seconds" : null}
               onChange={(e) => {
                 this.handleInputChange("doubtCountdown", e.target.value);
               }}
@@ -252,9 +333,8 @@ class Lobby extends React.Component {
             <Label>How long cards are visible after doubt</Label>
             <InputField
               disabled={!this.state.editable}
-              type={"time"}
-              step="1"
-              defaultValue={this.state.visibleAfterDoubtCountdown}
+              placeholder="Enter time in seconds ..."
+              defaultValue={this.state.created ? this.state.visibleAfterDoubtCountdown + " seconds" : null}
               onChange={(e) => {
                 this.handleInputChange("visibleAfterDoubtCountdown", e.target.value);
               }}
@@ -262,9 +342,8 @@ class Lobby extends React.Component {
             <Label>Countdown for one player turn</Label>
             <InputField
               disabled={!this.state.editable}
-              type={"time"}
-              step="1"
-              defaultValue={this.state.playerTurnCountdown}
+              placeholder="Enter time in seconds ... "
+              defaultValue={this.state.created ? this.state.playerTurnCountdown + " seconds" : null}
               onChange={(e) => {
                 this.handleInputChange("playerTurnCountdown", e.target.value);
               }}
@@ -272,7 +351,7 @@ class Lobby extends React.Component {
             <Label>Tokens for correct Guess</Label>
             <select
               disabled={!this.state.editable}
-              style={{marginBottom: 10}}
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.tokenGainOnCorrectGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
@@ -287,7 +366,7 @@ class Lobby extends React.Component {
             <select
               disabled={!this.state.editable}
               name="tokenGainOnNearestGuess"
-              style={{marginBottom: 10}}
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.tokenGainOnNearestGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
@@ -301,7 +380,7 @@ class Lobby extends React.Component {
             <Label>Horizontal comparison type</Label>
             <select
               disabled={!this.state.editable}
-              style={{marginBottom: 10}}
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.horizontalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("horizontalValueCategoryId", e.target.value);
@@ -313,7 +392,7 @@ class Lobby extends React.Component {
             <Label>Vertical comparison type</Label>
             <select
               disabled={!this.state.editable}
-              style={{marginBottom: 10}}
+              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.verticalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("verticalValueCategoryId", e.target.value);
@@ -325,7 +404,7 @@ class Lobby extends React.Component {
           </SettingsForm>
         </Container>
         <Container
-          style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
+          style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
           <ButtonContainer>
             <Button style={{marginRight: 60}}>
               <Link

@@ -75,7 +75,7 @@ const InputField = styled.input`
 
 
 const CustomOverlay = styled.div`
-  background: rgb(255, 213, 0, 0.25);
+  background: rgb(200, 213, 0, 0.25);
 `;
 const Label = styled.label`
   color: black;
