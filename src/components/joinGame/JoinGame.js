@@ -101,6 +101,7 @@ class JoinGame extends React.Component {
   }
 
   componentWillUnmount() {
+    window.clearInterval(this.timer);
     this.timer = null;
   }
 
