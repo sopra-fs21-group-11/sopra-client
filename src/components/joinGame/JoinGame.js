@@ -136,7 +136,10 @@ class JoinGame extends React.Component {
       });
 
       console.log(response);
-      this.props.history.push("/lobby");
+      this.props.history.push({
+        pathname: "/lobby",
+        state: { gameId: gameid },
+      });
     } catch (error) {
       this.setState({
         errorMessage: error.message,

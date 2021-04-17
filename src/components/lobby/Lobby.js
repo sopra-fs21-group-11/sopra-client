@@ -130,9 +130,21 @@ class Lobby extends React.Component {
       playerMax: 6,
       editable: true,
       created: null,
+      host:true
     };
   }
-
+  async componentDidMount() {
+     if(this.props.location.state)
+     {
+      let gameId = this.props.location.state.gameId;
+      this.setState({
+        gameId,
+        created:true,
+        editable:false,
+        host:false
+      });
+     }
+    }
   exitLobby() {
     this.props.history.push("/mainView")
   }
@@ -419,6 +431,7 @@ class Lobby extends React.Component {
           </ButtonContainer>
           <ButtonContainer>
             <Button
+               disabled={!this.state.host}
               style={{marginRight: 60}}>
               <Link
 
