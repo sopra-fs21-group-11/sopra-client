@@ -3,11 +3,12 @@ import React from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
-import User from "../shared/models/User";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
-import Error from "../../views/Error";
+import Card from "../../views/design/Card";
+import DirectionCard from "../../views/design/DirectionCard";
+import CardBackSide from "../../views/design/CardBackSide";
 
 const MenuContainer = styled.div`
   height: 500px;
@@ -153,6 +154,9 @@ class MainView extends React.Component {
                   
               </NavigationContainer>
             </MenuContainer>
+            <Card sizeCard={200} sizeFont={100}/>
+            <DirectionCard sizeCard={100} sizeFont={100}/>
+            <CardBackSide sizeCard={100} sizeFont={100}/>
           </BaseContainer>
         </Overlay>
       </OverlayContainer>
