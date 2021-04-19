@@ -167,7 +167,7 @@ class Lobby extends React.Component {
       stompClient.subscribe('/topic/game/queue/specific-game-game'+sessionId, function(test){ //
         alert(JSON.parse(test.body).content);
       });
-      stompClient.send("/app/game", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
+      
 
     });
   }
@@ -231,7 +231,7 @@ class Lobby extends React.Component {
       });
 
       console.log(response);
-
+		stompClient.send("/app/game", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
     } catch (error) {
       this.setState({
         errorMessage: error.message,
