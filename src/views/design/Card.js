@@ -53,7 +53,7 @@ class Card extends React.Component{
     let textContainerHeigth = (standardCardHeight - 10) * this.props.sizeCard /100;
     let topOffset = standardTopOffset * this.props.sizeCard /100;
     let sizeFont = standardFontSize * this.props.sizeFont/100;
-    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`}
+    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, margin: "1%"}
     let cardTextStyle = {fontSize: `${sizeFont}px`, width: `${textContainerWidth}px`}
     let textContainerContainerStyle = {width: `${textContainerWidth}px`, height: `${textContainerHeigth}px`, top: `${topOffset}px`}
     let textContainerStyle;
@@ -86,7 +86,7 @@ class Card extends React.Component{
           <CardTextContainer style={textContainerStyle}>
             <CardText style={cardTextStyle}>
               {/* should be replaced by the this.props.cardName */}
-              Lausanneaskadkasdlkflasldfladasdfasdfasdfasdfasdfadsfasdfasdfadsfadsfasdfadsf
+              Lausanne
             </CardText>
           </CardTextContainer>
         </CardTextContainerContainer>

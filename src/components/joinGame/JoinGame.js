@@ -7,6 +7,10 @@ import Error from "../../views/Error";
 import { api } from "../../helpers/api";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer } from "../../views/design/Overlay";
+import SockJS from "sockjs-client";
+import * as Stomp from "@stomp/stompjs";
+import Lobby from "../lobby/Lobby";
+import * as stompClient from "sockjs-client";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -87,6 +91,7 @@ const Link = styled.a`
  color: black
 `;
 
+
 class JoinGame extends React.Component {
   constructor() {
     super();
@@ -95,6 +100,7 @@ class JoinGame extends React.Component {
       errorMessage: null,
     };
   }
+
 
   exitJoinGame() {
     this.props.history.push("/mainView");
@@ -107,7 +113,7 @@ class JoinGame extends React.Component {
 
   async componentDidMount() {
     //Load Games for the first time
-    this.getGames();
+    await this.getGames();
     this.timer = setInterval(() => this.getGames(), 10000); //polling every 10 seconds
   }
   async getGames() {
@@ -130,7 +136,7 @@ class JoinGame extends React.Component {
     try {
 
        //Api Call to join the Game by ID
-      const response = await api.get("/games/" + gameid, {
+      const response = await api.post("/games/" + gameid, {},{
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -138,9 +144,19 @@ class JoinGame extends React.Component {
 
       console.log(response);
       this.props.history.push({
-        pathname: "/lobby",
+        pathname: "/game/lobby",
         state: { gameId: gameid },
       });
+
+      stompClient.send("/app/game", {}, JSON.stringify(
+        {
+          'name':localStorage.getItem("username"),
+          'id':localStorage.getItem("loginUserId"),
+          'gameId':localStorage.getItem("gameId")
+        }));
+
+
+
     } catch (error) {
       this.setState({
         errorMessage: error.message,

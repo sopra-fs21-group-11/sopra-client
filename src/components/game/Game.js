@@ -11,6 +11,7 @@ import {OverlayContainer} from "../../views/design/Overlay";
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
 import Card from "../../views/design/Card";
+import DirectionCard from "../../views/design/DirectionCard";
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -19,10 +20,11 @@ const Container = styled(BaseContainer)`
 `;
 
 const Notification = styled(BaseContainer)`
-  color: white;
+  color: black;
   border: 4px black solid;
   width: 100%;
   margin-left: 0;
+  background: white;
 `;
 
 const LeftFooter = styled(BaseContainer)`
@@ -70,11 +72,53 @@ const Footer = styled.footer`
   background: rgb(200, 213, 0, 0.25);
 `;
 
-const CardsContainer = styled(BaseContainer)`
+const CardsContainer = styled.div`
   color: white;
   text-align: center;
   display: flex;
   justify-content: center;
+  width: 100%;
+  height: 75%;
+`;
+
+const MiddleCardsContainer = styled.div`
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: auto;
+  height: 100%;
+`;
+const StartingCardContainer = styled.div`
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: auto;
+  height: 10%;
+`;
+
+const HorizontalCardContainer = styled.div`
+  color: white;
+  display: flex;
+  flex-direction: row;  
+  justify-content: flex-start;
+  align-items: center;
+  width: auto;
+  height: 100%;
+  margin-left: 1%;
+  margin-right: 1%;
+`;
+const VerticalCardContainer = styled.div`
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: auto;
+  height: 45%;
 `;
 
 const PlayerName = styled.p`
@@ -105,8 +149,26 @@ const Token = styled.img`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin: 5px;
+  height: fit-content;
 `;
+
+const AddButton = styled.div`
+  &:hover {
+    transform: translateY(-2px);
+  }
+  font-weight: 1000;
+  text-transform: uppercase;
+  font-size: 30px;
+  text-align: center;
+  color: black;
+  justify-content: center;
+  height: 35px;
+  padding: 0;
+  cursor: ${props => (props.disabled ? "default" : "pointer")};
+`;
+
+
 const Label = styled.label`
   color: white;
   margin-bottom: 10px;
@@ -125,7 +187,7 @@ class Game extends React.Component {
       users: null,
       hostId: localStorage.getItem("hostId"),
       username: localStorage.getItem("username"),
-      currentPlayer: null,
+      currentPlayer: localStorage.getItem("loginUserId"),
       errorMessage:null,
       numTokens: 3,
     };
@@ -135,8 +197,6 @@ class Game extends React.Component {
 
   async componentDidMount() {
     try {
-
-
 
 
 
@@ -159,16 +219,87 @@ class Game extends React.Component {
       return tokens
     }
 
+    placeCard() {
+      console.log("hello");
+
+    }
+
 
   render() {
     return (
       <GameContainer>
-        <Header/>
-        <Container>
           <CardsContainer>
-            <Label>this is where the cards go</Label>
+            <HorizontalCardContainer>
+                <AddButton>
+                  <Link onClick={this.placeCard()}>
+                    +
+                  </Link>
+                </AddButton>
+              <Card sizeCard={120} sizeFont={120}/>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+            </HorizontalCardContainer>
+            <MiddleCardsContainer>
+            <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+              <Card sizeCard={120} sizeFont={120}/>
+
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+              <Card sizeCard={120} sizeFont={120}/>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+            </VerticalCardContainer>
+              <StartingCardContainer>
+                <Card sizeCard={120} sizeFont={120}/>
+              </StartingCardContainer>
+            <VerticalCardContainer>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+              <Card sizeCard={120} sizeFont={120}/>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+            </VerticalCardContainer>
+            </MiddleCardsContainer>
+            <HorizontalCardContainer>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+              <Card sizeCard={120} sizeFont={120}/>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+              <Card sizeCard={120} sizeFont={120}/>
+                <AddButton>
+                  <Link>
+                    +
+                  </Link>
+                </AddButton>
+            </HorizontalCardContainer>
           </CardsContainer>
-        </Container>
         <Footer>
           <LeftFooter>
             <PlayerName>
@@ -186,7 +317,9 @@ class Game extends React.Component {
                 <Label>Countdown</Label>
               </Container>
               <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-                <Card ></Card>
+                {(this.state.currentPlayer === localStorage.getItem("loginUserId"))
+                ? <Card sizeCard={150} sizeFont={130}/>
+                : <Label>?</Label>}
               </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button>
@@ -197,7 +330,12 @@ class Game extends React.Component {
               </ButtonContainer>
             </Container>
             <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
-              <Notification>Notification</Notification>
+              <Notification>
+                {(this.state.currentPlayer === localStorage.getItem("loginUserId"))
+                  ? ">>> It is your turn! Place the card above on the board by clicking on one of the plus signs."
+                  : ">>> It's another player's turn"}
+
+              </Notification>
             </Container>
           </RightFooter>
         </Footer>

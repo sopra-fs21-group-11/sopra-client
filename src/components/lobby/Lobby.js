@@ -159,11 +159,16 @@ class Lobby extends React.Component {
       url = url.replace(/^[0-9]+\//, "");
       sessionId = url;
 
-      stompClient.subscribe('/topic/userOverview/queue/specific-userOverview-userOverview'+sessionId, function(test){ //
+      stompClient.subscribe('/topic/game/queue/specific-game-game'+sessionId, function(test){ //
         alert(JSON.parse(test.body).content);
       });
 
-      stompClient.send("/app/userOverview", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
+      stompClient.send("/app/game", {}, JSON.stringify(
+        {
+          'name':localStorage.getItem("username"),
+          'id':localStorage.getItem("loginUserId"),
+          'gameId':localStorage.getItem("gameId")
+        }));
 
     });
   }
@@ -207,6 +212,8 @@ class Lobby extends React.Component {
       this.initializeStomp();
 
 
+
+
     } catch (error) {
       this.setState({
         errorMessage: error.message,
@@ -228,9 +235,14 @@ class Lobby extends React.Component {
       });
 
       console.log(response);
-		stompClient.send("/app/game", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
+		  stompClient.send("/app/game", {}, JSON.stringify(
+		    {
+          'name':localStorage.getItem("username"),
+          'id':localStorage.getItem("loginUserId"),
+          'gameId':localStorage.getItem("gameId")
+		    }));
 
-      this.props.history.push("/game");
+		  this.props.history.push("/game");
 
 
 
@@ -266,8 +278,8 @@ class Lobby extends React.Component {
     else {
       settingsStyle = {marginRight: "auto"}
       styleHeading = {width: "70%", marginLeft: "auto", marginRight: "auto"}
-      settingsText = "You can change all the userOverview settings here. If you don't change them, the default settings will be used." +
-        " You cannot change them anymore once the userOverview is created."
+      settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
+        " You cannot change them anymore once the game is created."
     }
 
 
