@@ -10,6 +10,7 @@ import {OverlayContainer} from "../../views/design/Overlay";
 
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
+import {InputField} from "../../views/design/InputField";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -47,6 +48,7 @@ const Label = styled.label`
 
 
 const Link = styled.a`
+ width: 25%;
  margin: 10px;
  color: black
 `;
@@ -89,18 +91,10 @@ const SettingsForm = styled.div`
   overflow: scroll;
 `;
 
-const InputField = styled.input`
-  &::placeholder {
-    color: rgb(100, 100, 100);
-  }
-  height: 35px;
-  padding-left: 15px;
-  margin-left: -4px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-  background: rgba(0, 102, 0, 0.2);
+const CustomSelect = styled.select`
+  margin-bottom: 10px;
   border-color: rgb(0, 0, 0, 0.4);
-  color: black;
+  background: rgba(0, 102, 0, 0.2);
 `;
 
 const CustomOverlay = styled.div`
@@ -114,6 +108,7 @@ class Lobby extends React.Component {
     super();
     this.state = {
       users: [1, 2],
+      possibleNumPlayers: [2, 3, 4, 5, 6],
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
@@ -164,10 +159,11 @@ class Lobby extends React.Component {
       url = url.replace(/^[0-9]+\//, "");
       sessionId = url;
 
-      stompClient.subscribe('/topic/game/queue/specific-game-game'+sessionId, function(test){ //
+      stompClient.subscribe('/topic/userOverview/queue/specific-userOverview-userOverview'+sessionId, function(test){ //
         alert(JSON.parse(test.body).content);
       });
-      
+
+      stompClient.send("/app/userOverview", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
 
     });
   }
@@ -193,7 +189,7 @@ class Lobby extends React.Component {
         tokenGainOnNearestGuess: 2
       });
 
-      // create game
+      // create userOverview
       const response = await api.post("/games", requestBody, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`}}
@@ -202,8 +198,9 @@ class Lobby extends React.Component {
       console.log(response);
 
       localStorage.setItem("gameId", response.data.id);
+      localStorage.setItem("hostId", this.state.hostId);
 
-      // create variable for created game
+      // create variable for created userOverview
       this.handleInputChange("created", true);
       this.handleInputChange("editable", false);
 
@@ -221,7 +218,7 @@ class Lobby extends React.Component {
   async startGame() {
     try {
 
-      // start game
+      // start userOverview
       const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
         {token: localStorage.getItem("token")},
         {
@@ -232,6 +229,11 @@ class Lobby extends React.Component {
 
       console.log(response);
 		stompClient.send("/app/game", {}, JSON.stringify({'name':localStorage.getItem("username"), 'id':localStorage.getItem("loginUserId"), 'gameId':localStorage.getItem("gameId")}));
+
+      this.props.history.push("/game");
+
+
+
     } catch (error) {
       this.setState({
         errorMessage: error.message,
@@ -264,8 +266,8 @@ class Lobby extends React.Component {
     else {
       settingsStyle = {marginRight: "auto"}
       styleHeading = {width: "70%", marginLeft: "auto", marginRight: "auto"}
-      settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
-        " You cannot change them anymore once the game is created."
+      settingsText = "You can change all the userOverview settings here. If you don't change them, the default settings will be used." +
+        " You cannot change them anymore once the userOverview is created."
     }
 
 
@@ -288,41 +290,30 @@ class Lobby extends React.Component {
               {settingsText}
             </p>
             <Label>Min Players</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              name="playerMin"
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.playerMin}
               onChange={(e) => {
                 this.handleInputChange("playerMin", e.target.value);
               }}>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </select>
+              {this.state.possibleNumPlayers.map((num) => {
+                return (<option>{num}</option>);
+              })}
+            </CustomSelect>
             <Label>Max Players</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              name="playerMax"
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.playerMax}
               onChange={(e) => {
                 this.handleInputChange("playerMax", e.target.value);
               }}>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-              <option>6</option>
-            </select>
+              {this.state.possibleNumPlayers.map((num) => {
+                return (<option>{num}</option>);
+              })}
+            </CustomSelect>
             <Label>Number of evaluations</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              name="evaluations"
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.nrOfEvaluations}
               onChange={(e) => {
                 this.handleInputChange("nrOfEvaluations", e.target.value);
@@ -332,7 +323,7 @@ class Lobby extends React.Component {
               <option>3</option>
               <option>4</option>
               <option>5</option>
-            </select>
+            </CustomSelect>
             <Label>Doubt countdown time</Label>
             <InputField
               disabled={!this.state.editable}
@@ -361,9 +352,8 @@ class Lobby extends React.Component {
               }}
             />
             <Label>Tokens for correct Guess</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.tokenGainOnCorrectGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
@@ -373,12 +363,10 @@ class Lobby extends React.Component {
               <option>3</option>
               <option>4</option>
               <option>5</option>
-            </select>
+            </CustomSelect>
             <Label>Tokens on nearest guess</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              name="tokenGainOnNearestGuess"
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.tokenGainOnNearestGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
@@ -388,11 +376,10 @@ class Lobby extends React.Component {
               <option>3</option>
               <option>4</option>
               <option>5</option>
-            </select>
+            </CustomSelect>
             <Label>Horizontal comparison type</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.horizontalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("horizontalValueCategoryId", e.target.value);
@@ -400,11 +387,10 @@ class Lobby extends React.Component {
             >{this.state.horizontalCategories.map((category) => {
               return (<option>{category}</option>);
             })}
-            </select>
+            </CustomSelect>
             <Label>Vertical comparison type</Label>
-            <select
+            <CustomSelect
               disabled={!this.state.editable}
-              style={{marginBottom: 10, borderColor: "rgb(0, 0, 0, 0.4)", background: "rgba(0, 102, 0, 0.2)"}}
               defaultValue={this.state.verticalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("verticalValueCategoryId", e.target.value);
@@ -412,7 +398,7 @@ class Lobby extends React.Component {
             >{this.state.verticalCategories.map((category) => {
               return (<option>{category}</option>);
             })}
-            </select>
+            </CustomSelect>
           </SettingsForm>
         </Container>
         <Container
@@ -420,7 +406,6 @@ class Lobby extends React.Component {
           <ButtonContainer>
             <Button style={{marginRight: 60}}>
               <Link
-                width="25%"
                 onClick={() => {
                   this.exitLobby();
                 }}
@@ -434,11 +419,8 @@ class Lobby extends React.Component {
                disabled={!this.state.host}
               style={{marginRight: 60}}>
               <Link
-
-                width="25%"
                 onClick={() => {this.state.created ?
-                  this.startGame(): this.createGame()}
-                }
+                  this.startGame(): this.createGame()}}
               >
                 {this.state.created ?  "Start Game": "Create Game"}
               </Link>

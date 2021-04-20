@@ -29,7 +29,7 @@ const Form = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: rgb(255, 213, 0, 0.25);
+  background: rgb(200, 213, 0, 0.25);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
@@ -127,7 +127,7 @@ class Login extends React.Component {
       localStorage.setItem("loginUserId", response.data.id);
       localStorage.setItem("username", this.state.username);
 
-      // Login successfully worked --> navigate to the route /game in the GameRouter
+      // Login successfully worked --> navigate to the route /userOverview in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
       this.setState({

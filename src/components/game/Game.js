@@ -3,20 +3,105 @@ import React from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
-import { Spinner } from "../../views/design/Spinner";
-import { Button } from "../../views/design/Button";
 import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
+import Header from "../../views/Header";
+import {OverlayContainer} from "../../views/design/Overlay";
+
+import token from "../../views/Token.png";
+import {Button} from "../../views/design/Button";
+import Card from "../../views/design/Card";
 
 const Container = styled(BaseContainer)`
-  color: white;
-  text-align: center;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
 `;
 
-const Users = styled.ul`
-  list-style: none;
-  padding-left: 0;
+const Notification = styled(BaseContainer)`
+  color: white;
+  border: 4px black solid;
+  width: 100%;
+  margin-left: 0;
 `;
+
+const LeftFooter = styled(BaseContainer)`
+  color: white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+`;
+
+const RightFooter = styled(BaseContainer)`
+  color: white;
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+`;
+
+const MiddleFooter = styled(BaseContainer)`
+  color: white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  width: 20%;
+`;
+
+const GameContainer = styled.div`
+  //min-height: 500px;
+  width: 100vw;
+  height: 95vh;
+  margin: 0;
+  position: absolute;
+  bottom: 0;
+  -ms-transform: translateY(0%);
+  transform: translateY(0%);
+`;
+
+const Footer = styled.footer`
+  color: white;
+  position: absolute;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  min-height: 25%;
+  bottom: 0;
+  background: rgb(200, 213, 0, 0.25);
+`;
+
+const CardsContainer = styled(BaseContainer)`
+  color: white;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+`;
+
+const PlayerName = styled.p`
+  margin-top: 30px;
+  color: black;
+  font-size: 16px;
+  font-weight: 300;
+  width: 5%;
+  text-transform: uppercase;
+`;
+
+const TokenContainer = styled(BaseContainer)`
+  color: white;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  margin: 0;
+  padding: 0;
+`;
+
+const Token = styled.img`
+  margin: 5px;
+  height: 50px;
+  width: 50px;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -29,7 +114,7 @@ const Label = styled.label`
 `;
 const Link = styled.a`
  margin: 10px;
- color: green
+ color: black;
 `;
 
 
@@ -38,57 +123,23 @@ class Game extends React.Component {
     super();
     this.state = {
       users: null,
-      userId: null,
-      errorMessage:null
+      hostId: localStorage.getItem("hostId"),
+      username: localStorage.getItem("username"),
+      currentPlayer: null,
+      errorMessage:null,
+      numTokens: 3,
     };
   }
 
-  logout() {
-    try {
-      api
-        .get("/users/logout/" + localStorage.getItem("loginUserid"))
-        .then((res) => {
-          console.log(res);
-        });
-    } catch (error) {
-      //console.log( `Something went wrong while logout the users: \n${handleError(error)}`);
-      this.setState({
-        errorMessage: error.message,
-      });
-    } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("loginUserid");
-      this.props.history.push("/login");
-    }
-  }
-  goToDetails(userId) {
-    this.props.history.push({
-      pathname: "/userDetails",
-      state: { userId: userId },
-    });
-  }
+
 
   async componentDidMount() {
     try {
-      //this.setState({ loggedInUserId:this.props.location.state.loggedInUserId });
-      const response = await api.get("/users");
-      // delays continuous execution of an async operation for 1 second.
-      // This is just a fake async call, so that the spinner can be displayed
-      // feel free to remove it :)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Get the returned users and update the state.
-      this.setState({ users: response.data });
 
-      // This is just some data for you to see what is available.
-      // Feel free to remove it.
-      console.log("request to:", response.request.responseURL);
-      console.log("status code:", response.status);
-      console.log("status text:", response.statusText);
-      console.log("requested data:", response.data);
 
-      // See here to get more data.
-      console.log(response);
+
+
     } catch (error) {
       this.setState({
         errorMessage: error.message,
@@ -97,64 +148,63 @@ class Game extends React.Component {
     }
   }
 
+  countTokens() {
+      let tokens = []
+
+      // Outer loop to create parent
+      for (let i = 0; i < this.state.numTokens; i++) {
+        //Create the parent and add the children
+        tokens.push(<Token src={token}/>)
+      }
+      return tokens
+    }
+
+
   render() {
     return (
-      <Container>
-        <h2>List of all Registered users </h2>
-        <p>Click to open the user details:</p>
-        <Link
-          style={{ color: "red" }}
-          width="25%"
-          onClick={() => {
-            this.logout();
-          }}
-        >
-          Logout
-        </Link>
-        <Link
-          width="25%"
-          onClick={() => {
-            this.goToDetails(localStorage.getItem("loginUserid"));
-          }}
-        >
-          Edit profile
-        </Link>
-        {!this.state.users ? (
-          <Spinner />
-        ) : (
-          <Container style={{ display: "flex" }}>
-            <Container>
-              <Users>
-                {this.state.users.map((user) => {
-                  return (
-                    <ButtonContainer>
-                      <Button
-                        width="100%"
-                        onClick={() => {
-                          this.goToDetails(user.id);
-                        }}
-                      >
-                        {user.username}
-                      </Button>
-                      <Label
-                        style={
-                          user.status === "ONLINE"
-                            ? { margin: "5px", color: "green" }
-                            : { margin: "5px", color: "red" }
-                        }
-                      >
-                        {" "}
-                        {user.status}
-                      </Label>
-                    </ButtonContainer>
-                  );
-                })}
-              </Users>
+      <GameContainer>
+        <Header/>
+        <Container>
+          <CardsContainer>
+            <Label>this is where the cards go</Label>
+          </CardsContainer>
+        </Container>
+        <Footer>
+          <LeftFooter>
+            <PlayerName>
+              {this.state.username}
+            </PlayerName>
+              <TokenContainer>
+                {this.countTokens()}
+              </TokenContainer>
+          </LeftFooter>
+          <MiddleFooter>
+          </MiddleFooter>
+          <RightFooter>
+            <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
+              <Container style={{height: "100%", width: "25%"}}>
+                <Label>Countdown</Label>
+              </Container>
+              <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
+                <Card ></Card>
+              </Container >
+              <ButtonContainer style={{height: "100%", width: "25%"}}>
+                <Button>
+                  <Link>
+                    Help Button
+                  </Link>
+                </Button>
+              </ButtonContainer>
             </Container>
-            <Error message={this.state.errorMessage}/>
-          </Container>
-        )}
-      </Container>
+            <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
+              <Notification>Notification</Notification>
+            </Container>
+          </RightFooter>
+        </Footer>
+        <Container style={{ display: "flex" }}>
+                <Error message={this.state.errorMessage}/>
+        </Container>
+      </GameContainer>
     );
   }
 }

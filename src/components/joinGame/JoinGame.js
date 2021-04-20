@@ -106,7 +106,7 @@ class JoinGame extends React.Component {
   }
 
   async componentDidMount() {
-    //Load Games for the first time 
+    //Load Games for the first time
     this.getGames();
     this.timer = setInterval(() => this.getGames(), 10000); //polling every 10 seconds
   }
@@ -167,7 +167,7 @@ class JoinGame extends React.Component {
           <Container style={{ display: "flex" }}>
             <Games style={{ marginRight: "50px" }}>
               {
-                this.state.games.map((game,index) => 
+                this.state.games.map((game,index) =>
                     <Button
                       width="100%"
                       style={{ backgroundColor: "gray" }}
@@ -178,7 +178,7 @@ class JoinGame extends React.Component {
                     >
                      {game.name}
                     </Button>
-                  
+
                 )}
             </Games>
             { /*
@@ -223,7 +223,7 @@ class JoinGame extends React.Component {
               </Link>
             </Button>
           </ButtonContainer>
-         
+
         </Container>
         </CustomOverlay>
         <Error message={this.state.errorMessage} />
