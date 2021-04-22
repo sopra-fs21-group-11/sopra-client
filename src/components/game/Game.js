@@ -12,6 +12,9 @@ import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
 import Card from "../../views/design/Card";
 import DirectionCard from "../../views/design/DirectionCard";
+import SockJS from "sockjs-client";
+import * as Stomp from "@stomp/stompjs";
+import {stompClient} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -179,25 +182,21 @@ const Link = styled.a`
  color: black;
 `;
 
-
 class Game extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       users: null,
       hostId: localStorage.getItem("hostId"),
-      username: localStorage.getItem("username"),
-      currentPlayer: localStorage.getItem("loginUserId"),
+      username: null,
+      currentPlayer: localStorage.getItem("hostId"),
       errorMessage:null,
       numTokens: 3,
     };
   }
 
-
-
   async componentDidMount() {
     try {
-
 
 
     } catch (error) {
@@ -219,8 +218,9 @@ class Game extends React.Component {
       return tokens
     }
 
-    placeCard() {
-      console.log("hello");
+  async placeCard() {
+
+    stompClient.send("/app/game/turn", {simpSessionId: localStorage.getItem("sessionId")}, "Hello");
 
     }
 
@@ -231,7 +231,7 @@ class Game extends React.Component {
           <CardsContainer>
             <HorizontalCardContainer>
                 <AddButton>
-                  <Link onClick={this.placeCard()}>
+                  <Link onClick={() => {this.placeCard()}}>
                     +
                   </Link>
                 </AddButton>

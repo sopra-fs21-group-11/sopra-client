@@ -11,6 +11,7 @@ import {OverlayContainer} from "../../views/design/Overlay";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {InputField} from "../../views/design/InputField";
+import {initializeStomp} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -148,32 +149,6 @@ class Lobby extends React.Component {
     this.setState({[key]: value});
   }
 
-  initializeStomp(){
-    const socket = new SockJS('http://localhost:8080/gs-guide-websocket');
-    stompClient = Stomp.Stomp.over(socket);
-    var sessionId;
-    stompClient.connect({}, function() {
-      var url = stompClient.ws._transport.url;
-      url = url.replace("ws://localhost:8080/gs-guide-websocket/",  "");
-      url = url.replace("/websocket", "");
-      url = url.replace(/^[0-9]+\//, "");
-      sessionId = url;
-
-      stompClient.subscribe('/topic/game/queue/specific-game-game'+sessionId, function(test){ //
-        alert(JSON.parse(test.body).content);
-      });
-
-      stompClient.send("/app/game", {}, JSON.stringify(
-        {
-          'name':localStorage.getItem("username"),
-          'id':localStorage.getItem("loginUserId"),
-          'gameId':localStorage.getItem("gameId")
-        }));
-
-    });
-  }
-
-
   async createGame() {
     try {
 
@@ -203,15 +178,13 @@ class Lobby extends React.Component {
       console.log(response);
 
       localStorage.setItem("gameId", response.data.id);
-      localStorage.setItem("hostId", this.state.hostId);
+      localStorage.setItem("hostId", localStorage.getItem("loginUserId"));
 
       // create variable for created userOverview
       this.handleInputChange("created", true);
       this.handleInputChange("editable", false);
 
-      this.initializeStomp();
-
-
+      initializeStomp();
 
 
     } catch (error) {
@@ -235,12 +208,6 @@ class Lobby extends React.Component {
       });
 
       console.log(response);
-		  stompClient.send("/app/game", {}, JSON.stringify(
-		    {
-          'name':localStorage.getItem("username"),
-          'id':localStorage.getItem("loginUserId"),
-          'gameId':localStorage.getItem("gameId")
-		    }));
 
 		  this.props.history.push("/game");
 

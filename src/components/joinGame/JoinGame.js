@@ -148,14 +148,6 @@ class JoinGame extends React.Component {
         state: { gameId: gameid },
       });
 
-      stompClient.send("/app/game", {}, JSON.stringify(
-        {
-          'name':localStorage.getItem("username"),
-          'id':localStorage.getItem("loginUserId"),
-          'gameId':localStorage.getItem("gameId")
-        }));
-
-
 
     } catch (error) {
       this.setState({
