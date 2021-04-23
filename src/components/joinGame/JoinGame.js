@@ -10,7 +10,7 @@ import { OverlayContainer } from "../../views/design/Overlay";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import Lobby from "../lobby/Lobby";
-import * as stompClient from "sockjs-client";
+import { initializeStomp, stompClient} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -60,20 +60,6 @@ const Heading = styled.h3`
   align-items: center;
   display: flex;
   justify-content: center;
-`;
-
-const InputField = styled.input`
-  &::placeholder {
-    color: rgba(0, 0, 0, 1);
-  }
-  height: 35px;
-  padding-left: 15px;
-  margin-left: -4px;
-  font-weight: 200;
-  margin-bottom: 20px;
-  background: rgba(0, 102, 0, 0.2);
-  color: black;
-  border-color: rgb(0, 0, 0, 0.4);
 `;
 
 const CustomOverlay = styled.div`
@@ -147,6 +133,10 @@ class JoinGame extends React.Component {
         pathname: "/game/lobby",
         state: { gameId: gameid },
       });
+
+      localStorage.setItem("gameId", gameid)
+
+      initializeStomp();
 
 
     } catch (error) {

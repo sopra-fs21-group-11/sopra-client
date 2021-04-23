@@ -54,7 +54,6 @@ const MiddleFooter = styled(BaseContainer)`
 `;
 
 const GameContainer = styled.div`
-  //min-height: 500px;
   width: 100vw;
   height: 95vh;
   margin: 0;
@@ -93,6 +92,7 @@ const MiddleCardsContainer = styled.div`
   width: auto;
   height: 100%;
 `;
+
 const StartingCardContainer = styled.div`
   color: white;
   text-align: center;
@@ -114,6 +114,7 @@ const HorizontalCardContainer = styled.div`
   margin-left: 1%;
   margin-right: 1%;
 `;
+
 const VerticalCardContainer = styled.div`
   color: white;
   text-align: center;
@@ -171,12 +172,12 @@ const AddButton = styled.div`
   cursor: ${props => (props.disabled ? "default" : "pointer")};
 `;
 
-
 const Label = styled.label`
   color: white;
   margin-bottom: 10px;
   text-transform: uppercase;
 `;
+
 const Link = styled.a`
  margin: 10px;
  color: black;
@@ -186,17 +187,21 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      users: null,
+      players: null,
       hostId: localStorage.getItem("hostId"),
-      username: null,
-      currentPlayer: localStorage.getItem("hostId"),
+      username: localStorage.getItem("username"),
+      currentPlayer: null,
       errorMessage:null,
       numTokens: 3,
+      gameState: null,
     };
   }
 
   async componentDidMount() {
     try {
+      this.setState({
+        players: this.props.location.state.players,
+        currentPlayer: this.props.location.state.players[0]}, () => {console.log(this.state.players, this.state.currentPlayer)})
 
 
     } catch (error) {
@@ -218,11 +223,17 @@ class Game extends React.Component {
       return tokens
     }
 
-  async placeCard() {
+  placeCard(key, axis) {
 
-    stompClient.send("/app/game/turn", {simpSessionId: localStorage.getItem("sessionId")}, "Hello");
+    stompClient.send("/app/game/turn", {},
+      JSON.stringify({"gameId":this.state.gameId,
+      "placementIndex": key,
+      "axis":axis }));
 
-    }
+
+  }
+
+
 
 
   render() {
@@ -231,7 +242,7 @@ class Game extends React.Component {
           <CardsContainer>
             <HorizontalCardContainer>
                 <AddButton>
-                  <Link onClick={() => {this.placeCard()}}>
+                  <Link key={1} onClick={() => {this.placeCard(key, "horizontal")}}>
                     +
                   </Link>
                 </AddButton>
@@ -317,23 +328,23 @@ class Game extends React.Component {
                 <Label>Countdown</Label>
               </Container>
               <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-                {(this.state.currentPlayer === localStorage.getItem("loginUserId"))
+                {(this.state.currentPlayer.toString() === localStorage.getItem("loginUserId"))
                 ? <Card sizeCard={150} sizeFont={130}/>
                 : <Label>?</Label>}
               </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button>
                   <Link>
-                    Help Button
+                    Help
                   </Link>
                 </Button>
               </ButtonContainer>
             </Container>
             <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
               <Notification>
-                {(this.state.currentPlayer === localStorage.getItem("loginUserId"))
+                {this.state.currentPlayer.toString() === localStorage.getItem("loginUserId")
                   ? ">>> It is your turn! Place the card above on the board by clicking on one of the plus signs."
-                  : ">>> It's another player's turn"}
+                  : ">>> It is player " + this.state.currentPlayer + "'s turn"}
 
               </Notification>
             </Container>

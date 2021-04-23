@@ -1,15 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 import styled from "styled-components";
-import { BaseContainer } from "../../helpers/layout";
-import { Button } from "../../views/design/Button";
-import { withRouter } from "react-router-dom";
+import {BaseContainer} from "../../helpers/layout";
+import {Button} from "../../views/design/Button";
+import {withRouter} from "react-router-dom";
 import Error from "../../views/Error";
 import {api} from "../../helpers/api";
 import {OverlayContainer} from "../../views/design/Overlay";
-
-import SockJS from "sockjs-client";
-import * as Stomp from "@stomp/stompjs";
 import {InputField} from "../../views/design/InputField";
 import {initializeStomp} from "../../helpers/stompClient";
 
@@ -102,14 +99,14 @@ const CustomOverlay = styled.div`
   background: rgb(200, 213, 0, 0.25);
 `;
 
-let stompClient;
 
 class Lobby extends React.Component {
   constructor() {
     super();
     this.state = {
-      users: [1, 2],
+      players: [],
       possibleNumPlayers: [2, 3, 4, 5, 6],
+      possibleTokenGainOrLoss: [1, 2, 3, 4, 5],
       gameId: null,
       errorMessage: null,
       horizontalCategories: [1, 2, 3],
@@ -130,23 +127,42 @@ class Lobby extends React.Component {
     };
   }
   async componentDidMount() {
-     if(this.props.location.state)
-     {
-      let gameId = this.props.location.state.gameId;
-      this.setState({
-        gameId,
-        created:true,
-        editable:false,
-        host:false
-      });
+     if(this.props.location.state) {
+       let gameId = this.props.location.state.gameId;
+       this.setState({
+         gameId: gameId,
+         created: true,
+         editable: false,
+         host: false
+       }, () => {console.log(this.state.gameId);});
+
+       await this.getPlayers();
+       this.timer = setInterval(() => this.getPlayers(), 10000); //polling every 10 seconds
      }
     }
+
+  componentWillUnmount() {
+    window.clearInterval(this.timer);
+    this.timer = null;
+  }
+
   exitLobby() {
     this.props.history.push("/mainView")
   }
 
   handleInputChange(key, value) {
     this.setState({[key]: value});
+  }
+
+  async getPlayers() {
+    if (this.state.gameId) {
+      const response = await api.get("/games/" + this.state.gameId);
+
+      console.log(response);
+
+      const players = await Promise.all(response.data.players);
+      this.handleInputChange("players", players); }
+
   }
 
   async createGame() {
@@ -169,7 +185,7 @@ class Lobby extends React.Component {
         tokenGainOnNearestGuess: 2
       });
 
-      // create userOverview
+      // create game
       const response = await api.post("/games", requestBody, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`}}
@@ -183,8 +199,11 @@ class Lobby extends React.Component {
       // create variable for created userOverview
       this.handleInputChange("created", true);
       this.handleInputChange("editable", false);
+      this.handleInputChange("gameId", response.data.id);
 
-      initializeStomp();
+      await this.getPlayers();
+      this.timer = setInterval(() => this.getPlayers(), 10000); //polling every 10 seconds
+
 
 
     } catch (error) {
@@ -207,9 +226,15 @@ class Lobby extends React.Component {
         }
       });
 
-      console.log(response);
+      await initializeStomp();
 
-		  this.props.history.push("/game");
+      this.props.history.push({
+        pathname: "/game",
+        state: { players: this.state.players }},
+
+
+    );
+
 
 
 
@@ -233,8 +258,8 @@ class Lobby extends React.Component {
       users = <Users
         style={{marginRight: "50px"}}
       >
-        {this.state.users.map((user) => {
-          return (<Name>{user}</Name>);
+        {this.state.players.map((username) => {
+          return (<Name>{username}</Name>);
         })}
       </Users>
       titleUsers = <Heading style={{width: "25%", marginRight: "50px"}}>Players</Heading>
@@ -276,7 +301,7 @@ class Lobby extends React.Component {
                 this.handleInputChange("playerMin", e.target.value);
               }}>
               {this.state.possibleNumPlayers.map((num) => {
-                return (<option>{num}</option>);
+                return (<option key={num.toString()}>{num}</option>);
               })}
             </CustomSelect>
             <Label>Max Players</Label>
@@ -287,7 +312,7 @@ class Lobby extends React.Component {
                 this.handleInputChange("playerMax", e.target.value);
               }}>
               {this.state.possibleNumPlayers.map((num) => {
-                return (<option>{num}</option>);
+                return (<option key={num.toString()}>{num}</option>);
               })}
             </CustomSelect>
             <Label>Number of evaluations</Label>
@@ -296,12 +321,9 @@ class Lobby extends React.Component {
               defaultValue={this.state.nrOfEvaluations}
               onChange={(e) => {
                 this.handleInputChange("nrOfEvaluations", e.target.value);
-              }}>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
+              }}>{this.state.possibleTokenGainOrLoss.map((num) => {
+              return (<option key={num.toString()}>{num}</option>);
+            })}
             </CustomSelect>
             <Label>Doubt countdown time</Label>
             <InputField
@@ -336,12 +358,9 @@ class Lobby extends React.Component {
               defaultValue={this.state.tokenGainOnCorrectGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
-              }}>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
+              }}>{this.state.possibleTokenGainOrLoss.map((num) => {
+              return (<option key={num.toString()}>{num}</option>);
+            })}
             </CustomSelect>
             <Label>Tokens on nearest guess</Label>
             <CustomSelect
@@ -349,12 +368,9 @@ class Lobby extends React.Component {
               defaultValue={this.state.tokenGainOnNearestGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
-              }}>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
+              }}>{this.state.possibleTokenGainOrLoss.map((num) => {
+              return (<option key={num.toString()}>{num}</option>);
+            })}
             </CustomSelect>
             <Label>Horizontal comparison type</Label>
             <CustomSelect
@@ -364,7 +380,7 @@ class Lobby extends React.Component {
                 this.handleInputChange("horizontalValueCategoryId", e.target.value);
               }}
             >{this.state.horizontalCategories.map((category) => {
-              return (<option>{category}</option>);
+              return (<option key={category.toString()}>{category}</option>);
             })}
             </CustomSelect>
             <Label>Vertical comparison type</Label>
@@ -375,7 +391,7 @@ class Lobby extends React.Component {
                 this.handleInputChange("verticalValueCategoryId", e.target.value);
               }}
             >{this.state.verticalCategories.map((category) => {
-              return (<option>{category}</option>);
+              return (<option key={category.toString()}>{category}</option>);
             })}
             </CustomSelect>
           </SettingsForm>
