@@ -31,13 +31,19 @@ const CardText = styled.div`
   color: white;
 `;
 
-
-
-
 class Card extends React.Component{
   
   constructor(props){
     super(props);
+  }
+
+  getData(){
+
+    let j = this.props.cardInfo;
+    let j2 = JSON.parse(j);
+
+    return JSON.stringify(j2);
+
   }
 
 
@@ -56,9 +62,14 @@ class Card extends React.Component{
     let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, margin: "1%"}
     let cardTextStyle = {fontSize: `${sizeFont}px`, width: `${textContainerWidth}px`}
     let textContainerContainerStyle = {width: `${textContainerWidth}px`, height: `${textContainerHeigth}px`, top: `${topOffset}px`}
-    let textContainerStyle;
+    let textContainerStyle = {
+      width: `${textContainerWidth}px`,
+      height: `${textContainerHeigth}px`,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center"}
 
-    switch('mountain'){ // replace here with this.props.cardType
+/*    switch('place'){ // replace here with this.props.cardType
       case 'mountain':
         image = <Image style={cardStyle} src={mountainCard} alt="Card of a location" />
         break;
@@ -77,19 +88,41 @@ class Card extends React.Component{
         break;
       case 'river':
         image = <Image style={cardStyle} src={riverCard} alt="Card of a location"/>
-        break;
-    }
+        break;}*/
+
+
     return(
+
+
       <CardContainer style={cardStyle}>
-        {image}
-        <CardTextContainerContainer style={textContainerContainerStyle}>
+        {this.props.frontSide ?
+          [<Image style={cardStyle} src={placeCard}/>,
+          <CardTextContainerContainer style={textContainerContainerStyle}>
           <CardTextContainer style={textContainerStyle}>
             <CardText style={cardTextStyle}>
-              {/* should be replaced by the this.props.cardName */}
-              Lausanne
+              name
             </CardText>
           </CardTextContainer>
-        </CardTextContainerContainer>
+        </CardTextContainerContainer>]
+          :
+          [<CardTextContainerContainer style={textContainerContainerStyle}>
+            <CardTextContainer>
+              <CardText style={cardTextStyle}>
+                {/* should be replaced by the this.props.cardName */}
+                Coordinates (South - North):
+              </CardText>
+              <CardText style={cardTextStyle}>
+                Coordinates (West - East):
+              </CardText>
+              <CardText style={cardTextStyle}>
+                Area:
+              </CardText>
+              <CardText style={cardTextStyle}>
+                Height:
+              </CardText>
+            </CardTextContainer>
+          </CardTextContainerContainer>]
+        }
       </CardContainer>
     );
   }

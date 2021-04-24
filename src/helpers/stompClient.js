@@ -4,7 +4,7 @@ import * as Stomp from "@stomp/stompjs";
 
 
 
-export let stompClient
+export let stompClient;
 
 export const initializeStomp = () => {
 
@@ -22,11 +22,11 @@ export const initializeStomp = () => {
 
     stompClient.subscribe('/topic/game/queue/specific-game-game' + sessionId,   function(message) {
       let mes = JSON.parse(message.body);
-      localStorage.setItem("gameState", mes["gamestate"])
-      localStorage.setItem("cards", mes["cards"])
-      localStorage.setItem("currentPlayer", mes["playersturn"])
-      localStorage.setItem("token", mes["playerstokens"])
-      localStorage.setItem("nextCard", mes["nextCardOnStack"])
+      localStorage.setItem("gameState", mes["gamestate"]);
+      localStorage.setItem("cards", JSON.stringify(mes["cards"]));
+      localStorage.setItem("currentPlayer", mes["playersturn"]);
+      localStorage.setItem("numToken", mes["playertokens"]);
+      localStorage.setItem("nextCard", JSON.stringify(mes["nextCardOnStack"]));
       console.log(mes);
     });
 

@@ -228,14 +228,14 @@ class Lobby extends React.Component {
 
       await initializeStomp();
 
-      this.props.history.push({
+
+
+      setTimeout(() => {
+        this.props.history.push(
+          {
         pathname: "/game",
-        state: { players: this.state.players }},
-
-
-    );
-
-
+        state: { players: this.state.players }})
+      }, 2000);
 
 
     } catch (error) {
