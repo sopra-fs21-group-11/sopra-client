@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
 import Header from "../../views/Header";
 import {OverlayContainer} from "../../views/design/Overlay";
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
@@ -203,6 +204,7 @@ class Game extends React.Component {
       cardsBelow: [],
       startCardIndexHorizontal: 0,
       startCardIndexVertical: 0,
+      countDown:0
     };
   }
 
@@ -234,6 +236,9 @@ class Game extends React.Component {
       tokens.push(<Token src={token}/>)
     }
     return tokens
+  }
+    doubtGame() {
+   
   }
 
   placeCard(axis) {
@@ -278,6 +283,21 @@ class Game extends React.Component {
 
 
   render() {
+    const renderTime = ({ remainingTime }) => {
+      if (remainingTime === 0) {
+        this.setState({countDown:0})
+        return <div className="timer">Too lale...</div>;
+      }
+     
+    
+      return (
+        <div className="timer">
+          <div className="text">Remaining</div>
+          <div className="value">{remainingTime} seconds</div>
+          <div className="text">to Place Doubt</div>
+        </div>
+      );
+    };
     return (
       <GameContainer>
         {this.state.nextCard ?
@@ -382,11 +402,42 @@ class Game extends React.Component {
             </TokenContainer>
             </LeftFooter>
             <MiddleFooter>
+            <Container style={{height: "100%", width: "100%",marginTop: "3%"}}>
+              {
+                this.state.countDown>0?<CountdownCircleTimer
+                isPlaying
+                duration={this.state.countDown}
+                size={160}
+                colors={[
+                  ['#004777', 0.33],
+                  ['#F7B801', 0.33],
+                  ['#A30000', 0.33],
+                ]}
+              >
+                 {renderTime}
+              </CountdownCircleTimer>:""
+              }
+            
+            </Container>
             </MiddleFooter>
             <RightFooter>
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "25%"}}>
-            <Label>Countdown</Label>
+              {
+                this.state.currentPlayer===localStorage.getItem("loginUserId")? <ButtonContainer >
+                <Button 
+                 width ="100%"
+                 style={{backgroundColor:"yellow"}}
+                 onClick={() => {
+                  this.setState({countDown:20})//TODO : to highlight the card and select the card remove this function
+                 }}>
+                <Link>
+                Doubt
+                </Link>
+                </Button>
+              </ButtonContainer>:""
+              }
+           
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
           {(localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId"))
@@ -394,7 +445,8 @@ class Game extends React.Component {
             : <Label>?</Label>}
             </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
-                <Button>
+                <Button 
+                 width ="50%">
                 <Link>
                 Help
                 </Link>
