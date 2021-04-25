@@ -15,6 +15,7 @@ import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {stompClient} from "../../helpers/stompClient";
+import {Spinner} from "../../views/design/Spinner";
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -54,7 +55,6 @@ const MiddleFooter = styled(BaseContainer)`
 `;
 
 const GameContainer = styled.div`
-  //min-height: 500px;
   width: 100vw;
   height: 95vh;
   margin: 0;
@@ -93,6 +93,7 @@ const MiddleCardsContainer = styled.div`
   width: auto;
   height: 100%;
 `;
+
 const StartingCardContainer = styled.div`
   color: white;
   text-align: center;
@@ -114,6 +115,7 @@ const HorizontalCardContainer = styled.div`
   margin-left: 1%;
   margin-right: 1%;
 `;
+
 const VerticalCardContainer = styled.div`
   color: white;
   text-align: center;
@@ -171,12 +173,12 @@ const AddButton = styled.div`
   cursor: ${props => (props.disabled ? "default" : "pointer")};
 `;
 
-
 const Label = styled.label`
   color: white;
   margin-bottom: 10px;
   text-transform: uppercase;
 `;
+
 const Link = styled.a`
  margin: 10px;
  color: black;
@@ -186,17 +188,33 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      users: null,
+      players: null,
       hostId: localStorage.getItem("hostId"),
-      username: null,
-      currentPlayer: localStorage.getItem("hostId"),
-      errorMessage:null,
+      username: localStorage.getItem("username"),
+      currentPlayer: localStorage.getItem("currentPlayer"),
+      errorMessage: null,
       numTokens: 3,
+      gameState: null,
+      cards: null,
+      nextCard: null,
+      cardsLeft: [],
+      cardsRight: [],
+      cardsAbove: [],
+      cardsBelow: [],
+      startCardIndexHorizontal: 0,
+      startCardIndexVertical: 0,
     };
   }
 
   async componentDidMount() {
     try {
+      this.setState({
+        currentPlayer: localStorage.getItem("currentPlayer"),
+        gameState: localStorage.getItem("gameState"),
+        cards: localStorage.getItem("cards"),
+        numTokens: localStorage.getItem("numToken"),
+        nextCard: localStorage.getItem("nextCard"),
+      }, () => {console.log(JSON.parse(this.state.nextCard))})
 
 
     } catch (error) {
@@ -208,140 +226,195 @@ class Game extends React.Component {
   }
 
   countTokens() {
-      let tokens = []
+    let tokens = []
 
-      // Outer loop to create parent
-      for (let i = 0; i < this.state.numTokens; i++) {
-        //Create the parent and add the children
-        tokens.push(<Token src={token}/>)
+    // Outer loop to create parent
+    for (let i = 0; i < this.state.numTokens; i++) {
+      //Create the parent and add the children
+      tokens.push(<Token src={token}/>)
+    }
+    return tokens
+  }
+
+  placeCard(axis) {
+
+    let index = 1;
+
+    stompClient.send("/app/game/turn", {},
+      JSON.stringify({
+        "gameId": 1,
+        "placementIndex": index,
+        "axis": axis
+      }));
+
+    //TODO: handle correct placement by passing the index to this function as well
+    if (axis === "horizontal") {
+      if (index > this.state.startCardIndexHorizontal) {
+        this.state.cardsRight.splice(this.state.startCardIndexHorizontal + index, 0, [this.state.nextCard]);}
+
+      else {
+        this.state.cardsLeft.splice(index, 0, [this.state.nextCard]);
+        this.state.startCardIndexHorizontal++;
       }
-      return tokens
+    }
+    if (axis === "vertical") {
+      if (index > this.state.startCardIndexVertical) {
+        this.state.cardsAbove.splice(this.state.startCardIndexVertical + index, 0, [this.state.nextCard]);
+      } else {
+        this.state.cardsBelow.splice(index, 0, [this.state.nextCard]);
+        this.state.startCardIndexVertical++;
+      }
     }
 
-  async placeCard() {
+    this.setState({
+      currentPlayer: localStorage.getItem("currentPlayer"),
+      gameState: localStorage.getItem("gameState"),
+      cards: localStorage.getItem("cards"),
+      numTokens: localStorage.getItem("numToken"),
+      nextCard: localStorage.getItem("nextCard"),
+    }, () => {console.log(JSON.parse(this.state.nextCard))})
 
-    stompClient.send("/app/game/turn", {simpSessionId: localStorage.getItem("sessionId")}, "Hello");
-
-    }
+  }
 
 
   render() {
     return (
       <GameContainer>
-          <CardsContainer>
+        {this.state.nextCard ?
+          [<CardsContainer>
             <HorizontalCardContainer>
-                <AddButton>
-                  <Link onClick={() => {this.placeCard()}}>
+              {this.state.cardsLeft.map((card) => {
+                return (
+                  [<AddButton>
+                  <Link key={1} onClick={() => {
+                    this.placeCard("horizontal")
+                  }}>
                     +
                   </Link>
-                </AddButton>
-              <Card sizeCard={120} sizeFont={120}/>
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
+                </AddButton>,
+                <Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>]);
+              })}
+              <AddButton>
+                <Link onClick={() => {
+                  this.placeCard("horizontal")
+                }}>
+                  +
+                </Link>
+              </AddButton>
             </HorizontalCardContainer>
             <MiddleCardsContainer>
-            <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
+              <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
                 <AddButton>
-                  <Link>
+                  <Link onClick={() => {
+                    this.placeCard("vertical")
+                  }}>
                     +
                   </Link>
                 </AddButton>
-              <Card sizeCard={120} sizeFont={120}/>
+                {this.state.cardsAbove.map((card) => {
+                  return (
+                    [<Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>,
+                      <AddButton>
+                      <Link key={1} onClick={() => {
+                        this.placeCard("vertical")
+                      }}>
+                        +
+                      </Link>
+                    </AddButton>
+                      ]);
+                })}
 
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
-              <Card sizeCard={120} sizeFont={120}/>
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
-            </VerticalCardContainer>
+              </VerticalCardContainer>
               <StartingCardContainer>
-                <Card sizeCard={120} sizeFont={120}/>
+                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.nextCard} frontSide={true}/>
               </StartingCardContainer>
-            <VerticalCardContainer>
+              <VerticalCardContainer>
                 <AddButton>
-                  <Link>
+                  <Link onClick={() => {
+                    this.placeCard("vertical")
+                  }}>
                     +
                   </Link>
                 </AddButton>
-              <Card sizeCard={120} sizeFont={120}/>
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
-            </VerticalCardContainer>
+                {this.state.cardsBelow.map((card) => {
+                  return (
+                    [<AddButton>
+                      <Link key={1} onClick={() => {
+                        this.placeCard("vertical")
+                      }}>
+                        +
+                      </Link>
+                    </AddButton>,
+                      <Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>]);
+                })}
+
+              </VerticalCardContainer>
             </MiddleCardsContainer>
             <HorizontalCardContainer>
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
-              <Card sizeCard={120} sizeFont={120}/>
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
-              <Card sizeCard={120} sizeFont={120}/>
-                <AddButton>
-                  <Link>
-                    +
-                  </Link>
-                </AddButton>
+              <AddButton>
+                <Link onClick={() => {
+                  this.placeCard("horizontal")
+                }}>
+                  +
+                </Link>
+              </AddButton>
+              {this.state.cardsRight.map((card) => {
+                return (
+                  [<Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>,
+                    <AddButton>
+                    <Link key={1} onClick={() => {
+                      this.placeCard("horizontal")
+                    }}>
+                      +
+                    </Link>
+                  </AddButton>,
+                    ]);
+              })}
             </HorizontalCardContainer>
-          </CardsContainer>
-        <Footer>
-          <LeftFooter>
+          </CardsContainer>,
+          <Footer>
+            <LeftFooter>
             <PlayerName>
-              {this.state.username}
+          {this.state.username}
             </PlayerName>
-              <TokenContainer>
-                {this.countTokens()}
-              </TokenContainer>
-          </LeftFooter>
-          <MiddleFooter>
-          </MiddleFooter>
-          <RightFooter>
+            <TokenContainer>
+          {this.countTokens()}
+            </TokenContainer>
+            </LeftFooter>
+            <MiddleFooter>
+            </MiddleFooter>
+            <RightFooter>
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
-              <Container style={{height: "100%", width: "25%"}}>
-                <Label>Countdown</Label>
-              </Container>
-              <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-                {(this.state.currentPlayer === localStorage.getItem("loginUserId"))
-                ? <Card sizeCard={150} sizeFont={130}/>
-                : <Label>?</Label>}
-              </Container >
+            <Container style={{height: "100%", width: "25%"}}>
+            <Label>Countdown</Label>
+            </Container>
+            <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
+          {(localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId"))
+            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.nextCard} frontSide={[true]}/>
+            : <Label>?</Label>}
+            </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button>
-                  <Link>
-                    Help Button
-                  </Link>
+                <Link>
+                Help
+                </Link>
                 </Button>
               </ButtonContainer>
             </Container>
-            <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
-              <Notification>
-                {(this.state.currentPlayer === localStorage.getItem("loginUserId"))
-                  ? ">>> It is your turn! Place the card above on the board by clicking on one of the plus signs."
-                  : ">>> It's another player's turn"}
+              <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
+                <Notification>
+              {localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId")
+                ? ">>> It is your turn! Place the card above on the board by clicking on one of the plus signs."
+                : ">>> It is player " + this.state.currentPlayer + "'s turn"}
 
-              </Notification>
-            </Container>
-          </RightFooter>
-        </Footer>
-        <Container style={{ display: "flex" }}>
-                <Error message={this.state.errorMessage}/>
-        </Container>
+                </Notification>
+              </Container>
+            </RightFooter>
+          </Footer>,
+          <Container style={{display: "flex"}}>
+          <Error message={this.state.errorMessage}/>
+          </Container>]
+          : null}
       </GameContainer>
     );
   }

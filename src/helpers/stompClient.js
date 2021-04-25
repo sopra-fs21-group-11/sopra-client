@@ -2,22 +2,32 @@ import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 
 
-const socket = SockJS('http://localhost:8080/gs-guide-websocket');
 
-export const stompClient = Stomp.Stomp.over(socket);
+
+export let stompClient;
 
 export const initializeStomp = () => {
 
-  let sessionId;
+  const socket = SockJS('http://localhost:8080/gs-guide-websocket');
+
+  stompClient = Stomp.Stomp.over(socket);
+
   stompClient.connect({}, function () {
+
     let url = stompClient.ws._transport.url;
     url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
     url = url.replace("/websocket", "");
     url = url.replace(/^[0-9]+\//, "");
-    sessionId = url;
+    const sessionId = url;
 
-    stompClient.subscribe('/topic/game/queue/specific-game-game' + sessionId, function (test) { //
-      console.log(JSON.parse(test.body).content);
+    stompClient.subscribe('/topic/game/queue/specific-game-game' + sessionId,   function(message) {
+      let mes = JSON.parse(message.body);
+      localStorage.setItem("gameState", mes["gamestate"]);
+      localStorage.setItem("cards", JSON.stringify(mes["cards"]));
+      localStorage.setItem("currentPlayer", mes["playersturn"]);
+      localStorage.setItem("numToken", mes["playertokens"]);
+      localStorage.setItem("nextCard", JSON.stringify(mes["nextCardOnStack"]));
+      console.log(mes);
     });
 
     stompClient.send("/app/game", {}, JSON.stringify(
@@ -27,11 +37,7 @@ export const initializeStomp = () => {
         'gameId': localStorage.getItem("gameId")
       }));
 
-    stompClient.onmessage = function (event) {
-      console.log(event.data);
-    };
+
 
   });
-
-  localStorage.setItem("sessionId", sessionId);
 }
