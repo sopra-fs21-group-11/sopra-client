@@ -4,9 +4,13 @@ import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
-import {api} from "../../helpers/api";
+import { api } from "../../helpers/api";
 import { Button } from "../../views/design/Button";
-import { OverlayContainer} from "../../views/design/Overlay";
+import { OverlayContainer } from "../../views/design/Overlay";
+import SockJS from "sockjs-client";
+import * as Stomp from "@stomp/stompjs";
+import Lobby from "../lobby/Lobby";
+import { initializeStomp, stompClient} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -44,7 +48,6 @@ const PrivateGame = styled.div`
   border-bottom: 4px black solid;
 `;
 
-
 const Heading = styled.h3`
   color: black;
   border: 4px black solid;
@@ -59,28 +62,19 @@ const Heading = styled.h3`
   justify-content: center;
 `;
 
-const InputField = styled.input`
-  &::placeholder {
-    color: rgba(0, 0, 0, 1);
-  }
-  height: 35px;
-  padding-left: 15px;
-  margin-left: -4px;
-  font-weight: 200;
-  margin-bottom: 20px;
-  background: rgba(0, 102, 0, 0.2);
-  color: black;
-  border-color: rgb(0, 0, 0, 0.4);
-`;
-
-
 const CustomOverlay = styled.div`
-  background: rgb(255, 213, 0, 0.25);
+  background: rgb(200, 213, 0, 0.25);
 `;
-const Label = styled.label`
-  color: black;
-  margin-bottom: 10px;
-  text-align: left;
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  
+`;
+const Link = styled.a`
+ margin: 10px;
+ color: black
 `;
 
 
@@ -93,96 +87,144 @@ class JoinGame extends React.Component {
     };
   }
 
+
   exitJoinGame() {
-    this.props.history.push("/mainView")
+    this.props.history.push("/mainView");
   }
 
   componentWillUnmount() {
-    this.timer = null; // here...
+    window.clearInterval(this.timer);
+    this.timer = null;
   }
 
   async componentDidMount() {
-    this.timer = setInterval(()=> this.getGames(), 10000);//polling every 10 seconds
-
+    //Load Games for the first time
+    await this.getGames();
+    this.timer = setInterval(() => this.getGames(), 10000); //polling every 10 seconds
   }
-  async  getGames(){
-    
-  }
-  async joinGame(game) {
+  async getGames() {
     try {
-    
-        const response = await api.post("/games/"+game);
-  
-          console.log(response)
-          this.props.history.push("/mainView")
-      } catch (error) {
-        this.setState({
-          errorMessage: error.message,
-        });
-      }
+      //Api to get games
+      const response = await api.get("/games/", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log(response.data);
+      this.setState({ games: response.data });
+    } catch (error) {
+      this.setState({
+        errorMessage: error.message,
+      });
+    }
+  }
+  async joinGame(gameid) {
+    try {
+
+       //Api Call to join the Game by ID
+      const response = await api.post("/games/" + gameid, {},{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      console.log(response);
+      this.props.history.push({
+        pathname: "/game/lobby",
+        state: { gameId: gameid },
+      });
+
+      localStorage.setItem("gameId", gameid)
+
+      initializeStomp();
+
+
+    } catch (error) {
+      this.setState({
+        errorMessage: error.message,
+      });
+    }
   }
   handleInputChange(key, value) {
     this.setState({ [key]: value });
   }
-  joinPrivateGame()
-  {
-    // APi Call for joining game 
+  joinPrivateGame() {
+    // APi Call for joining game
   }
 
   render() {
     return (
       <OverlayContainer>
-        <CustomOverlay style={{align: "flex"}}>
-        <Container style={{display: "flex"}}>
-          <Heading style={{width: "50%", marginRight: "50px"}}>Join Game</Heading>
-          <Heading style={{width: "40%"}}>Join Private Game </Heading>
-        </Container>
-        <Container style={{display: "flex"}}>
-          <Games
-            style={{marginRight: "50px"}}
-          >
-            {this.state.games.map((game) => {
-              return ( <Button
-                width="100%"
-                style={{backgroundColor: 'gray'}}
-                onClick={() => {
-                  this.joinGame(game);
-                }}
-              >
-               {game}
-              </Button>);
-            })}
-          </Games>
-          
+        <CustomOverlay style={{ align: "flex" }}>
+          <Container style={{ display: "flex" }}>
+            <Heading style={{ width: "50%", marginRight: "50px" }}>
+              Join Game
+            </Heading>
+            { /* <Heading style={{ width: "40%" }}>Join Private Game </Heading>*/}
+          </Container>
+          <Container style={{ display: "flex" }}>
+            <Games style={{ marginRight: "50px" }}>
+              {
+                this.state.games.map((game,index) =>
+                    <Button
+                      width="100%"
+                      style={{ backgroundColor: "gray" }}
+                      key=  {game.id}
+                      onClick={() => {
+                        this.joinGame(game.id);
+                      }}
+                    >
+                     {game.name}
+                    </Button>
+
+                )}
+            </Games>
+            { /*
             <PrivateGame>
-            <InputField
+              <InputField
                 placeholder="Enter Game ID  ..."
                 onChange={(e) => {
                   this.handleInputChange("gameid", e.target.value);
                 }}
               />
-                <InputField
-                 type="password"
+              <InputField
+                type="password"
                 placeholder="Enter private Password ..."
                 onChange={(e) => {
                   this.handleInputChange("gamepassword", e.target.value);
                 }}
               />
-                <Button
-                  disabled={!this.state.gameid || !this.state.gamepassword}
-                  width="50%"
-                  style={{ margin: "5px" }}
-                  onClick={() => {
-                    this.joinPrivateGame();
-                  }}
-                >
-                  Login
-                </Button>
+              <Button
+                disabled={!this.state.gameid || !this.state.gamepassword}
+                width="50%"
+                style={{ margin: "5px" }}
+                onClick={() => {
+                  this.joinPrivateGame();
+                }}
+              >
+                Login
+              </Button>
             </PrivateGame>
-          
+            */ }
+          </Container>
+          <Container
+          style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
+          <ButtonContainer>
+            <Button style={{marginRight: 60}}>
+              <Link
+                width="25%"
+                onClick={() => {
+                  this.exitJoinGame();
+                }}
+              >
+                Exit Join Game
+              </Link>
+            </Button>
+          </ButtonContainer>
+
         </Container>
         </CustomOverlay>
-        <Error message={this.state.errorMessage}/>
+        <Error message={this.state.errorMessage} />
       </OverlayContainer>
     );
   }

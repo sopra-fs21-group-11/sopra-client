@@ -3,11 +3,10 @@ import React from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
-import User from "../shared/models/User";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
-import Error from "../../views/Error";
+
 
 const MenuContainer = styled.div`
   height: 500px;
@@ -92,10 +91,10 @@ class MainView extends React.Component {
                     width="50%"
                     style={{ margin: "5px" }}
                     onClick={() => {
-                      this.props.history.push("/lobby");
+                      this.props.history.push("game/lobby");
                     }}
                   >
-                    Create Game
+                    New Game
                   </Button>
                   
                 </ButtonContainer>
@@ -103,7 +102,7 @@ class MainView extends React.Component {
                   <Button
                     width ="50%"
                     onClick={() => {
-                      this.props.history.push("/Registration");
+                      this.props.history.push("game/join");
                     }}
                   >
                     Join Game
@@ -123,7 +122,7 @@ class MainView extends React.Component {
                   <Button
                     width ="50%"
                     onClick={() => {
-                      this.props.history.push("/Game");
+                      this.props.history.push("/userOverview");
                     }}
                   >
                     Player Overview

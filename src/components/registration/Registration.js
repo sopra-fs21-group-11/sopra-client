@@ -28,7 +28,7 @@ const Form = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   border-radius: 5px;
-  background: rgb(255, 213, 0, 0.25);
+  background: rgb(200, 213, 0, 0.25);
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
@@ -103,7 +103,7 @@ class Registration extends React.Component {
     super();
     this.state = {
       username: null,
-      password: null,
+      password: null
     };
   }
   /**
@@ -115,21 +115,18 @@ class Registration extends React.Component {
     try {
       const requestBody = JSON.stringify({
         username: this.state.username,
-        password: this.state.password,
+        password: this.state.password
       });
       const response = await api.post("/users", requestBody);
 
       console.log(response);
 
-      const url = response.data.location;
-      const id = url.match(/\d+$/)
-
       // Store the token into the local storage.
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("loginUserId", id);
+      localStorage.setItem("loginUserId", response.data.id);
       localStorage.setItem("username", this.state.username);
 
-      // registration successfully worked --> navigate to the route /game in the GameRouter
+      // registration successfully worked --> navigate to the route /userOverview in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
       this.setState({
