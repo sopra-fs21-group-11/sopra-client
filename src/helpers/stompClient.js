@@ -21,13 +21,14 @@ export const initializeStomp = () => {
     const sessionId = url;
 
     stompClient.subscribe('/topic/game/queue/specific-game-game' + sessionId,   function(message) {
-      let mes = JSON.parse(message.body);
-      localStorage.setItem("gameState", mes["gamestate"]);
-      localStorage.setItem("cards", JSON.stringify(mes["cards"]));
-      localStorage.setItem("currentPlayer", mes["playersturn"]);
-      localStorage.setItem("numToken", mes["playertokens"]);
-      localStorage.setItem("nextCard", JSON.stringify(mes["nextCardOnStack"]));
-      console.log(mes);
+      alert(JSON.parse(message.body));
+      // let mes = JSON.parse(message.body);
+      // localStorage.setItem("gameState", mes["gamestate"]);
+      // localStorage.setItem("cards", JSON.stringify(mes["cards"]));
+      // localStorage.setItem("currentPlayer", mes["playersturn"]);
+      // localStorage.setItem("numToken", mes["playertokens"]);
+      // localStorage.setItem("nextCard", JSON.stringify(mes["nextCardOnStack"]));
+      console.log(JSON.parse(message.body));
     });
 
     stompClient.send("/app/game", {}, JSON.stringify(
