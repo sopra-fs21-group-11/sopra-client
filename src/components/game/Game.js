@@ -15,9 +15,6 @@ import Card from "../../views/design/Card";
 import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
-import {stompClient} from "../../helpers/stompClient";
-import {Spinner} from "../../views/design/Spinner";
-
 const Container = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
@@ -185,6 +182,8 @@ const Link = styled.a`
  color: black;
 `;
 
+let stompClient;
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -192,7 +191,7 @@ class Game extends React.Component {
       players: null,
       hostId: localStorage.getItem("hostId"),
       username: localStorage.getItem("username"),
-      currentPlayer: localStorage.getItem("currentPlayer"),
+      currentPlayer: null,
       errorMessage: null,
       numTokens: 3,
       gameState: null,
@@ -204,28 +203,27 @@ class Game extends React.Component {
       cardsBelow: [],
       startCardIndexHorizontal: 0,
       startCardIndexVertical: 0,
-      countDown:0
+      countDown:0,
+      startingCard: null,
+      nextPlayer: null,
+      message: null,
     };
   }
 
   async componentDidMount() {
     try {
-      this.setState({
-        currentPlayer: localStorage.getItem("currentPlayer"),
-        gameState: localStorage.getItem("gameState"),
-        cards: localStorage.getItem("cards"),
-        numTokens: localStorage.getItem("numToken"),
-        nextCard: localStorage.getItem("nextCard"),
-      }, () => {console.log(JSON.parse(this.state.nextCard))})
 
+      this.getData();
 
-    } catch (error) {
+    }
+    catch (error) {
       this.setState({
         errorMessage: error.message,
       });
       //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
   }
+
 
   countTokens() {
     let tokens = []
@@ -241,6 +239,72 @@ class Game extends React.Component {
    
   }
 
+  callback = (message)  => {
+    console.log(JSON.parse(message.body));
+    let textMessage = JSON.parse(message.body);
+    this.setState({
+      currentPlayer: textMessage["playersturn"].toString(),
+      gameState: textMessage["gamestate"],
+      cardsLeft: textMessage["left"],
+      cardsRight: textMessage["right"],
+      cardsAbove: textMessage["top"],
+      cardsBelow: textMessage["bottom"],
+      numTokens: textMessage["playertokens"],
+      nextCard: textMessage["nextCardOnStack"],
+      startingCard: textMessage["startingCard"],
+      nextPlayer: textMessage["nextPlayer"]});
+
+    let userId = localStorage.getItem("loginUserId");
+
+    if (userId === this.state.currentPlayer && this.state.gameState === "CARDPLACEMENT") {
+      this.setState({message: ">>> It is your turn, pleas place the card above on the board by clicking on one of the plus sings"})
+    }
+
+    else if (userId === this.state.currentPlayer && this.state.gameState === "DOUBTINGPHASE") {
+      this.setState({message: ">>> The other players can doubt your placement, please wait"})
+    }
+
+    else if (userId !== this.state.currentPlayer && this.state.gameState === "CARDPLACEMENT") {
+      this.setState({message: ">>> It is player " + this.state.currentPlayer +"'s turn"})
+    }
+
+    else if (userId === this.state.currentPlayer && this.state.gameState === "DOUBTINGPHASE") {
+      this.setState({message: ">>> The other players can doubt your placement, please wait"})
+    }
+
+    else if (userId !== this.state.currentPlayer && this.state.gameState === "DOUBTINGPHASE") {
+      this.setState({message: ">>> You can now doubt the card placement"})
+    }
+  }
+
+  getData = () => {
+
+    let callback = this.callback;
+
+    const socket = SockJS('http://localhost:8080/gs-guide-websocket');
+
+    stompClient = Stomp.Stomp.over(socket);
+
+    stompClient.connect({}, function () {
+
+    let url = stompClient.ws._transport.url;
+    url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
+    url = url.replace("/websocket", "");
+    url = url.replace(/^[0-9]+\//, "");
+    const sessionId = url;
+
+    stompClient.subscribe('/topic/game/queue/specific-game-game' + sessionId,   callback);
+
+    stompClient.send("/app/game", {}, JSON.stringify(
+      {
+        'name': localStorage.getItem("username"),
+        'id': localStorage.getItem("loginUserId"),
+        'gameId': localStorage.getItem("gameId")
+      }));
+
+  });}
+
+
   placeCard(axis) {
 
     let index = 1;
@@ -252,10 +316,9 @@ class Game extends React.Component {
         "axis": axis
       }));
 
-    //TODO: handle correct placement by passing the index to this function as well
     if (axis === "horizontal") {
       if (index > this.state.startCardIndexHorizontal) {
-        this.state.cardsRight.splice(this.state.startCardIndexHorizontal + index, 0, [this.state.nextCard]);}
+        this.setState({cardsRight: this.state.cardsRight.splice(index, 0, [this.state.nextCard])})}
 
       else {
         this.state.cardsLeft.splice(index, 0, [this.state.nextCard]);
@@ -300,8 +363,7 @@ class Game extends React.Component {
     };
     return (
       <GameContainer>
-        {this.state.nextCard ?
-          [<CardsContainer>
+          <CardsContainer>
             <HorizontalCardContainer>
               {this.state.cardsLeft.map((card) => {
                 return (
@@ -455,18 +517,14 @@ class Game extends React.Component {
             </Container>
               <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
                 <Notification>
-              {localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId")
-                ? ">>> It is your turn! Place the card above on the board by clicking on one of the plus signs."
-                : ">>> It is player " + this.state.currentPlayer + "'s turn"}
-
+                  {this.state.message}
                 </Notification>
               </Container>
             </RightFooter>
           </Footer>,
           <Container style={{display: "flex"}}>
           <Error message={this.state.errorMessage}/>
-          </Container>]
-          : null}
+          </Container>
       </GameContainer>
     );
   }

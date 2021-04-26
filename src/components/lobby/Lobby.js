@@ -8,7 +8,6 @@ import Error from "../../views/Error";
 import {api} from "../../helpers/api";
 import {OverlayContainer} from "../../views/design/Overlay";
 import {InputField} from "../../views/design/InputField";
-import {initializeStomp} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -226,16 +225,7 @@ class Lobby extends React.Component {
         }
       });
 
-      await initializeStomp();
-
-
-
-      setTimeout(() => {
-        this.props.history.push(
-          {
-        pathname: "/game",
-        state: { players: this.state.players }})
-      }, 2000);
+      this.props.history.push("/game");
 
 
     } catch (error) {

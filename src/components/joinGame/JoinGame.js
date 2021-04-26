@@ -10,7 +10,6 @@ import { OverlayContainer } from "../../views/design/Overlay";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import Lobby from "../lobby/Lobby";
-import { initializeStomp, stompClient} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -135,8 +134,6 @@ class JoinGame extends React.Component {
       });
 
       localStorage.setItem("gameId", gameid)
-
-      initializeStomp();
 
 
     } catch (error) {
