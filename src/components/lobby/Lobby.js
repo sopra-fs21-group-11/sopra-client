@@ -157,7 +157,7 @@ class Lobby extends React.Component {
     if (this.state.gameId) {
       const response = await api.get("/games/" + this.state.gameId);
 
-      console.log(response);
+      //console.log(response);
 
       const players = await Promise.all(response.data.players);
       this.handleInputChange("players", players); }
@@ -190,7 +190,7 @@ class Lobby extends React.Component {
           Authorization: `Bearer ${localStorage.getItem("token")}`}}
         );
 
-      console.log(response);
+      //console.log(response);
 
       localStorage.setItem("gameId", response.data.id);
       localStorage.setItem("hostId", localStorage.getItem("loginUserId"));

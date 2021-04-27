@@ -15,6 +15,7 @@ import Card from "../../views/design/Card";
 import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
+
 const Container = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
@@ -191,6 +192,7 @@ class Game extends React.Component {
       players: null,
       hostId: localStorage.getItem("hostId"),
       username: localStorage.getItem("username"),
+      gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
       errorMessage: null,
       numTokens: 3,
@@ -206,7 +208,9 @@ class Game extends React.Component {
       countDown:0,
       startingCard: null,
       nextPlayer: null,
+      isLocalUserPLayer: null,
       message: null,
+      canLocalUserDoubt: null,
     };
   }
 
@@ -235,12 +239,13 @@ class Game extends React.Component {
     }
     return tokens
   }
+
     doubtGame() {
    
   }
 
   callback = (message)  => {
-    console.log(JSON.parse(message.body));
+    //console.log(JSON.parse(message.body));
     let textMessage = JSON.parse(message.body);
     this.setState({
       currentPlayer: textMessage["playersturn"].toString(),
@@ -252,29 +257,43 @@ class Game extends React.Component {
       numTokens: textMessage["playertokens"],
       nextCard: textMessage["nextCardOnStack"],
       startingCard: textMessage["startingCard"],
-      nextPlayer: textMessage["nextPlayer"]});
+      nextPlayer: textMessage["nextPlayer"],
+      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
+      canLocalUserDoubt: !this.state.isLocalUserPLayer && this.state.gameState === "DOUBTINGPHASE"
+    });
 
-    let userId = localStorage.getItem("loginUserId");
 
-    if (userId === this.state.currentPlayer && this.state.gameState === "CARDPLACEMENT") {
-      this.setState({message: ">>> It is your turn, pleas place the card above on the board by clicking on one of the plus sings"})
-    }
+    // case 1: user is current player
+    if (this.state.isLocalUserPLayer) {
+      if (this.state.gameState === "CARDPLACEMENT") {
+        this.setState({
+          message: ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings",
+          countDown: 30}) // TODO: use game settings to set time
+      }
+      else if (this.state.gameState === "DOUBTINGPHASE") {
+        this.setState({
+          message: ">>> The other players can doubt your placement, please wait",
+          countDown: 20}) // TODO: use game settings to set time
+      }
+      else if (this.state.gameState === "EVALUATION") {
+        this.setState({message: ">>> Evaluation phase"}) //TODO: add correct text
+      }}
 
-    else if (userId === this.state.currentPlayer && this.state.gameState === "DOUBTINGPHASE") {
-      this.setState({message: ">>> The other players can doubt your placement, please wait"})
-    }
-
-    else if (userId !== this.state.currentPlayer && this.state.gameState === "CARDPLACEMENT") {
-      this.setState({message: ">>> It is player " + this.state.currentPlayer +"'s turn"})
-    }
-
-    else if (userId === this.state.currentPlayer && this.state.gameState === "DOUBTINGPHASE") {
-      this.setState({message: ">>> The other players can doubt your placement, please wait"})
-    }
-
-    else if (userId !== this.state.currentPlayer && this.state.gameState === "DOUBTINGPHASE") {
-      this.setState({message: ">>> You can now doubt the card placement"})
-    }
+    // case 2: user is not current player
+    else if (!this.state.isLocalUserPLayer) {
+      if (this.state.gameState === "CARDPLACEMENT") {
+        this.setState({
+          message: ">>> It is player " + this.state.currentPlayer + "'s turn",
+          countDown: 30}) // TODO: use game settings to set time
+      }
+      else if (this.state.gameState === "DOUBTINGPHASE") {
+        this.setState({
+          message: ">>> You can now doubt the card placement",
+          countDown: 20}) // TODO: use game settings to set time
+      }
+      else if (this.state.gameState === "EVALUATION") {
+        this.setState({message: ">>> Evaluation phase"}) //TODO: add correct text
+      }}
   }
 
   getData = () => {
@@ -305,153 +324,84 @@ class Game extends React.Component {
   });}
 
 
-  placeCard(axis) {
-
-    let index = 1;
+  placeCard(axis, index) {
 
     stompClient.send("/app/game/turn", {},
       JSON.stringify({
-        "gameId": 1,
+        "gameId": this.state.gameId,
         "placementIndex": index,
         "axis": axis
       }));
 
-    if (axis === "horizontal") {
-      if (index > this.state.startCardIndexHorizontal) {
-        this.setState({cardsRight: this.state.cardsRight.splice(index, 0, [this.state.nextCard])})}
+    console.log(JSON.stringify({
+      "gameId": this.state.gameId,
+      "placementIndex": index,
+      "axis": axis
+    }))
 
-      else {
-        this.state.cardsLeft.splice(index, 0, [this.state.nextCard]);
-        this.state.startCardIndexHorizontal++;
-      }
-    }
-    if (axis === "vertical") {
-      if (index > this.state.startCardIndexVertical) {
-        this.state.cardsAbove.splice(this.state.startCardIndexVertical + index, 0, [this.state.nextCard]);
-      } else {
-        this.state.cardsBelow.splice(index, 0, [this.state.nextCard]);
-        this.state.startCardIndexVertical++;
-      }
+  }
+
+  getCards = (cards, direction) => {
+    let renderedCards = [ <AddButton key={0}>
+                            <Link key={0} onClick={() => {
+                              this.placeCard(direction, 0)
+                            }}>
+                              +
+                            </Link>
+                          </AddButton>]
+
+    for (let i=0; i < cards.length; i++) {
+      renderedCards.push(
+        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
+        <AddButton key={i+1}>
+          <Link key={i+1} onClick={() => {
+            this.placeCard(direction, i+1)
+          }}>
+            +
+          </Link>
+        </AddButton>)
     }
 
-    this.setState({
-      currentPlayer: localStorage.getItem("currentPlayer"),
-      gameState: localStorage.getItem("gameState"),
-      cards: localStorage.getItem("cards"),
-      numTokens: localStorage.getItem("numToken"),
-      nextCard: localStorage.getItem("nextCard"),
-    }, () => {console.log(JSON.parse(this.state.nextCard))})
+    return renderedCards
 
   }
 
 
   render() {
+    //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
       if (remainingTime === 0) {
         this.setState({countDown:0})
-        return <div className="timer">Too lale...</div>;
+        return <div className="timer">Too late...</div>;
       }
-     
-    
       return (
         <div className="timer">
           <div className="text">Remaining</div>
           <div className="value">{remainingTime} seconds</div>
-          <div className="text">to Place Doubt</div>
+          <div className="text">to perform action</div>
         </div>
       );
     };
+
     return (
       <GameContainer>
           <CardsContainer>
-            <HorizontalCardContainer>
-              {this.state.cardsLeft.map((card) => {
-                return (
-                  [<AddButton>
-                  <Link key={1} onClick={() => {
-                    this.placeCard("horizontal")
-                  }}>
-                    +
-                  </Link>
-                </AddButton>,
-                <Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>]);
-              })}
-              <AddButton>
-                <Link onClick={() => {
-                  this.placeCard("horizontal")
-                }}>
-                  +
-                </Link>
-              </AddButton>
+            <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
+              {this.getCards(this.state.cardsLeft, "left")}
             </HorizontalCardContainer>
             <MiddleCardsContainer>
               <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
-                <AddButton>
-                  <Link onClick={() => {
-                    this.placeCard("vertical")
-                  }}>
-                    +
-                  </Link>
-                </AddButton>
-                {this.state.cardsAbove.map((card) => {
-                  return (
-                    [<Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>,
-                      <AddButton>
-                      <Link key={1} onClick={() => {
-                        this.placeCard("vertical")
-                      }}>
-                        +
-                      </Link>
-                    </AddButton>
-                      ]);
-                })}
-
+                {this.getCards(this.state.cardsAbove, "top")}
               </VerticalCardContainer>
               <StartingCardContainer>
-                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.nextCard} frontSide={true}/>
+                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
               </StartingCardContainer>
               <VerticalCardContainer>
-                <AddButton>
-                  <Link onClick={() => {
-                    this.placeCard("vertical")
-                  }}>
-                    +
-                  </Link>
-                </AddButton>
-                {this.state.cardsBelow.map((card) => {
-                  return (
-                    [<AddButton>
-                      <Link key={1} onClick={() => {
-                        this.placeCard("vertical")
-                      }}>
-                        +
-                      </Link>
-                    </AddButton>,
-                      <Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>]);
-                })}
-
+                {this.getCards(this.state.cardsBelow, "bottom")}
               </VerticalCardContainer>
             </MiddleCardsContainer>
             <HorizontalCardContainer>
-              <AddButton>
-                <Link onClick={() => {
-                  this.placeCard("horizontal")
-                }}>
-                  +
-                </Link>
-              </AddButton>
-              {this.state.cardsRight.map((card) => {
-                return (
-                  [<Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>,
-                    <AddButton>
-                    <Link key={1} onClick={() => {
-                      this.placeCard("horizontal")
-                    }}>
-                      +
-                    </Link>
-                  </AddButton>,
-                    ]);
-              })}
+              {this.getCards(this.state.cardsRight, "right")}
             </HorizontalCardContainer>
           </CardsContainer>,
           <Footer>
@@ -486,7 +436,7 @@ class Game extends React.Component {
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "25%"}}>
               {
-                this.state.currentPlayer===localStorage.getItem("loginUserId")? <ButtonContainer >
+                this.state.canLocalUserDoubt ? <ButtonContainer >
                 <Button 
                  width ="100%"
                  style={{backgroundColor:"yellow"}}
@@ -502,7 +452,7 @@ class Game extends React.Component {
            
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-          {(localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId"))
+          {this.state.isLocalUserPLayer
             ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.nextCard} frontSide={[true]}/>
             : <Label>?</Label>}
             </Container >
