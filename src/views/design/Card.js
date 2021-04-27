@@ -100,7 +100,7 @@ class Card extends React.Component{
           <CardTextContainerContainer style={textContainerContainerStyle}>
           <CardTextContainer style={textContainerStyle}>
             <CardText style={cardTextStyle}>
-              name
+              {this.props.cardInfo['name']}
             </CardText>
           </CardTextContainer>
         </CardTextContainerContainer>]
