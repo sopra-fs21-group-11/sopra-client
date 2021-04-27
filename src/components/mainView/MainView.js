@@ -148,8 +148,6 @@ class MainView extends React.Component {
                     Logout
                   </Button>
                 </ButtonContainer>
-
-                  
               </NavigationContainer>
             </MenuContainer>
           </BaseContainer>

@@ -8,6 +8,7 @@ import Error from "../../views/Error";
 import Header from "../../views/Header";
 import {OverlayContainer} from "../../views/design/Overlay";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import {Evaluation} from './Evaluation';
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
@@ -35,14 +36,14 @@ const LeftFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 20%;
 `;
 
 const RightFooter = styled(BaseContainer)`
   color: white;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 60%;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -259,7 +260,7 @@ class Game extends React.Component {
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
       isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
-      canLocalUserDoubt: !this.state.isLocalUserPLayer && this.state.gameState === "DOUBTINGPHASE"
+      canLocalUserDoubt: !this.state.isLocalUserPLayer && this.state.gameState === "DOUBTINGPHASE",
     });
 
 
@@ -449,7 +450,13 @@ class Game extends React.Component {
                 </Button>
               </ButtonContainer>:""
               }
-           
+              {
+                this.state.gameState === "EVALUATION" ? (
+                  <Evaluation/>
+                ) : (
+                  ""
+                )
+              }
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
           {this.state.isLocalUserPLayer
