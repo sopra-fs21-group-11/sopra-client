@@ -8,7 +8,6 @@ import Error from "../../views/Error";
 import {api} from "../../helpers/api";
 import {OverlayContainer} from "../../views/design/Overlay";
 import {InputField} from "../../views/design/InputField";
-import {initializeStomp} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -158,7 +157,7 @@ class Lobby extends React.Component {
     if (this.state.gameId) {
       const response = await api.get("/games/" + this.state.gameId);
 
-      console.log(response);
+      //console.log(response);
 
       const players = await Promise.all(response.data.players);
       this.handleInputChange("players", players); }
@@ -191,7 +190,7 @@ class Lobby extends React.Component {
           Authorization: `Bearer ${localStorage.getItem("token")}`}}
         );
 
-      console.log(response);
+      //console.log(response);
 
       localStorage.setItem("gameId", response.data.id);
       localStorage.setItem("hostId", localStorage.getItem("loginUserId"));
@@ -226,16 +225,7 @@ class Lobby extends React.Component {
         }
       });
 
-      await initializeStomp();
-
-
-
-      setTimeout(() => {
-        this.props.history.push(
-          {
-        pathname: "/game",
-        state: { players: this.state.players }})
-      }, 2000);
+      this.props.history.push("/game");
 
 
     } catch (error) {
