@@ -135,8 +135,9 @@ class Lobby extends React.Component {
          host: false
        }, () => {console.log(this.state.gameId);});
 
-       await this.getPlayers();
-       this.timer = setInterval(() => this.getPlayers(), 10000); //polling every 10 seconds
+       await this.getPlayersAndGameState();
+       this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
+       //TODO: add get gamestate
      }
     }
 
@@ -153,7 +154,7 @@ class Lobby extends React.Component {
     this.setState({[key]: value});
   }
 
-  async getPlayers() {
+  async getPlayersAndGameState() {
     if (this.state.gameId) {
       const response = await api.get("/games/" + this.state.gameId);
 

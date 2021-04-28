@@ -16,6 +16,7 @@ import Card from "../../views/design/Card";
 import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
+import {getDomain} from "../../helpers/getDomain";
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -82,6 +83,7 @@ const CardsContainer = styled.div`
   justify-content: center;
   width: 100%;
   height: 75%;
+  overflow: scroll;
 `;
 
 const MiddleCardsContainer = styled.div`
@@ -209,9 +211,10 @@ class Game extends React.Component {
       countDown:0,
       startingCard: null,
       nextPlayer: null,
-      isLocalUserPLayer: null,
+      isLocalUserPLayer: false,
       message: null,
       canLocalUserDoubt: null,
+      countDownText: "",
     };
   }
 
@@ -285,7 +288,8 @@ class Game extends React.Component {
       if (this.state.gameState === "CARDPLACEMENT") {
         this.setState({
           message: ">>> It is player " + this.state.currentPlayer + "'s turn",
-          countDown: 30}) // TODO: use game settings to set time
+          countDown: 30,
+          countDownText: this.state.isLocalUserPLayer? "to place card": ""}) // TODO: use game settings to set time
       }
       else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
@@ -301,7 +305,8 @@ class Game extends React.Component {
 
     let callback = this.callback;
 
-    const socket = SockJS('http://localhost:8080/gs-guide-websocket');
+    let baseURL = getDomain();
+    const socket = SockJS(baseURL+'/gs-guide-websocket');
 
     stompClient = Stomp.Stomp.over(socket);
 
@@ -334,6 +339,8 @@ class Game extends React.Component {
         "axis": axis
       }));
 
+    this.setState({countDown: 30});
+
     console.log(JSON.stringify({
       "gameId": this.state.gameId,
       "placementIndex": index,
@@ -343,7 +350,7 @@ class Game extends React.Component {
   }
 
   getCards = (cards, direction) => {
-    let renderedCards = [ <AddButton key={0}>
+    let renderedCards = [ <AddButton key={0} disabled={!this.state.isLocalUserPLayer}>
                             <Link key={0} onClick={() => {
                               this.placeCard(direction, 0)
                             }}>
@@ -354,7 +361,7 @@ class Game extends React.Component {
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
         <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
-        <AddButton key={i+1}>
+        <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
           }}>
@@ -379,7 +386,7 @@ class Game extends React.Component {
         <div className="timer">
           <div className="text">Remaining</div>
           <div className="value">{remainingTime} seconds</div>
-          <div className="text">to perform action</div>
+          <div className="text">{this.state.countDownText}</div>
         </div>
       );
     };
@@ -395,7 +402,9 @@ class Game extends React.Component {
                 {this.getCards(this.state.cardsAbove, "top")}
               </VerticalCardContainer>
               <StartingCardContainer>
+                {this.state.startingCard ?
                 <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
+                  : " "}
               </StartingCardContainer>
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBelow, "bottom")}
@@ -420,7 +429,7 @@ class Game extends React.Component {
                 this.state.countDown>0?<CountdownCircleTimer
                 isPlaying
                 duration={this.state.countDown}
-                size={160}
+                size={180}
                 colors={[
                   ['#004777', 0.33],
                   ['#F7B801', 0.33],
