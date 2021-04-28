@@ -201,20 +201,21 @@ class Game extends React.Component {
       numTokens: 3,
       gameState: null,
       cards: null,
-      nextCard: null,
+      currentCard: null,
       cardsLeft: [],
       cardsRight: [],
-      cardsAbove: [],
-      cardsBelow: [],
+      cardsTop: [],
+      cardsBottom: [],
       startCardIndexHorizontal: 0,
       startCardIndexVertical: 0,
       countDown:0,
-      startingCard: null,
+      startingCard: [],
       nextPlayer: null,
       isLocalUserPLayer: false,
-      message: null,
+      message: "",
       canLocalUserDoubt: null,
       countDownText: "",
+      lastPlayer: "-1",
     };
   }
 
@@ -222,6 +223,7 @@ class Game extends React.Component {
     try {
 
       this.getData();
+      console.log(this.state.currentCard);
 
     }
     catch (error) {
@@ -256,49 +258,39 @@ class Game extends React.Component {
       gameState: textMessage["gamestate"],
       cardsLeft: textMessage["left"],
       cardsRight: textMessage["right"],
-      cardsAbove: textMessage["top"],
-      cardsBelow: textMessage["bottom"],
+      cardsTop: textMessage["top"],
+      cardsBottom: textMessage["bottom"],
       numTokens: textMessage["playertokens"],
-      nextCard: textMessage["nextCardOnStack"],
+      currentCard: textMessage["nextCardOnStack"],
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
       isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
-      canLocalUserDoubt: !this.state.isLocalUserPLayer && this.state.gameState === "DOUBTINGPHASE",
+      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE"
     });
 
 
-    // case 1: user is current player
-    if (this.state.isLocalUserPLayer) {
       if (this.state.gameState === "CARDPLACEMENT") {
         this.setState({
-          message: ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings",
-          countDown: 30}) // TODO: use game settings to set time
-      }
-      else if (this.state.gameState === "DOUBTINGPHASE") {
-        this.setState({
-          message: ">>> The other players can doubt your placement, please wait",
-          countDown: 20}) // TODO: use game settings to set time
-      }
-      else if (this.state.gameState === "EVALUATION") {
-        this.setState({message: ">>> Evaluation phase"}) //TODO: add correct text
-      }}
-
-    // case 2: user is not current player
-    else if (!this.state.isLocalUserPLayer) {
-      if (this.state.gameState === "CARDPLACEMENT") {
-        this.setState({
-          message: ">>> It is player " + this.state.currentPlayer + "'s turn",
+          message: this.state.isLocalUserPLayer
+            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
+            : ">>> It is player " + this.state.currentPlayer + "'s turn",
           countDown: 30,
-          countDownText: this.state.isLocalUserPLayer? "to place card": ""}) // TODO: use game settings to set time
-      }
-      else if (this.state.gameState === "DOUBTINGPHASE") {
+          countDownText: this.state.isLocalUserPLayer
+            ? "to place card"
+            : "for " + this.state.currentPlayer + "to place card"})
+      } else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
-          message: ">>> You can now doubt the card placement",
-          countDown: 20}) // TODO: use game settings to set time
+          message: this.state.isLocalUserPLayer
+            ? ">>> You can now doubt the card placement"
+            : ">>> The other players can doubt your placement, please wait",
+          countDown: 10,
+          countDownText: this.state.isLocalUserPLayer
+            ? "for the others to doubt"
+            : "to doubt"})
+      } else if (this.state.gameState === "EVALUATION") {
+        this.setState({
+          message: ">>> Evaluation phase"})
       }
-      else if (this.state.gameState === "EVALUATION") {
-        this.setState({message: ">>> Evaluation phase"}) //TODO: add correct text
-      }}
   }
 
   getData = () => {
@@ -341,16 +333,14 @@ class Game extends React.Component {
 
     this.setState({countDown: 30});
 
-    console.log(JSON.stringify({
-      "gameId": this.state.gameId,
-      "placementIndex": index,
-      "axis": axis
-    }))
+
+
+
 
   }
 
   getCards = (cards, direction) => {
-    let renderedCards = [ <AddButton key={0} disabled={!this.state.isLocalUserPLayer}>
+    let renderedCards = [ <AddButton key={0} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
                             <Link key={0} onClick={() => {
                               this.placeCard(direction, 0)
                             }}>
@@ -361,7 +351,7 @@ class Game extends React.Component {
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
         <Card sizeCard={120} sizeFont={120} axis={direction} cardInfo={cards[i]} frontSide={!(this.state.gameState === "EVALUATION")}/>,
-        <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer}>
+        <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
           }}>
@@ -399,7 +389,7 @@ class Game extends React.Component {
             </HorizontalCardContainer>
             <MiddleCardsContainer>
               <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
-                {this.getCards(this.state.cardsAbove, "top")}
+                {this.getCards(this.state.cardsTop, "top")}
               </VerticalCardContainer>
               <StartingCardContainer>
                 {this.state.startingCard ?
@@ -407,7 +397,7 @@ class Game extends React.Component {
                   : " "}
               </StartingCardContainer>
               <VerticalCardContainer>
-                {this.getCards(this.state.cardsBelow, "bottom")}
+                {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
             </MiddleCardsContainer>
             <HorizontalCardContainer>
@@ -446,7 +436,8 @@ class Game extends React.Component {
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "25%"}}>
               {
-                this.state.canLocalUserDoubt ? <ButtonContainer >
+                this.state.canLocalUserDoubt
+                  ? <ButtonContainer >
                 <Button 
                  width ="100%"
                  style={{backgroundColor:"yellow"}}
@@ -457,7 +448,8 @@ class Game extends React.Component {
                 Doubt
                 </Link>
                 </Button>
-              </ButtonContainer>:""
+              </ButtonContainer>
+                  :""
               }
               {
                 this.state.gameState === "EVALUATION" ? (
@@ -468,9 +460,9 @@ class Game extends React.Component {
               }
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-          {this.state.isLocalUserPLayer
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.nextCard} frontSide={[true]}/>
-            : <Label>?</Label>}
+          {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
+            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>
+            : " "}
             </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button 
