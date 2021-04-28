@@ -351,7 +351,7 @@ class Game extends React.Component {
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true} onClick={sendDoubt(cards[i].id)}/>,
+        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
         <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
