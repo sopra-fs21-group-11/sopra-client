@@ -288,9 +288,7 @@ class Game extends React.Component {
             : "to doubt"})
       } else if (this.state.gameState === "EVALUATION") {
         this.setState({
-          message: this.state.isLocalUserPLayer
-            ? ">>> Evaluation phase"
-            : ">>> Evaluation phase"})
+          message: ">>> Evaluation phase"})
       }
   }
 
