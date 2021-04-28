@@ -35,6 +35,17 @@ class Card extends React.Component{
   
   constructor(props){
     super(props);
+
+    this.state= {
+      name:" "
+    };
+  }
+
+  componentDidMount() {
+  //console.log(this.props.cardInfo["name"]);
+    /*if (!this.props.cardInfo) {
+      this.setState({name: this.props.cardInfo.name})
+    }*/
   }
 
   getData(){
@@ -100,7 +111,7 @@ class Card extends React.Component{
           <CardTextContainerContainer style={textContainerContainerStyle}>
           <CardTextContainer style={textContainerStyle}>
             <CardText style={cardTextStyle}>
-              name
+              {this.props.cardInfo.name}
             </CardText>
           </CardTextContainer>
         </CardTextContainerContainer>]

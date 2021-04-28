@@ -15,8 +15,7 @@ import Card from "../../views/design/Card";
 import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
-import {stompClient} from "../../helpers/stompClient";
-import {Spinner} from "../../views/design/Spinner";
+import {getDomain} from "../../helpers/getDomain";
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -83,6 +82,7 @@ const CardsContainer = styled.div`
   justify-content: center;
   width: 100%;
   height: 75%;
+  overflow: scroll;
 `;
 
 const MiddleCardsContainer = styled.div`
@@ -185,6 +185,8 @@ const Link = styled.a`
  color: black;
 `;
 
+let stompClient;
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -192,40 +194,45 @@ class Game extends React.Component {
       players: null,
       hostId: localStorage.getItem("hostId"),
       username: localStorage.getItem("username"),
-      currentPlayer: localStorage.getItem("currentPlayer"),
+      gameId: localStorage.getItem("gameId"),
+      currentPlayer: null,
       errorMessage: null,
       numTokens: 3,
       gameState: null,
       cards: null,
-      nextCard: null,
+      currentCard: null,
       cardsLeft: [],
       cardsRight: [],
-      cardsAbove: [],
-      cardsBelow: [],
+      cardsTop: [],
+      cardsBottom: [],
       startCardIndexHorizontal: 0,
       startCardIndexVertical: 0,
-      countDown:0
+      countDown:0,
+      startingCard: [],
+      nextPlayer: null,
+      isLocalUserPLayer: false,
+      message: "",
+      canLocalUserDoubt: null,
+      countDownText: "",
+      lastPlayer: "-1",
     };
   }
 
   async componentDidMount() {
     try {
-      this.setState({
-        currentPlayer: localStorage.getItem("currentPlayer"),
-        gameState: localStorage.getItem("gameState"),
-        cards: localStorage.getItem("cards"),
-        numTokens: localStorage.getItem("numToken"),
-        nextCard: localStorage.getItem("nextCard"),
-      }, () => {console.log(JSON.parse(this.state.nextCard))})
 
+      this.getData();
+      console.log(this.state.currentCard);
 
-    } catch (error) {
+    }
+    catch (error) {
       this.setState({
         errorMessage: error.message,
       });
       //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
     }
   }
+
 
   countTokens() {
     let tokens = []
@@ -237,159 +244,165 @@ class Game extends React.Component {
     }
     return tokens
   }
+
     doubtGame() {
    
   }
 
-  placeCard(axis) {
+  callback = (message)  => {
+    //console.log(JSON.parse(message.body));
+    let textMessage = JSON.parse(message.body);
+    this.setState({
+      currentPlayer: textMessage["playersturn"].toString(),
+      gameState: textMessage["gamestate"],
+      cardsLeft: textMessage["left"],
+      cardsRight: textMessage["right"],
+      cardsTop: textMessage["top"],
+      cardsBottom: textMessage["bottom"],
+      numTokens: textMessage["playertokens"],
+      currentCard: textMessage["nextCardOnStack"],
+      startingCard: textMessage["startingCard"],
+      nextPlayer: textMessage["nextPlayer"],
+      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
+      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE"
+    });
 
-    let index = 1;
+
+      if (this.state.gameState === "CARDPLACEMENT") {
+        this.setState({
+          message: this.state.isLocalUserPLayer
+            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
+            : ">>> It is player " + this.state.currentPlayer + "'s turn",
+          countDown: 30,
+          countDownText: this.state.isLocalUserPLayer
+            ? "to place card"
+            : "for " + this.state.currentPlayer + "to place card"})
+      } else if (this.state.gameState === "DOUBTINGPHASE") {
+        this.setState({
+          message: this.state.isLocalUserPLayer
+            ? ">>> You can now doubt the card placement"
+            : ">>> The other players can doubt your placement, please wait",
+          countDown: 10,
+          countDownText: this.state.isLocalUserPLayer
+            ? "for the others to doubt"
+            : "to doubt"})
+      } else if (this.state.gameState === "EVALUATION") {
+        this.setState({
+          message: this.state.isLocalUserPLayer
+            ? ">>> Evaluation phase"
+            : ">>> Evaluation phase"})
+      }
+  }
+
+  getData = () => {
+
+    let callback = this.callback;
+
+    let baseURL = getDomain();
+    const socket = SockJS(baseURL+'/gs-guide-websocket');
+
+    stompClient = Stomp.Stomp.over(socket);
+
+    stompClient.connect({}, function () {
+
+    let url = stompClient.ws._transport.url;
+    url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
+    url = url.replace("/websocket", "");
+    url = url.replace(/^[0-9]+\//, "");
+    const sessionId = url;
+
+    stompClient.subscribe('/topic/game/queue/specific-game-game' + sessionId,   callback);
+
+    stompClient.send("/app/game", {}, JSON.stringify(
+      {
+        'name': localStorage.getItem("username"),
+        'id': localStorage.getItem("loginUserId"),
+        'gameId': localStorage.getItem("gameId")
+      }));
+
+  });}
+
+
+  placeCard(axis, index) {
 
     stompClient.send("/app/game/turn", {},
       JSON.stringify({
-        "gameId": 1,
+        "gameId": this.state.gameId,
         "placementIndex": index,
         "axis": axis
       }));
 
-    //TODO: handle correct placement by passing the index to this function as well
-    if (axis === "horizontal") {
-      if (index > this.state.startCardIndexHorizontal) {
-        this.state.cardsRight.splice(this.state.startCardIndexHorizontal + index, 0, [this.state.nextCard]);}
+    this.setState({countDown: 30});
 
-      else {
-        this.state.cardsLeft.splice(index, 0, [this.state.nextCard]);
-        this.state.startCardIndexHorizontal++;
-      }
-    }
-    if (axis === "vertical") {
-      if (index > this.state.startCardIndexVertical) {
-        this.state.cardsAbove.splice(this.state.startCardIndexVertical + index, 0, [this.state.nextCard]);
-      } else {
-        this.state.cardsBelow.splice(index, 0, [this.state.nextCard]);
-        this.state.startCardIndexVertical++;
-      }
+
+
+
+
+  }
+
+  getCards = (cards, direction) => {
+    let renderedCards = [ <AddButton key={0} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
+                            <Link key={0} onClick={() => {
+                              this.placeCard(direction, 0)
+                            }}>
+                              +
+                            </Link>
+                          </AddButton>]
+
+    for (let i=0; i < cards.length; i++) {
+      renderedCards.push(
+        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true} onClick={sendDoubt(cards[i].id)}/>,
+        <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
+          <Link key={i+1} onClick={() => {
+            this.placeCard(direction, i+1)
+          }}>
+            +
+          </Link>
+        </AddButton>)
     }
 
-    this.setState({
-      currentPlayer: localStorage.getItem("currentPlayer"),
-      gameState: localStorage.getItem("gameState"),
-      cards: localStorage.getItem("cards"),
-      numTokens: localStorage.getItem("numToken"),
-      nextCard: localStorage.getItem("nextCard"),
-    }, () => {console.log(JSON.parse(this.state.nextCard))})
+    return renderedCards
 
   }
 
 
   render() {
+    //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
       if (remainingTime === 0) {
         this.setState({countDown:0})
-        return <div className="timer">Too lale...</div>;
+        return <div className="timer">Too late...</div>;
       }
-     
-    
       return (
         <div className="timer">
           <div className="text">Remaining</div>
           <div className="value">{remainingTime} seconds</div>
-          <div className="text">to Place Doubt</div>
+          <div className="text">{this.state.countDownText}</div>
         </div>
       );
     };
+
     return (
       <GameContainer>
-        {this.state.nextCard ?
-          [<CardsContainer>
-            <HorizontalCardContainer>
-              {this.state.cardsLeft.map((card) => {
-                return (
-                  [<AddButton>
-                  <Link key={1} onClick={() => {
-                    this.placeCard("horizontal")
-                  }}>
-                    +
-                  </Link>
-                </AddButton>,
-                <Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>]);
-              })}
-              <AddButton>
-                <Link onClick={() => {
-                  this.placeCard("horizontal")
-                }}>
-                  +
-                </Link>
-              </AddButton>
+          <CardsContainer>
+            <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
+              {this.getCards(this.state.cardsLeft, "left")}
             </HorizontalCardContainer>
             <MiddleCardsContainer>
               <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
-                <AddButton>
-                  <Link onClick={() => {
-                    this.placeCard("vertical")
-                  }}>
-                    +
-                  </Link>
-                </AddButton>
-                {this.state.cardsAbove.map((card) => {
-                  return (
-                    [<Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>,
-                      <AddButton>
-                      <Link key={1} onClick={() => {
-                        this.placeCard("vertical")
-                      }}>
-                        +
-                      </Link>
-                    </AddButton>
-                      ]);
-                })}
-
+                {this.getCards(this.state.cardsTop, "top")}
               </VerticalCardContainer>
               <StartingCardContainer>
-                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.nextCard} frontSide={true}/>
+                {this.state.startingCard ?
+                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
+                  : " "}
               </StartingCardContainer>
               <VerticalCardContainer>
-                <AddButton>
-                  <Link onClick={() => {
-                    this.placeCard("vertical")
-                  }}>
-                    +
-                  </Link>
-                </AddButton>
-                {this.state.cardsBelow.map((card) => {
-                  return (
-                    [<AddButton>
-                      <Link key={1} onClick={() => {
-                        this.placeCard("vertical")
-                      }}>
-                        +
-                      </Link>
-                    </AddButton>,
-                      <Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>]);
-                })}
-
+                {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
             </MiddleCardsContainer>
             <HorizontalCardContainer>
-              <AddButton>
-                <Link onClick={() => {
-                  this.placeCard("horizontal")
-                }}>
-                  +
-                </Link>
-              </AddButton>
-              {this.state.cardsRight.map((card) => {
-                return (
-                  [<Card sizeCard={120} sizeFont={120} cardInfo={card} frontSide={true}/>,
-                    <AddButton>
-                    <Link key={1} onClick={() => {
-                      this.placeCard("horizontal")
-                    }}>
-                      +
-                    </Link>
-                  </AddButton>,
-                    ]);
-              })}
+              {this.getCards(this.state.cardsRight, "right")}
             </HorizontalCardContainer>
           </CardsContainer>,
           <Footer>
@@ -407,7 +420,7 @@ class Game extends React.Component {
                 this.state.countDown>0?<CountdownCircleTimer
                 isPlaying
                 duration={this.state.countDown}
-                size={160}
+                size={180}
                 colors={[
                   ['#004777', 0.33],
                   ['#F7B801', 0.33],
@@ -424,7 +437,8 @@ class Game extends React.Component {
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "25%"}}>
               {
-                this.state.currentPlayer===localStorage.getItem("loginUserId")? <ButtonContainer >
+                this.state.canLocalUserDoubt
+                  ? <ButtonContainer >
                 <Button 
                  width ="100%"
                  style={{backgroundColor:"yellow"}}
@@ -435,14 +449,15 @@ class Game extends React.Component {
                 Doubt
                 </Link>
                 </Button>
-              </ButtonContainer>:""
+              </ButtonContainer>
+                  :""
               }
            
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-          {(localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId"))
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.nextCard} frontSide={[true]}/>
-            : <Label>?</Label>}
+          {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
+            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>
+            : " "}
             </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button 
@@ -455,18 +470,14 @@ class Game extends React.Component {
             </Container>
               <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
                 <Notification>
-              {localStorage.getItem("currentPlayer") === localStorage.getItem("loginUserId")
-                ? ">>> It is your turn! Place the card above on the board by clicking on one of the plus signs."
-                : ">>> It is player " + this.state.currentPlayer + "'s turn"}
-
+                  {this.state.message}
                 </Notification>
               </Container>
             </RightFooter>
           </Footer>,
           <Container style={{display: "flex"}}>
           <Error message={this.state.errorMessage}/>
-          </Container>]
-          : null}
+          </Container>
       </GameContainer>
     );
   }

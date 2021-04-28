@@ -120,7 +120,7 @@ class Login extends React.Component {
       });
       const response = await api.post("/users/login", requestBody);
 
-      console.log(response);
+      //console.log(response);
 
       // Store the token, id and username into the local storage.
       localStorage.setItem("token", response.data.token);

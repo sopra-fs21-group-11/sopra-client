@@ -8,7 +8,6 @@ import Error from "../../views/Error";
 import {api} from "../../helpers/api";
 import {OverlayContainer} from "../../views/design/Overlay";
 import {InputField} from "../../views/design/InputField";
-import {initializeStomp} from "../../helpers/stompClient";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -123,7 +122,8 @@ class Lobby extends React.Component {
       playerMax: 6,
       editable: true,
       created: null,
-      host:true
+      host: true,
+      gameName: "",
     };
   }
   async componentDidMount() {
@@ -136,14 +136,18 @@ class Lobby extends React.Component {
          host: false
        }, () => {console.log(this.state.gameId);});
 
-       await this.getPlayers();
-       this.timer = setInterval(() => this.getPlayers(), 10000); //polling every 10 seconds
+       await this.getPlayersAndGameState();
+       this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
      }
+
     }
 
   componentWillUnmount() {
     window.clearInterval(this.timer);
     this.timer = null;
+
+    window.clearInterval(this.timer2);
+    this.timer2 = null;
   }
 
   exitLobby() {
@@ -154,16 +158,27 @@ class Lobby extends React.Component {
     this.setState({[key]: value});
   }
 
-  async getPlayers() {
+  async getPlayersAndGameState() {
     if (this.state.gameId) {
       const response = await api.get("/games/" + this.state.gameId);
 
-      console.log(response);
-
       const players = await Promise.all(response.data.players);
-      this.handleInputChange("players", players); }
+      this.handleInputChange("players", players);
+
+      if (!this.state.host) {
+        const gameStart = response.data.gameStarted;
+
+        console.log(gameStart);
+
+        if (gameStart) {
+          this.props.history.push("/game");
+        }
+      }
+
+        }
 
   }
+
 
   async createGame() {
     try {
@@ -171,7 +186,7 @@ class Lobby extends React.Component {
       const requestBody = JSON.stringify({
         hostId: localStorage.getItem("loginUserId"),
         token: localStorage.getItem("token"),
-        name: localStorage.getItem("username"),
+        name: this.state.gameName,
         playerMin: 3,
         playerMax: 5,
         cardEvaluationNumber: 2,
@@ -182,7 +197,7 @@ class Lobby extends React.Component {
         horizontalValueCategoryId: this.state.horizontalValueCategoryId,
         verticalValueCategoryId: this.state.verticalValueCategoryId,
         tokenGainOnCorrectGuess: 2,
-        tokenGainOnNearestGuess: 2
+        tokenGainOnNearestGuess: 2,
       });
 
       // create game
@@ -191,7 +206,7 @@ class Lobby extends React.Component {
           Authorization: `Bearer ${localStorage.getItem("token")}`}}
         );
 
-      console.log(response);
+      //console.log(response);
 
       localStorage.setItem("gameId", response.data.id);
       localStorage.setItem("hostId", localStorage.getItem("loginUserId"));
@@ -201,8 +216,8 @@ class Lobby extends React.Component {
       this.handleInputChange("editable", false);
       this.handleInputChange("gameId", response.data.id);
 
-      await this.getPlayers();
-      this.timer = setInterval(() => this.getPlayers(), 10000); //polling every 10 seconds
+      await this.getPlayersAndGameState();
+      this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
 
 
 
@@ -226,16 +241,7 @@ class Lobby extends React.Component {
         }
       });
 
-      await initializeStomp();
-
-
-
-      setTimeout(() => {
-        this.props.history.push(
-          {
-        pathname: "/game",
-        state: { players: this.state.players }})
-      }, 2000);
+      this.props.history.push("/game");
 
 
     } catch (error) {
@@ -293,6 +299,14 @@ class Lobby extends React.Component {
             >
               {settingsText}
             </p>
+            <Label>Game Name</Label>
+            <InputField
+              disabled={!this.state.editable}
+              placeholder="Enter a game name ..."
+              onChange={(e) => {
+                this.handleInputChange("gameName", e.target.value);
+              }}
+            />
             <Label>Min Players</Label>
             <CustomSelect
               disabled={!this.state.editable}
