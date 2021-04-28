@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const EvaluationFormContainer = styled.div`
+const EvaluationFormContainer = styled.form`
   width: ${(props)=>(props.width ? props.width : "140px")};
 `;
 
@@ -18,6 +18,7 @@ const GuessInput = styled.input`
   color: black;
   border-color: rgb(0, 0, 0, 0.4);
   text-align: center;
+  opacity: ${props => (props.placeholder === "submitted" ? 0.4 : 1)};
   width: 100%;
 `;
 
@@ -49,16 +50,31 @@ export class Evaluation extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
-      guess: null
+      guess: null,
+      placeholder: "Enter guess here.."
     };
   }
 
-  async sendGuess(){
+  sendGuess(){
+    this.props.stompClient.send("/app/game/turn", {},
+      JSON.stringify({
+        "nrOfWrongPlaceCards": this.state.guess,
+        "gameId": this.props.gameId
+      }));
 
+
+    console.log(JSON.stringify({
+      "nrOfWrongPlaceCards": this.state.guess,
+      "gameId": this.props.gameId
+    }))
+
+    this.setState({guess: null});
+    this.setState({placeholder: "submitted"});
   }
 
   handleInputChange(value) {
     this.setState({ guess: value });
+
   }
 
 
@@ -66,13 +82,14 @@ export class Evaluation extends React.Component{
     return (
       <EvaluationFormContainer>
         <GuessInput
-          placeholder="Enter guess here.."
+          placeholder={this.state.placeholder}
+          disabled={this.state.placeholder === "submitted"}
           onChange={(e) => {
             this.handleInputChange(e.target.value);
           }}
         />
         <GuessSubmitButton
-          disabled={!this.state.guess}
+          disabled={!this.state.guess || this.state.placeholder === "submitted"}
           onClick={() => {
             this.sendGuess();
           }}

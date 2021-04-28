@@ -360,7 +360,7 @@ class Game extends React.Component {
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
+        <Card sizeCard={120} sizeFont={120} axis={direction} cardInfo={cards[i]} frontSide={!(this.state.gameState === "EVALUATION")}/>,
         <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
@@ -461,7 +461,7 @@ class Game extends React.Component {
               }
               {
                 this.state.gameState === "EVALUATION" ? (
-                  <Evaluation/>
+                  <Evaluation stompClient={stompClient} gameId={this.state.gameId}/>
                 ) : (
                   ""
                 )
