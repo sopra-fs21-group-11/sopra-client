@@ -17,6 +17,8 @@ import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
+import ReactLoading from 'react-loading';
+
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -216,6 +218,7 @@ class Game extends React.Component {
       canLocalUserDoubt: null,
       countDownText: "",
       lastPlayer: "-1",
+      loading:true,
     };
   }
 
@@ -251,10 +254,12 @@ class Game extends React.Component {
   }
 
   callback = (message)  => {
-    //console.log(JSON.parse(message.body));
+
     let textMessage = JSON.parse(message.body);
+    console.log(message.body);
+
     this.setState({
-      currentPlayer: textMessage["playersturn"].toString(),
+      currentPlayer: textMessage["playersturn"],
       gameState: textMessage["gamestate"],
       cardsLeft: textMessage["left"],
       cardsRight: textMessage["right"],
@@ -265,7 +270,8 @@ class Game extends React.Component {
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
       isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
-      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE"
+      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE",
+      loading: false
     });
 
 
@@ -273,11 +279,11 @@ class Game extends React.Component {
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
-            : ">>> It is player " + this.state.currentPlayer + "'s turn",
+            : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
           countDown: 30,
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
-            : "for " + this.state.currentPlayer + "to place card"})
+            : "for " + this.state.currentPlayer.username + " to place card"})
       } else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
           message: this.state.isLocalUserPLayer
@@ -383,19 +389,25 @@ class Game extends React.Component {
 
     return (
       <GameContainer>
+
           <CardsContainer>
-            <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
+          <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
               {this.getCards(this.state.cardsLeft, "left")}
             </HorizontalCardContainer>
             <MiddleCardsContainer>
               <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
                 {this.getCards(this.state.cardsTop, "top")}
               </VerticalCardContainer>
-              <StartingCardContainer>
+              {this.state.loading?
+          <ReactLoading  type={"spin"} height={120} width={120} />:
+          <StartingCardContainer>
                 {this.state.startingCard ?
                 <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
                   : " "}
+
               </StartingCardContainer>
+              }
+
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>

@@ -58,6 +58,7 @@ class CardBackSide extends React.Component {
           );
 
         }
+        //if Id equal to starting card then show both latitude and longitude
         break;
       default:
         return(

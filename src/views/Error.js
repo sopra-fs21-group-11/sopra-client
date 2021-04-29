@@ -33,7 +33,7 @@ const Error = ({ message }) => {
     <div>
       {message ? (
         <ErrorDiv>
-          <ErroLabel style={{ color: "black" }}>Error Message : </ErroLabel>
+          <ErroLabel style={{ color: "black" }}>Error : </ErroLabel>
           <ErroLabel>{message} </ErroLabel>
         </ErrorDiv>
       ) : (
