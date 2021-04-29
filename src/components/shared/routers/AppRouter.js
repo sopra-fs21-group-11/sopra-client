@@ -79,7 +79,7 @@ class AppRouter extends React.Component {
                 <UserOverview />
               )}
             />
-            <Route path="/" exact render={() => <Redirect to={"/userOverview"} />} />
+            <Route path="/" exact render={() => <Redirect to={"/mainView"} />} />
           </div>
         </Switch>
       </BrowserRouter>
