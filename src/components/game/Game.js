@@ -250,10 +250,10 @@ class Game extends React.Component {
   }
 
   callback = (message)  => {
-    //console.log(JSON.parse(message.body));
+   
     let textMessage = JSON.parse(message.body);
     this.setState({
-      currentPlayer: textMessage["playersturn"].toString(),
+      currentPlayer: textMessage["playersturn"],
       gameState: textMessage["gamestate"],
       cardsLeft: textMessage["left"],
       cardsRight: textMessage["right"],
@@ -272,11 +272,11 @@ class Game extends React.Component {
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
-            : ">>> It is player " + this.state.currentPlayer + "'s turn",
+            : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
           countDown: 30,
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
-            : "for " + this.state.currentPlayer + "to place card"})
+            : "for " + this.state.currentPlayer.username + "to place card"})
       } else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
           message: this.state.isLocalUserPLayer

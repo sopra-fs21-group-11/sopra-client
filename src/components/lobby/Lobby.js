@@ -232,6 +232,10 @@ class Lobby extends React.Component {
   async startGame() {
     try {
 
+      if(this.state.playerMin>this.state.players.length)
+      {
+        this.setState({errorMessage:"Minimum "+this.state.playerMin+" Players should join to start the game"})
+      } else{
       // start userOverview
       const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
         {token: localStorage.getItem("token")},
@@ -242,6 +246,7 @@ class Lobby extends React.Component {
       });
 
       this.props.history.push("/game");
+    }
 
 
     } catch (error) {
