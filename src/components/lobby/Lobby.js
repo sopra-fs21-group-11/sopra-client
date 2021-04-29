@@ -217,7 +217,7 @@ class Lobby extends React.Component {
       this.handleInputChange("gameId", response.data.id);
 
       await this.getPlayersAndGameState();
-      this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
+      this.timer = setInterval(() => this.getPlayersAndGameState(), 3000); //polling every 3 seconds
 
 
 
