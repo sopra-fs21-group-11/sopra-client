@@ -8,6 +8,9 @@ import Error from "../../views/Error";
 import Header from "../../views/Header";
 import {OverlayContainer} from "../../views/design/Overlay";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import ReactLoading from 'react-loading';
+
+
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
@@ -215,6 +218,7 @@ class Game extends React.Component {
       canLocalUserDoubt: null,
       countDownText: "",
       lastPlayer: "-1",
+      loading:true,
     };
   }
 
@@ -263,6 +267,7 @@ class Game extends React.Component {
       currentCard: textMessage["nextCardOnStack"],
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
+      loading:false,
       isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
       canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE"
     });
@@ -276,7 +281,7 @@ class Game extends React.Component {
           countDown: 30,
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
-            : "for " + this.state.currentPlayer.username + "to place card"})
+            : "for " + this.state.currentPlayer.username + " to place card"})
       } else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
           message: this.state.isLocalUserPLayer
@@ -382,19 +387,25 @@ class Game extends React.Component {
 
     return (
       <GameContainer>
+                   
           <CardsContainer>
-            <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
+          <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
               {this.getCards(this.state.cardsLeft, "left")}
             </HorizontalCardContainer>
             <MiddleCardsContainer>
               <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
                 {this.getCards(this.state.cardsTop, "top")}
               </VerticalCardContainer>
-              <StartingCardContainer>
+              {this.state.loading?
+          <ReactLoading  type={"spin"} height={120} width={120} />:
+          <StartingCardContainer>
                 {this.state.startingCard ?
                 <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
                   : " "}
+                  
               </StartingCardContainer>
+              }
+          
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
