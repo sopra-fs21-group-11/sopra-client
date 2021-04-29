@@ -8,6 +8,7 @@ import Error from "../../views/Error";
 import {api} from "../../helpers/api";
 import {OverlayContainer} from "../../views/design/Overlay";
 import {InputField} from "../../views/design/InputField";
+import LoadingOverlay from 'react-loading-overlay';
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -124,6 +125,7 @@ class Lobby extends React.Component {
       created: null,
       host: true,
       gameName: "",
+      loading:false
     };
   }
   async componentDidMount() {
@@ -133,7 +135,8 @@ class Lobby extends React.Component {
          gameId: gameId,
          created: true,
          editable: false,
-         host: false
+         host: false,
+         loading:true
        }, () => {console.log(this.state.gameId);});
 
        await this.getPlayersAndGameState();
@@ -165,7 +168,14 @@ class Lobby extends React.Component {
       const players = await Promise.all(response.data.players);
       this.handleInputChange("players", players);
 
-      if (!this.state.host) {
+      console.log(this.state.host)
+      console.log(players)
+      if(!this.state.host&&players.length>0)
+      {
+        this.setState({loading:false})
+      }
+
+      
         const gameStart = response.data.gameStarted;
 
         console.log(gameStart);
@@ -173,7 +183,7 @@ class Lobby extends React.Component {
         if (gameStart) {
           this.props.history.push("/game");
         }
-      }
+      
 
         }
 
@@ -288,6 +298,11 @@ class Lobby extends React.Component {
 
     return (
       <OverlayContainer>
+        <LoadingOverlay
+            active={this.state.loading}
+            spinner
+            text='Loading your content...'
+            >
         <CustomOverlay>
         <h2
         style={{textAlign: "center", paddingTop: "20px"}}>Game Lobby</h2>
@@ -442,6 +457,7 @@ class Lobby extends React.Component {
           </ButtonContainer>
         </Container>
         </CustomOverlay>
+        </LoadingOverlay>
         <Error message={this.state.errorMessage}/>
       </OverlayContainer>
     );

@@ -268,8 +268,8 @@ class Game extends React.Component {
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
       loading:false,
-      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
-      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE"
+      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].id.toString(),
+      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].id.toString() && this.state.gameState === "DOUBTINGPHASE"
     });
 
 
@@ -444,25 +444,6 @@ class Game extends React.Component {
             </MiddleFooter>
             <RightFooter>
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
-            <Container style={{height: "100%", width: "25%"}}>
-              {
-                this.state.canLocalUserDoubt
-                  ? <ButtonContainer >
-                <Button 
-                 width ="100%"
-                 style={{backgroundColor:"yellow"}}
-                 onClick={() => {
-                  this.setState({countDown:20})//TODO : to highlight the card and select the card remove this function
-                 }}>
-                <Link>
-                Doubt
-                </Link>
-                </Button>
-              </ButtonContainer>
-                  :""
-              }
-           
-            </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
             ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>
