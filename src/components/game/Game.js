@@ -249,13 +249,22 @@ class Game extends React.Component {
     return tokens
   }
 
-    doubtGame() {
-   
+  doubtGame(doubtID) {
+    /*stompClient.send("/app/game/turn", {},
+      JSON.stringify({
+        "gameId": this.state.gameId,
+        "placementIndex": index,
+        "axis": axis
+      }));*/
+
+      console.log('----------------',doubtID)
+    ///this.setState({countDown: 30});
   }
 
   callback = (message)  => {
    
     let textMessage = JSON.parse(message.body);
+    console.log(textMessage)
     this.setState({
       currentPlayer: textMessage["playersturn"],
       gameState: textMessage["gamestate"],
@@ -354,7 +363,7 @@ class Game extends React.Component {
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
+        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true} doubtCard={true} doubtGame={this.doubtGame}/>,
         <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
@@ -400,7 +409,7 @@ class Game extends React.Component {
           <ReactLoading  type={"spin"} height={120} width={120} />:
           <StartingCardContainer>
                 {this.state.startingCard ?
-                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
+                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true} doubtCard={false} doubtGame={this.doubtGame}/>
                   : " "}
                   
               </StartingCardContainer>
@@ -446,7 +455,7 @@ class Game extends React.Component {
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>
+            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
             : " "}
             </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
