@@ -264,8 +264,8 @@ class Lobby extends React.Component {
       users = <Users
         style={{marginRight: "50px"}}
       >
-        {this.state.players.map((username) => {
-          return (<Name>{username}</Name>);
+        {this.state.players.map((player) => {
+          return (<Name key={player.id}>{player.username}</Name>);
         })}
       </Users>
       titleUsers = <Heading style={{width: "25%", marginRight: "50px"}}>Players</Heading>
