@@ -13,7 +13,6 @@ export const Button = styled.button`
   width: ${props => props.width || null};
   height: 35px;
   border: rgb(0, 0, 0, 1);
-  padding: none;
   border-width: 4px;
   border-style: solid;
   cursor: ${props => (props.disabled ? "default" : "pointer")};

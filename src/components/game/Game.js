@@ -8,9 +8,7 @@ import Error from "../../views/Error";
 import Header from "../../views/Header";
 import {OverlayContainer} from "../../views/design/Overlay";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import ReactLoading from 'react-loading';
-
-
+import {Evaluation} from './Evaluation';
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
@@ -19,6 +17,8 @@ import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
+import ReactLoading from 'react-loading';
+
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -39,14 +39,14 @@ const LeftFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 20%;
 `;
 
 const RightFooter = styled(BaseContainer)`
   color: white;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 60%;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -219,15 +219,35 @@ class Game extends React.Component {
       countDownText: "",
       lastPlayer: "-1",
       loading:true,
+      countDownTimer: {
+        "CARDPLACEMENT": 30,
+        "DOUBTINGPHASE": 10,
+        "DOUBTVISIBLE": 5,
+        "EVALUATION": 30,
+        "EVALUATIONVISIBLE": 30
+      }
+
     };
   }
 
   async componentDidMount() {
     try {
 
+      // getting the game settings
+      const response = await api.get("/games/" + this.state.gameId);
+      console.log(response)
+      this.setState({
+        countDownTimer: {
+          "CARDPLACEMENT": response.data.playerTurnCountdown,
+          "DOUBTINGPHASE": response.data.doubtCountdown,
+          "DOUBTVISIBLE": response.data.visibleAfterDoubtCountdown,
+          "EVALUATION": response.data.evaluationCountdown,
+          "EVALUATIONVISIBLE": response.data.evaluationCountdownVisible
+        }
+      });
+
       this.getData();
       console.log(this.state.currentCard);
-
     }
     catch (error) {
       this.setState({
@@ -254,8 +274,10 @@ class Game extends React.Component {
   }
 
   callback = (message)  => {
-   
+
     let textMessage = JSON.parse(message.body);
+    console.log(message.body);
+
     this.setState({
       currentPlayer: textMessage["playersturn"],
       gameState: textMessage["gamestate"],
@@ -354,7 +376,7 @@ class Game extends React.Component {
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
+        <Card sizeCard={120} sizeFont={120} axis={direction} cardInfo={cards[i]} frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>,
         <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
@@ -372,10 +394,7 @@ class Game extends React.Component {
   render() {
     //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
-      if (remainingTime === 0) {
-        this.setState({countDown:0})
-        return <div className="timer">Too late...</div>;
-      }
+
       return (
         <div className="timer">
           <div className="text">Remaining</div>
@@ -387,7 +406,7 @@ class Game extends React.Component {
 
     return (
       <GameContainer>
-                   
+
           <CardsContainer>
           <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
               {this.getCards(this.state.cardsLeft, "left")}
@@ -402,10 +421,10 @@ class Game extends React.Component {
                 {this.state.startingCard ?
                 <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
                   : " "}
-                  
+
               </StartingCardContainer>
               }
-          
+
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
@@ -426,9 +445,9 @@ class Game extends React.Component {
             <MiddleFooter>
             <Container style={{height: "100%", width: "100%",marginTop: "3%"}}>
               {
-                this.state.countDown>0?<CountdownCircleTimer
+                this.state.gameState ? <CountdownCircleTimer
                 isPlaying
-                duration={this.state.countDown}
+                duration={this.state.countDownTimer[this.state.gameState]}
                 size={180}
                 colors={[
                   ['#004777', 0.33],
@@ -444,6 +463,15 @@ class Game extends React.Component {
             </MiddleFooter>
             <RightFooter>
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
+            <Container style={{height: "100%", width: "25%"}}>
+              {
+                this.state.gameState === "EVALUATION" ? (
+                  <Evaluation stompClient={stompClient} gameId={this.state.gameId}/>
+                ) : (
+                  ""
+                )
+              }
+            </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
             ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>

@@ -17,18 +17,19 @@ const CardTextContainerContainer = styled.div`
   position: absolute;
   overflow-wrap: break-word;
   display: flex;
+  justify-content: center;
   align-content: center;
   align-items: center;
   flex-wrap: wrap;
 `;
 
 const CardTextContainer = styled.div`
-  
 `;
 
 const CardText = styled.div`
   font-weight: bold;
   color: white;
+  text-align: center;
 `;
 
 
@@ -36,9 +37,42 @@ const CardText = styled.div`
 class CardBackSide extends React.Component {
 
 
+
+  displayText(cardTextStyle){
+
+
+    switch('Coordinates'){
+      case 'Coordinates':
+        if(this.props.axis === "top" || this.props.axis === "bottom"){
+          return (
+            <CardText style={cardTextStyle}>
+              Lat.: {this.props.cardInfo.ncoord}
+            </CardText>
+          );
+        }
+        if(this.props.axis === "left" || this.props.axis === "right"){
+          return (
+            <CardText style={cardTextStyle}>
+              Long.: {this.props.cardInfo.ecoord}
+            </CardText>
+          );
+
+        }
+
+        //if Id equal to starting card then show both latitude and longitude
+        break;
+      default:
+        return(
+          <CardText>
+            Hallo World
+          </CardText>
+        )
+    }
+  }
+
   render(){
     let image;
-    let standardMultiplier = 3;
+    let standardMultiplier = 1;
     let standardCardWith = 100 * standardMultiplier;
     let standardCardHeight = 69 * standardMultiplier;
     let standardFontSize = 13;
@@ -65,19 +99,7 @@ class CardBackSide extends React.Component {
         {image}
         <CardTextContainerContainer style={textContainerContainerStyle}>
           <CardTextContainer>
-            <CardText style={cardTextStyle}>
-              {/* should be replaced by the this.props.cardName */}
-              Coordinates (South - North):
-            </CardText>
-            <CardText style={cardTextStyle}>
-              Coordinates (West - East):
-            </CardText>
-            <CardText style={cardTextStyle}>
-              Area:
-            </CardText>
-            <CardText style={cardTextStyle}>
-              Heigth:
-            </CardText>
+            {this.displayText(cardTextStyle)}
           </CardTextContainer>
         </CardTextContainerContainer>
       </CardContainer>
