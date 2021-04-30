@@ -219,15 +219,35 @@ class Game extends React.Component {
       countDownText: "",
       lastPlayer: "-1",
       loading:true,
+      countDownTimer: {
+        "CARDPLACEMENT": 30,
+        "DOUBTINGPHASE": 10,
+        "DOUBTVISIBLE": 5,
+        "EVALUATION": 30,
+        "EVALUATIONVISIBLE": 30
+      }
+
     };
   }
 
   async componentDidMount() {
     try {
 
+      // getting the game settings
+      const response = await api.get("/games/" + this.state.gameId);
+      console.log(response)
+      this.setState({
+        countDownTimer: {
+          "CARDPLACEMENT": response.data.playerTurnCountdown,
+          "DOUBTINGPHASE": response.data.doubtCountdown,
+          "DOUBTVISIBLE": response.data.visibleAfterDoubtCountdown,
+          "EVALUATION": response.data.evaluationCountdown,
+          "EVALUATIONVISIBLE": response.data.evaluationCountdownVisible
+        }
+      });
+
       this.getData();
       console.log(this.state.currentCard);
-
     }
     catch (error) {
       this.setState({
@@ -269,9 +289,9 @@ class Game extends React.Component {
       currentCard: textMessage["nextCardOnStack"],
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
-      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
-      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE",
-      loading: false
+      loading:false,
+      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].id.toString(),
+      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].id.toString() && this.state.gameState === "DOUBTINGPHASE"
     });
 
 
@@ -356,7 +376,7 @@ class Game extends React.Component {
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} axis={direction} cardInfo={cards[i]} frontSide={!(this.state.gameState === "EVALUATION")}/>,
+        <Card sizeCard={120} sizeFont={120} axis={direction} cardInfo={cards[i]} frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>,
         <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
           <Link key={i+1} onClick={() => {
             this.placeCard(direction, i+1)
@@ -374,10 +394,7 @@ class Game extends React.Component {
   render() {
     //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
-      if (remainingTime === 0) {
-        this.setState({countDown:0})
-        return <div className="timer">Too late...</div>;
-      }
+
       return (
         <div className="timer">
           <div className="text">Remaining</div>
@@ -428,9 +445,9 @@ class Game extends React.Component {
             <MiddleFooter>
             <Container style={{height: "100%", width: "100%",marginTop: "3%"}}>
               {
-                this.state.countDown>0?<CountdownCircleTimer
+                this.state.gameState ? <CountdownCircleTimer
                 isPlaying
-                duration={this.state.countDown}
+                duration={this.state.countDownTimer[this.state.gameState]}
                 size={180}
                 colors={[
                   ['#004777', 0.33],
@@ -447,22 +464,6 @@ class Game extends React.Component {
             <RightFooter>
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "25%"}}>
-              {
-                this.state.canLocalUserDoubt
-                  ? <ButtonContainer >
-                <Button 
-                 width ="100%"
-                 style={{backgroundColor:"yellow"}}
-                 onClick={() => {
-                  this.setState({countDown:20})//TODO : to highlight the card and select the card remove this function
-                 }}>
-                <Link>
-                Doubt
-                </Link>
-                </Button>
-              </ButtonContainer>
-                  :""
-              }
               {
                 this.state.gameState === "EVALUATION" ? (
                   <Evaluation stompClient={stompClient} gameId={this.state.gameId}/>
