@@ -30,6 +30,8 @@ const CardText = styled.div`
   font-weight: bold;
   color: white;
 `;
+const Link = styled.a`
+`;
 
 class Card extends React.Component{
 
@@ -56,8 +58,6 @@ class Card extends React.Component{
     return JSON.stringify(j2);
 
   }
-
-
   render(){
     let image;
     let standardCardWith = 100;
@@ -70,7 +70,8 @@ class Card extends React.Component{
     let textContainerHeigth = (standardCardHeight - 10) * this.props.sizeCard /100;
     let topOffset = standardTopOffset * this.props.sizeCard /100;
     let sizeFont = standardFontSize * this.props.sizeFont/100;
-    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, margin: "1%"}
+    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, margin: "0%"}
+    let cardLinkStyle = {border: '3px solid rgba(255,127,80,1)'}
     let cardTextStyle = {fontSize: `${sizeFont}px`, width: `${textContainerWidth}px`}
     let textContainerContainerStyle = {width: `${textContainerWidth}px`, height: `${textContainerHeigth}px`, top: `${topOffset}px`}
     let textContainerStyle = {
@@ -104,7 +105,10 @@ class Card extends React.Component{
 
     return(
 
-
+    <Link key={this.props.cardInfo.id}  style={this.props.doubtCard?cardLinkStyle:{}} onClick={() => {
+       this.props.doubtGame(this.props.cardInfo.id);
+      }}>
+      
       <CardContainer style={cardStyle}>
         {this.props.frontSide ?
           [<Image style={cardStyle} src={placeCard}/>,
@@ -127,6 +131,7 @@ class Card extends React.Component{
           ]
         }
       </CardContainer>
+      </Link>
     );
   }
 }

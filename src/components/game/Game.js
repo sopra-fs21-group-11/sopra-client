@@ -270,15 +270,22 @@ class Game extends React.Component {
     return tokens
   }
 
-    doubtGame() {
-   
+  doubtGame(doubtID) {
+    /*stompClient.send("/app/game/turn", {},
+      JSON.stringify({
+        "gameId": this.state.gameId,
+        "placementIndex": index,
+        "axis": axis
+      }));*/
+
+      console.log('----------------',doubtID)
+    ///this.setState({countDown: 30});
   }
 
   callback = (message)  => {
 
     let textMessage = JSON.parse(message.body);
-    console.log(message.body);
-
+    console.log(textMessage)
     this.setState({
       currentPlayer: textMessage["playersturn"],
       gameState: textMessage["gamestate"],
@@ -385,6 +392,7 @@ class Game extends React.Component {
           axis={direction}
           cardInfo={cards[i]}
           startingCard={this.state.startingCard}
+         doubtCard={true} doubtGame={this.doubtGame}
           frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>,
         this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
           (
@@ -397,6 +405,7 @@ class Game extends React.Component {
             </AddButton>
           )
           : "")
+
     }
 
     return renderedCards
@@ -442,6 +451,7 @@ class Game extends React.Component {
                       sizeFont={120}
                       cardInfo={this.state.startingCard}
                       startingCard={this.state.startingCard}
+              doubtCard={false} doubtGame={this.doubtGame}
                       frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>
                   : " "}
 
@@ -512,7 +522,7 @@ class Game extends React.Component {
                 }
               </ButtonContainer>
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>
+            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
             : " "}
             </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
