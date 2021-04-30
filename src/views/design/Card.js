@@ -117,7 +117,13 @@ class Card extends React.Component{
             </CardTextContainerContainer>]
           :
           [
-            <CardBackSide sizeCard={this.props.sizeCard} sizeFont={this.props.sizeFont} axis={this.props.axis} cardInfo={this.props.cardInfo}/>
+            <CardBackSide
+              sizeCard={this.props.sizeCard}
+              sizeFont={this.props.sizeFont}
+              axis={this.props.axis}
+              cardInfo={this.props.cardInfo}
+              startingCard={this.props.startingCard}
+            />
           ]
         }
       </CardContainer>

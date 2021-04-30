@@ -22,7 +22,7 @@ const GuessInput = styled.input`
   width: 100%;
 `;
 
-const GuessSubmitButton =styled.div`
+const GuessSubmitButton =styled.button`
   &:hover {
     transform: translateY(-2px);
   }
@@ -56,7 +56,7 @@ export class Evaluation extends React.Component{
   }
 
   sendGuess(){
-    this.props.stompClient.send("/app/game/turn", {},
+    this.props.stompClient.send("/app/game/guess", {},
       JSON.stringify({
         "nrOfWrongPlaceCards": this.state.guess,
         "gameId": this.props.gameId
