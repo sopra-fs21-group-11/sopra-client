@@ -1,19 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React,{ useState }  from "react";
+import React  from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
 import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
-import Header from "../../views/Header";
-import {OverlayContainer} from "../../views/design/Overlay";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import {Evaluation} from './Evaluation';
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
 import Card from "../../views/design/Card";
-import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
@@ -564,7 +561,7 @@ class Game extends React.Component {
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button 
                  width ="50%">
-                <Link>
+                <Link onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
                 Help
                 </Link>
                 </Button>
