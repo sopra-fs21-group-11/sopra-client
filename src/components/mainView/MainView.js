@@ -8,6 +8,7 @@ import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 
 
+
 const MenuContainer = styled.div`
   height: 500px;
   width: 30vw;
@@ -148,8 +149,6 @@ class MainView extends React.Component {
                     Logout
                   </Button>
                 </ButtonContainer>
-
-                  
               </NavigationContainer>
             </MenuContainer>
           </BaseContainer>

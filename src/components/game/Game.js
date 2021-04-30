@@ -8,9 +8,7 @@ import Error from "../../views/Error";
 import Header from "../../views/Header";
 import {OverlayContainer} from "../../views/design/Overlay";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import ReactLoading from 'react-loading';
-
-
+import {Evaluation} from './Evaluation';
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
@@ -19,6 +17,8 @@ import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
+import ReactLoading from 'react-loading';
+
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -39,14 +39,14 @@ const LeftFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 20%;
 `;
 
 const RightFooter = styled(BaseContainer)`
   color: white;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 60%;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -219,15 +219,36 @@ class Game extends React.Component {
       countDownText: "",
       lastPlayer: "-1",
       loading:true,
+      countDownTimer: {
+        "CARDPLACEMENT": 30,
+        "DOUBTINGPHASE": 10,
+        "DOUBTVISIBLE": 5,
+        "EVALUATION": 30,
+        "EVALUATIONVISIBLE": 30
+      },
+      winner: null
+
     };
   }
 
   async componentDidMount() {
     try {
 
+      // getting the game settings
+      const response = await api.get("/games/" + this.state.gameId);
+      console.log(response)
+      this.setState({
+        countDownTimer: {
+          "CARDPLACEMENT": response.data.playerTurnCountdown,
+          "DOUBTINGPHASE": response.data.doubtCountdown,
+          "DOUBTVISIBLE": response.data.visibleAfterDoubtCountdown,
+          "EVALUATION": response.data.evaluationCountdown,
+          "EVALUATIONVISIBLE": response.data.evaluationCountdownVisible
+        }
+      });
+
       this.getData();
       console.log(this.state.currentCard);
-
     }
     catch (error) {
       this.setState({
@@ -262,7 +283,7 @@ class Game extends React.Component {
   }
 
   callback = (message)  => {
-   
+
     let textMessage = JSON.parse(message.body);
     console.log(textMessage)
     this.setState({
@@ -276,6 +297,7 @@ class Game extends React.Component {
       currentCard: textMessage["nextCardOnStack"],
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
+      // winner: textMessage["winner"],
       loading:false,
       isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].id.toString(),
       canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].id.toString() && this.state.gameState === "DOUBTINGPHASE"
@@ -294,8 +316,8 @@ class Game extends React.Component {
       } else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
           message: this.state.isLocalUserPLayer
-            ? ">>> You can now doubt the card placement"
-            : ">>> The other players can doubt your placement, please wait",
+            ? ">>> The other players can doubt your placement, please wait"
+            : ">>> You can now doubt the card placement",
           countDown: 10,
           countDownText: this.state.isLocalUserPLayer
             ? "for the others to doubt"
@@ -303,6 +325,10 @@ class Game extends React.Component {
       } else if (this.state.gameState === "EVALUATION") {
         this.setState({
           message: ">>> Evaluation phase"})
+      }
+
+      if(this.state.gameState === "GAMEENDED"){
+        this.history.push("/mainView")
       }
   }
 
@@ -344,47 +370,60 @@ class Game extends React.Component {
         "axis": axis
       }));
 
-    this.setState({countDown: 30});
-
-
-
-
-
   }
 
   getCards = (cards, direction) => {
-    let renderedCards = [ <AddButton key={0} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
+    let renderedCards = [ this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
+      (
+        <AddButton key={0} >
                             <Link key={0} onClick={() => {
                               this.placeCard(direction, 0)
                             }}>
                               +
                             </Link>
-                          </AddButton>]
+                          </AddButton>
+      ): ""]
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true} doubtCard={true} doubtGame={this.doubtGame}/>,
-        <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
-          <Link key={i+1} onClick={() => {
-            this.placeCard(direction, i+1)
-          }}>
-            +
-          </Link>
-        </AddButton>)
+        <Card
+          sizeCard={120}
+          sizeFont={120}
+          axis={direction}
+          cardInfo={cards[i]}
+          startingCard={this.state.startingCard}
+         doubtCard={true} doubtGame={this.doubtGame}
+          frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>,
+        this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
+          (
+            <AddButton key={i+1} >
+              <Link key={i+1} onClick={() => {
+                this.placeCard(direction, i+1)
+              }}>
+                +
+              </Link>
+            </AddButton>
+          )
+          : "")
+
     }
 
     return renderedCards
 
   }
 
+  endGame(){
+    stompClient.send("/app/game/end", {},
+      JSON.stringify({
+        "gameId": this.state.gameId
+      }));
+    this.props.history.push("/mainView");
+  }
 
   render() {
     //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
-      if (remainingTime === 0) {
-        this.setState({countDown:0})
-        return <div className="timer">Too late...</div>;
-      }
+
       return (
         <div className="timer">
           <div className="text">Remaining</div>
@@ -396,7 +435,6 @@ class Game extends React.Component {
 
     return (
       <GameContainer>
-                   
           <CardsContainer>
           <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
               {this.getCards(this.state.cardsLeft, "left")}
@@ -409,12 +447,17 @@ class Game extends React.Component {
           <ReactLoading  type={"spin"} height={120} width={120} />:
           <StartingCardContainer>
                 {this.state.startingCard ?
-                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true} doubtCard={false} doubtGame={this.doubtGame}/>
+                <Card sizeCard={120}
+                      sizeFont={120}
+                      cardInfo={this.state.startingCard}
+                      startingCard={this.state.startingCard}
+              doubtCard={false} doubtGame={this.doubtGame}
+                      frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>
                   : " "}
-                  
+
               </StartingCardContainer>
               }
-          
+
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
@@ -435,9 +478,9 @@ class Game extends React.Component {
             <MiddleFooter>
             <Container style={{height: "100%", width: "100%",marginTop: "3%"}}>
               {
-                this.state.countDown>0?<CountdownCircleTimer
+                this.state.gameState ? <CountdownCircleTimer
                 isPlaying
-                duration={this.state.countDown}
+                duration={this.state.countDownTimer[this.state.gameState]}
                 size={180}
                 colors={[
                   ['#004777', 0.33],
@@ -453,7 +496,31 @@ class Game extends React.Component {
             </MiddleFooter>
             <RightFooter>
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
+            <Container style={{height: "100%", width: "25%"}}>
+              {
+                this.state.gameState === "EVALUATION" ? (
+                  <Evaluation stompClient={stompClient} gameId={this.state.gameId}/>
+                ) : (
+                  ""
+                )
+              }
+            </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
+              <ButtonContainer style={{height: "100%", width: "50%"}}>
+                {
+                  this.state.hostId === localStorage.getItem("loginUserId")?
+                    (<Button
+                    width ="100%">
+                    <Link
+                      onClick={() => {
+                        this.endGame()
+                      }}
+                    >
+                      End Game
+                    </Link>
+                  </Button>):""
+                }
+              </ButtonContainer>
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
             ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
             : " "}
