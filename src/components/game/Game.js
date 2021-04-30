@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React,{ useState }  from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
@@ -216,6 +216,7 @@ class Game extends React.Component {
       isLocalUserPLayer: false,
       message: "",
       countDownText: "",
+      countKey:0,
       lastPlayer: "-1",
       loading:true,
       doubtResultDTO:null,
@@ -316,19 +317,19 @@ class Game extends React.Component {
           message: this.state.isLocalUserPLayer
             ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
             : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
-          countDown: 30,
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
             : "for " + this.state.currentPlayer.username + " to place card"})
+            this.resetCountDown();
       } else if (this.state.gameState === "DOUBTINGPHASE") {
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> The other players can doubt your placement, please wait"
             : ">>> You can now doubt the card placement",
-          countDown: 10,
           countDownText: this.state.isLocalUserPLayer
             ? "for the others to doubt"
             : "to doubt"})
+            this.resetCountDown();
       } else if (this.state.gameState === "DOUBTVISIBLE") {
         let doubtRightous=this.state.doubtResultDTO.doubtRightous;
 
@@ -336,8 +337,8 @@ class Game extends React.Component {
           message: this.state.isLocalUserPLayer
           ? (!doubtRightous?">>> You placed card in wrong position ":"hurray, your placed Card correctly")
           : (!doubtRightous?">>> " + this.state.currentPlayer.username +" place card in wrong position ":this.state.currentPlayer.username +" placed Card correctly"),
-          countDown: 10,
           countDownText: "doubt result"})
+          this.resetCountDown();
       } 
       else if (this.state.gameState === "EVALUATION") {
         this.setState({
@@ -449,6 +450,10 @@ class Game extends React.Component {
       }));
     this.props.history.push("/mainView");
   }
+  resetCountDown(){
+    let count=this.state.countDownTimer[this.state.gameState]
+    this.setState({countDown:count,countKey:this.state.countKey+1})
+  }
 
   render() {
     //TODO: stop timer when action was performed
@@ -462,7 +467,6 @@ class Game extends React.Component {
         </div>
       );
     };
-
     return (
       <GameContainer>
           <CardsContainer>
@@ -509,9 +513,11 @@ class Game extends React.Component {
             <Container style={{height: "100%", width: "100%",marginTop: "3%"}}>
               {
                 this.state.gameState ? <CountdownCircleTimer
+                key={this.state.countKey}
                 isPlaying
                 duration={this.state.countDownTimer[this.state.gameState]}
                 size={180}
+                onComplete={() => [true, 1000]}
                 colors={[
                   ['#004777', 0.33],
                   ['#F7B801', 0.33],
