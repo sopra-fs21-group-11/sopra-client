@@ -301,7 +301,7 @@ class Lobby extends React.Component {
         <LoadingOverlay
             active={this.state.loading}
             spinner
-            text='Loading your content...'
+            text='Loading ...'
             >
         <CustomOverlay>
         <h2

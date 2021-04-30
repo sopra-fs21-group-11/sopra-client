@@ -289,6 +289,7 @@ class Game extends React.Component {
     return false;
    
   }
+
   callback = (message)  => {
     let textMessage = JSON.parse(message.body);
     console.log(textMessage);
@@ -387,6 +388,19 @@ class Game extends React.Component {
       }));
 
   }
+  checkTurnCard(cardID) {
+      if(this.state.gameState === "EVALUATIONVISIBLE"){
+        return false;
+      }
+      else if(this.state.gameState === "DOUBTVISIBLE"){
+        let doubtResultDTO=this.state.doubtResultDTO;
+        if([doubtResultDTO.referenceCard.id,doubtResultDTO.doubtedCard.id].includes(cardID)){
+          return false;
+        }
+      }
+      return true;
+   
+  }
 
   getCards = (cards, direction) => {
     let renderedCards = [ this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
@@ -409,7 +423,7 @@ class Game extends React.Component {
           cardInfo={cards[i]}
           startingCard={this.state.startingCard}
           doubtCard={this.checkDoubtCard(cards[i].id)} doubtGame={this.doubtGame}
-          frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>,
+          frontSide={this.checkTurnCard(cards[i].id)}/>,
         this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
           (
             <AddButton key={i+1} >
@@ -468,7 +482,7 @@ class Game extends React.Component {
                       cardInfo={this.state.startingCard}
                       startingCard={this.state.startingCard}
                       doubtCard={this.checkDoubtCard(this.state.startingCard.id)} doubtGame={this.doubtGame}
-                      frontSide={!(this.state.gameState === "EVALUATIONVISIBLE")}/>
+                      frontSide={this.checkTurnCard(this.state.startingCard)}/>
                   : " "}
 
               </StartingCardContainer>
