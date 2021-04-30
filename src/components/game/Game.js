@@ -360,7 +360,7 @@ class Game extends React.Component {
     stompClient.connect({}, function () {
 
     let url = stompClient.ws._transport.url;
-    url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
+    url = url.substring(url.indexOf("/gs-guide-websocket/")+20,url.length);
     url = url.replace("/websocket", "");
     url = url.replace(/^[0-9]+\//, "");
     const sessionId = url;
