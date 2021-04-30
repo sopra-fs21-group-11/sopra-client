@@ -390,7 +390,7 @@ class Game extends React.Component {
           (
             <AddButton key={i+1} >
               <Link key={i+1} onClick={() => {
-                this.placeCard(direction, 0)
+                this.placeCard(direction, i+1)
               }}>
                 +
               </Link>
