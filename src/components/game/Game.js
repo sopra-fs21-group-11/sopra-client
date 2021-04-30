@@ -353,6 +353,7 @@ class Game extends React.Component {
 
     let baseURL = getDomain();
     const socket = SockJS(baseURL+'/gs-guide-websocket');
+    socket.withCredentials=true;
 
     stompClient = Stomp.Stomp.over(socket);
 

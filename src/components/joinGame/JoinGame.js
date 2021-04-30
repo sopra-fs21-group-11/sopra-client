@@ -7,9 +7,7 @@ import Error from "../../views/Error";
 import { api } from "../../helpers/api";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer } from "../../views/design/Overlay";
-import SockJS from "sockjs-client";
-import * as Stomp from "@stomp/stompjs";
-import Lobby from "../lobby/Lobby";
+
 
 const Container = styled(BaseContainer)`
   color: white;
