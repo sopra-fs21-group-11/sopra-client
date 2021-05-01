@@ -1,14 +1,12 @@
 import styled from "styled-components";
 
 export const OverlayContainer = styled.div`
-  min-height: 500px;
-  width: 100vw;
-  height: 80vh;
+  width: 100%;
+  height: 100%;
   margin: 0;
   position: absolute;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
 `;
 
 export const Overlay = styled.div`
@@ -16,7 +14,7 @@ export const Overlay = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
+  height: 80%;
   background: rgb(200, 213, 0, 0.25);
   
 `;
