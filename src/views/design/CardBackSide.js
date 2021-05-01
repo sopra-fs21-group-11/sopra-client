@@ -12,13 +12,12 @@ const CardContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
-
 `;
 
 
 const CardContainerGreen = styled.div`
   position: relative;
-  display: flex;
+  display: none;
   justify-content: center;
   -webkit-box-shadow: 0 0 10px green;
   box-shadow: 0 0 10px green;
@@ -38,12 +37,11 @@ const CardTextContainerContainer = styled.div`
   overflow-wrap: break-word;
   display: flex;
   justify-content: center;
-  align-content: center;
   align-items: center;
-  flex-wrap: wrap;
 `;
 
 const CardTextContainer = styled.div`
+  
 `;
 
 const CardText = styled.div`
@@ -59,7 +57,6 @@ class CardBackSide extends React.Component {
 
 
   displayText(cardTextStyle){
-
 
     switch('Coordinates'){
       case 'Coordinates':
@@ -99,7 +96,7 @@ class CardBackSide extends React.Component {
               <CardText style={cardTextStyle}>
                 Lat.: {this.props.cardInfo.ncoord}
               </CardText>
-              <CardText>
+              <CardText style={cardTextStyle}>
                 Long.: {this.props.cardInfo.ecoord}
               </CardText>
             </div>
@@ -116,6 +113,7 @@ class CardBackSide extends React.Component {
   }
 
 
+
   render(){
     let image;
     let standardMultiplier = 1;
@@ -129,8 +127,8 @@ class CardBackSide extends React.Component {
     let textContainerHeigth = (standardCardHeight - 10 * standardMultiplier) * this.props.sizeCard /100;
     let topOffset = standardTopOffset * this.props.sizeCard /100;
     let sizeFont = standardFontSize * this.props.sizeFont/100;
-    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`,border: this.props.cardInfo.correct? '3px solid rgba(77,175,124,1)':(!this.props.cardInfo.correct?'3px solid rgba(255,127,80,1)':'none')}
-    let cardTextStyle = {fontSize: `${sizeFont}px`, minWidth: `${textContainerWidth}px`}
+    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`}
+    let cardTextStyle = {fontSize: `${sizeFont}px`, width: `${textContainerWidth}px`}
     let textContainerContainerStyle = {width: `${textContainerWidth}px`, height: `${textContainerHeigth}px`, top: `${topOffset}px`}
 
 
@@ -142,15 +140,15 @@ class CardBackSide extends React.Component {
     }
 
     // change card shadow in the Evaluation phase
-    if(this.props.cardInfo.correct === "true"){
-      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, border: '3px solid green'}
+    if(this.props.cardInfo.correct === true && this.props.cardInfo.id !== this.props.startingCard.id){
+      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, WebkitBoxShadow: `0 0 10px green`}
     }
-    if(this.props.cardInfo.correct === "false"){
-      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, border: '3px solid green'}
+    if(this.props.cardInfo.correct === false && this.props.cardInfo.id !== this.props.startingCard.id){
+      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, WebkitBoxShadow: `0 0 10px red`}
     }
 
     return(
-      //this.changeShadowAroundBox(image, cardStyle, textContainerContainerStyle, cardTextStyle)
+
       <CardContainer style={cardStyle} >
         {image}
         <CardTextContainerContainer style={textContainerContainerStyle}>
@@ -162,6 +160,7 @@ class CardBackSide extends React.Component {
     )
   }
 }
+
 
 
 export default CardBackSide;

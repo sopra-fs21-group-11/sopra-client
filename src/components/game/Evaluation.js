@@ -56,17 +56,16 @@ export class Evaluation extends React.Component{
   }
 
   sendGuess(){
-    this.props.stompClient.send("/app/game/guess", {},
-      JSON.stringify({
-        "nrOfWrongPlaceCards": this.state.guess,
-        "gameId": this.props.gameId
-      }));
-
-
-    console.log(JSON.stringify({
-      "nrOfWrongPlaceCards": this.state.guess,
+    let requestBoby={
+      "nrOfWrongPlacedCards": this.state.guess,
       "gameId": this.props.gameId
-    }))
+    };
+    this.props.stompClient.send("/app/game/guess", {},
+      JSON.stringify(requestBoby));
+
+
+    console.log(requestBoby)
+
 
     this.setState({guess: null});
     this.setState({placeholder: "submitted"});
@@ -85,8 +84,8 @@ export class Evaluation extends React.Component{
         <GuessInput
           placeholder={this.state.placeholder}
           disabled={this.state.placeholder === "submitted"}
-          maxLength={2}
-          pattern="[+-]?\d+(?:[.,]\d+)?"
+          maxLength={3}
+          pattern="[0-9]*"
           onChange={(e) => {
             this.handleInputChange(e.target.value);
           }}

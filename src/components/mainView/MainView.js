@@ -13,7 +13,7 @@ import Card from "../../views/design/Card";
 
 const MenuContainer = styled.div`
   height: 500px;
-  width: 30vw;
+  width: 50vw;
 `;
 
 const PlayerNameContainer = styled.div`
@@ -86,13 +86,13 @@ class MainView extends React.Component {
             <MenuContainer>
               <PlayerNameContainer>
                 <PlayerName>
-                  Username: {localStorage.getItem("username")}
+                  Welcome {localStorage.getItem("username")} Let's play USGRÄCHNET BÜNZEN
                 </PlayerName>
               </PlayerNameContainer>
               <NavigationContainer>
                 <ButtonContainer>
                   <Button
-                    width="50%"
+                    width="40%"
                     style={{ margin: "5px" }}
                     onClick={() => {
                       this.props.history.push("game/lobby");
@@ -104,7 +104,7 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
-                    width ="50%"
+                   width="40%"
                     onClick={() => {
                       this.props.history.push("game/join");
                     }}
@@ -114,7 +114,7 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
-                    width ="50%"
+                    width="40%"
                     onClick={() => {
                       this.props.history.push("/Registration");
                     }}
@@ -124,7 +124,7 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
-                    width ="50%"
+                     width="40%"
                     onClick={() => {
                       this.logout();
                     }}
@@ -134,16 +134,6 @@ class MainView extends React.Component {
                 </ButtonContainer>
               </NavigationContainer>
             </MenuContainer>
-            <Card
-              style={{padding: "10%"}}
-              sizeCard={110}
-              sizeFont={110}
-              axis={"top"}
-              cardInfo={card}
-              startingCard={startingCard}
-              doubtCard={false}
-              doubtGame={this.doubtGame}
-              frontSide={false}/>
           </BaseContainer>
         </Overlay>
         <NotificationContainer/>
@@ -152,40 +142,6 @@ class MainView extends React.Component {
   }
 }
 
-const card={
-  "id": 49,
-  "lowerNeighbour": 0,
-  "higherNeighbour": 0,
-  "rightNeighbour": 49,
-  "leftNeighbour": 0,
-  "ncoord": 47.2,
-  "ecoord": 9.25,
-  "name": "Appenzell",
-  "population": 0,
-  "area": 0.0,
-  "height": 0,
-  "canton": null,
-  "position": 2,
-  "correct": false
-
-}
-const startingCard={
-  "id": 49,
-  "lowerNeighbour": 0,
-  "higherNeighbour": 0,
-  "rightNeighbour": 49,
-  "leftNeighbour": 0,
-  "ncoord": 47.2,
-  "ecoord": 9.25,
-  "name": "Appenzell",
-  "population": 0,
-  "area": 0.0,
-  "height": 0,
-  "canton": null,
-  "position": 2,
-  "correct": true
-
-}
 
 
 export default withRouter(MainView);
