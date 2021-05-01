@@ -125,26 +125,6 @@ class MainView extends React.Component {
                   <Button
                     width ="50%"
                     onClick={() => {
-                      this.props.history.push("/userOverview");
-                    }}
-                  >
-                    Player Overview
-                  </Button>
-                </ButtonContainer>
-                <ButtonContainer>
-                  <Button
-                    width ="50%"
-                    onClick={() => {
-                      this.goToDetails(localStorage.getItem("loginUserid"));
-                    }}
-                  >
-                    Edit Profile
-                  </Button>
-                </ButtonContainer>
-                <ButtonContainer>
-                  <Button
-                    width ="50%"
-                    onClick={() => {
                       this.logout();
                     }}
                   >
