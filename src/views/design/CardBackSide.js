@@ -64,22 +64,37 @@ class CardBackSide extends React.Component {
       case 'Coordinates':
         if(this.props.axis === "top" || this.props.axis === "bottom"){
           return (
-            <CardText style={cardTextStyle}>
-              Lat.: {this.props.cardInfo.ncoord}
-            </CardText>
+            <div>
+              <CardText style={cardTextStyle}>
+                {this.props.cardInfo.name}
+              </CardText>
+              <CardText style={cardTextStyle}>
+                Lat.: {this.props.cardInfo.ncoord}
+              </CardText>
+            </div>
+
           );
         }
         if(this.props.axis === "left" || this.props.axis === "right"){
           return (
-            <CardText style={cardTextStyle}>
-              Long.: {this.props.cardInfo.ecoord}
-            </CardText>
+            <div>
+              <CardText style={cardTextStyle}>
+                {this.props.cardInfo.name}
+              </CardText>
+              <CardText style={cardTextStyle}>
+                Long.: {this.props.cardInfo.ecoord}
+              </CardText>
+            </div>
+
           );
 
         }
         if(this.props.cardInfo.id === this.props.startingCard.id){
           return(
             <div>
+              <CardText style={cardTextStyle}>
+                {this.props.cardInfo.name}
+              </CardText>
               <CardText style={cardTextStyle}>
                 Lat.: {this.props.cardInfo.ncoord}
               </CardText>
@@ -99,44 +114,6 @@ class CardBackSide extends React.Component {
     }
   }
 
-  changeShadowAroundBox(image, cardStyle, textContainerContainerStyle, cardTextStyle){
-    if(this.props.cardInfo.id === this.props.startingCard.id){
-      return(
-        <CardContainer style={cardStyle} >
-          {image}
-          <CardTextContainerContainer style={textContainerContainerStyle}>
-            <CardTextContainer>
-              {this.displayText(cardTextStyle)}
-            </CardTextContainer>
-          </CardTextContainerContainer>
-        </CardContainer>
-      )
-    }
-    if(this.props.cardInfo.correct){
-      return(
-        <CardContainerGreen style={cardStyle} >
-          {image}
-          <CardTextContainerContainer style={textContainerContainerStyle}>
-            <CardTextContainer>
-              {this.displayText(cardTextStyle)}
-            </CardTextContainer>
-          </CardTextContainerContainer>
-        </CardContainerGreen>
-      )
-    }else{
-      return (
-        <CardContainerRed style={cardStyle} >
-          {image}
-          <CardTextContainerContainer style={textContainerContainerStyle}>
-            <CardTextContainer>
-              {this.displayText(cardTextStyle)}
-            </CardTextContainer>
-          </CardTextContainerContainer>
-        </CardContainerRed>
-      )
-    }
-
-  }
 
   render(){
     let image;
@@ -155,6 +132,7 @@ class CardBackSide extends React.Component {
     let cardTextStyle = {fontSize: `${sizeFont}px`, minWidth: `${textContainerWidth}px`}
     let textContainerContainerStyle = {width: `${textContainerWidth}px`, height: `${textContainerHeigth}px`, top: `${topOffset}px`}
 
+
     let placeholder = "place";
     if(placeholder === "place" || placeholder === "river"){
       image = <Image style={cardStyle} src={placeCard} alt="BackSide of a blue Card"/>;
@@ -162,9 +140,24 @@ class CardBackSide extends React.Component {
       image = <Image style={cardStyle} src={placeCard} alt="BackSide of a brown Card"/>;
     }
 
-    return(
-      this.changeShadowAroundBox(image, cardStyle, textContainerContainerStyle, cardTextStyle)
+    // change card shadow in the Evaluation phase
+    if(this.props.cardInfo.correct === "true"){
+      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, WebkitBoxShadow: "0 0 10px green", boxShadow: "0 0 10px green"}
+    }
+    if(this.props.cardInfo.correct === "false"){
+      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, WebkitBoxShadow: "0 0 10px red", boxShadow: "0 0 10px red"}
+    }
 
+    return(
+      //this.changeShadowAroundBox(image, cardStyle, textContainerContainerStyle, cardTextStyle)
+      <CardContainer style={cardStyle} >
+        {image}
+        <CardTextContainerContainer style={textContainerContainerStyle}>
+          <CardTextContainer>
+            {this.displayText(cardTextStyle)}
+          </CardTextContainer>
+        </CardTextContainerContainer>
+      </CardContainer>
     )
   }
 }
