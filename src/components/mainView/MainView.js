@@ -22,7 +22,7 @@ const PlayerNameContainer = styled.div`
 `;
 
 const PlayerName = styled.div`
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 900;
 `;
 
