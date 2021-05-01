@@ -1,24 +1,22 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React  from "react";
 import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
 import { withRouter } from "react-router-dom";
 import Error from "../../views/Error";
-import Header from "../../views/Header";
-import {OverlayContainer} from "../../views/design/Overlay";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import ReactLoading from 'react-loading';
-
-
+import {Evaluation} from './Evaluation';
 
 import token from "../../views/Token.png";
 import {Button} from "../../views/design/Button";
 import Card from "../../views/design/Card";
-import DirectionCard from "../../views/design/DirectionCard";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
+import ReactLoading from 'react-loading';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+
 
 const Container = styled(BaseContainer)`
   overflow: hidden;
@@ -39,14 +37,14 @@ const LeftFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 20%;
 `;
 
 const RightFooter = styled(BaseContainer)`
   color: white;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 60%;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -199,7 +197,6 @@ class Game extends React.Component {
       username: localStorage.getItem("username"),
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
-      errorMessage: null,
       numTokens: 3,
       gameState: null,
       cards: null,
@@ -215,25 +212,44 @@ class Game extends React.Component {
       nextPlayer: null,
       isLocalUserPLayer: false,
       message: "",
-      canLocalUserDoubt: null,
       countDownText: "",
+      countKey:0,
       lastPlayer: "-1",
       loading:true,
+      doubtResultDTO:null,
+      countDownTimer: {
+        "CARDPLACEMENT": 30,
+        "DOUBTINGPHASE": 10,
+        "DOUBTVISIBLE": 5,
+        "EVALUATION": 30,
+        "EVALUATIONVISIBLE": 30
+      },
+      winner: null
+
     };
+    this.doubtGame = this.doubtGame.bind(this)
   }
 
   async componentDidMount() {
     try {
 
-      this.getData();
-      console.log(this.state.currentCard);
+      // getting the game settings
+      const response = await api.get("/games/" + this.state.gameId);
+      this.setState({
+        countDownTimer: {
+          "CARDPLACEMENT": response.data.playerTurnCountdown,
+          "DOUBTINGPHASE": response.data.doubtCountdown,
+          "DOUBTVISIBLE": response.data.visibleAfterDoubtCountdown,
+          "EVALUATION": response.data.evaluationCountdown,
+          "EVALUATIONVISIBLE": response.data.evaluationCountdownVisible
+        }
+      });
 
+      NotificationManager.warning('Loading the game','',3000);
+      this.getData();
     }
     catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-      //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
+      NotificationManager.error(error.message,'',3000);
     }
   }
 
@@ -249,13 +265,30 @@ class Game extends React.Component {
     return tokens
   }
 
-    doubtGame() {
+  doubtGame(doubtID) {
+    if(this.checkDoubtCard(doubtID)){
+      stompClient.send("/app/game/doubt", {},
+      JSON.stringify({
+        "placedCard": this.state.currentCard.id,
+        "doubtedCard": doubtID,
+        "gameId": this.state.gameId
+      }));
+    }
+  }
+  checkDoubtCard(cardID) {
+    let currentCard=this.state.currentCard;
+    let NeighbourCard=[currentCard.higherNeighbour,currentCard.leftNeighbour,currentCard.lowerNeighbour,currentCard.rightNeighbour];
+    if(NeighbourCard.includes(cardID) && ! this.state.isLocalUserPLayer&&this.state.gameState === "DOUBTINGPHASE")
+    {
+        return true;
+    }
+    return false;
    
   }
 
   callback = (message)  => {
-   
     let textMessage = JSON.parse(message.body);
+    console.log(textMessage);
     this.setState({
       currentPlayer: textMessage["playersturn"],
       gameState: textMessage["gamestate"],
@@ -267,33 +300,58 @@ class Game extends React.Component {
       currentCard: textMessage["nextCardOnStack"],
       startingCard: textMessage["startingCard"],
       nextPlayer: textMessage["nextPlayer"],
+      doubtResultDTO:textMessage["gamestate"]==="DOUBTVISIBLE"?textMessage["doubtResultDTO"]:null,
+      // winner: textMessage["winner"],
       loading:false,
-      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].toString(),
-      canLocalUserDoubt: localStorage.getItem("loginUserId") !== textMessage["playersturn"].toString() && this.state.gameState === "DOUBTINGPHASE"
+      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].id.toString(),
     });
 
 
       if (this.state.gameState === "CARDPLACEMENT") {
+        if(this.state.isLocalUserPLayer)
+        {
+          NotificationManager.info('It is your turn, please place the card','',3000);
+        }
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
             : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
-          countDown: 30,
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
             : "for " + this.state.currentPlayer.username + " to place card"})
+            this.resetCountDown();
       } else if (this.state.gameState === "DOUBTINGPHASE") {
+        if(!this.state.isLocalUserPLayer)
+        {
+          NotificationManager.info('You can now doubt the card placement','',3000);
+        }
         this.setState({
           message: this.state.isLocalUserPLayer
-            ? ">>> You can now doubt the card placement"
-            : ">>> The other players can doubt your placement, please wait",
-          countDown: 10,
+            ? ">>> The other players can doubt your placement, please wait"
+            : ">>> You can now doubt the card placement",
           countDownText: this.state.isLocalUserPLayer
             ? "for the others to doubt"
             : "to doubt"})
-      } else if (this.state.gameState === "EVALUATION") {
+            this.resetCountDown();
+      } else if (this.state.gameState === "DOUBTVISIBLE") {
+        let doubtRightous=this.state.doubtResultDTO.doubtRightous;
+
+        this.setState({
+          message: this.state.isLocalUserPLayer
+          ? (!doubtRightous?">>> You placed card in wrong position ":"hurray, your placed Card correctly")
+          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" place card in wrong position ":this.state.currentPlayer.username +" placed Card correctly"),
+          countDownText: "doubt result"})
+          this.resetCountDown();
+      } 
+      else if (this.state.gameState === "EVALUATION") {
+        NotificationManager.warning('Evaluation phase. Please Guess Number of correct card','',3000);
         this.setState({
           message: ">>> Evaluation phase"})
+      }
+
+      if(this.state.gameState === "GAMEENDED"){
+        NotificationManager.info('END GAME','',3000);
+        this.history.push("/mainView")
       }
   }
 
@@ -303,13 +361,14 @@ class Game extends React.Component {
 
     let baseURL = getDomain();
     const socket = SockJS(baseURL+'/gs-guide-websocket');
+    socket.withCredentials=true;
 
     stompClient = Stomp.Stomp.over(socket);
 
     stompClient.connect({}, function () {
 
     let url = stompClient.ws._transport.url;
-    url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
+    url = url.substring(url.indexOf("/gs-guide-websocket/")+20,url.length);
     url = url.replace("/websocket", "");
     url = url.replace(/^[0-9]+\//, "");
     const sessionId = url;
@@ -335,47 +394,77 @@ class Game extends React.Component {
         "axis": axis
       }));
 
-    this.setState({countDown: 30});
-
-
-
-
-
+  }
+  checkTurnCard(cardID) {
+      if(this.state.gameState === "EVALUATIONVISIBLE"){
+        return false;
+      }
+      else if(this.state.gameState === "DOUBTVISIBLE"){
+        let doubtResultDTO=this.state.doubtResultDTO;
+        if([doubtResultDTO.referenceCard.id,doubtResultDTO.doubtedCard.id].includes(cardID)){
+          return false;
+        }
+      }
+      return true;
+   
   }
 
   getCards = (cards, direction) => {
-    let renderedCards = [ <AddButton key={0} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
+    let renderedCards = [ this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
+      (
+        <AddButton key={0} >
                             <Link key={0} onClick={() => {
                               this.placeCard(direction, 0)
                             }}>
                               +
                             </Link>
-                          </AddButton>]
+                          </AddButton>
+      ): ""]
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
-        <Card sizeCard={120} sizeFont={120} cardInfo={cards[i]} frontSide={true}/>,
-        <AddButton key={i+1} disabled={!this.state.isLocalUserPLayer  || this.state.gameState !== "CARDPLACEMENT"}>
-          <Link key={i+1} onClick={() => {
-            this.placeCard(direction, i+1)
-          }}>
-            +
-          </Link>
-        </AddButton>)
+        <Card
+          sizeCard={120}
+          sizeFont={120}
+          axis={direction}
+          cardInfo={cards[i]}
+          startingCard={this.state.startingCard}
+          doubtCard={this.checkDoubtCard(cards[i].id)} doubtGame={this.doubtGame}
+          frontSide={this.checkTurnCard(cards[i].id)}/>,
+        this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
+          (
+            <AddButton key={i+1} >
+              <Link key={i+1} onClick={() => {
+                this.placeCard(direction, i+1)
+              }}>
+                +
+              </Link>
+            </AddButton>
+          )
+          : "")
+
     }
 
     return renderedCards
 
   }
 
+  endGame(){
+    stompClient.send("/app/game/end", {},
+      JSON.stringify({
+        "gameId": this.state.gameId
+      }));
+    this.props.history.push("/mainView");
+  }
+  resetCountDown(){
+    let count=this.state.countDownTimer[this.state.gameState]
+    this.setState({countDown:count,countKey:this.state.countKey+1})
+  }
 
   render() {
     //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
-      if (remainingTime === 0) {
-        this.setState({countDown:0})
-        return <div className="timer">Too late...</div>;
-      }
+
       return (
         <div className="timer">
           <div className="text">Remaining</div>
@@ -384,10 +473,8 @@ class Game extends React.Component {
         </div>
       );
     };
-
     return (
       <GameContainer>
-                   
           <CardsContainer>
           <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
               {this.getCards(this.state.cardsLeft, "left")}
@@ -400,12 +487,17 @@ class Game extends React.Component {
           <ReactLoading  type={"spin"} height={120} width={120} />:
           <StartingCardContainer>
                 {this.state.startingCard ?
-                <Card sizeCard={120} sizeFont={120} cardInfo={this.state.startingCard} frontSide={true}/>
+                <Card sizeCard={120}
+                      sizeFont={120}
+                      cardInfo={this.state.startingCard}
+                      startingCard={this.state.startingCard}
+                      doubtCard={this.checkDoubtCard(this.state.startingCard.id)} doubtGame={this.doubtGame}
+                      frontSide={this.checkTurnCard(this.state.startingCard)}/>
                   : " "}
-                  
+
               </StartingCardContainer>
               }
-          
+
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
@@ -426,10 +518,12 @@ class Game extends React.Component {
             <MiddleFooter>
             <Container style={{height: "100%", width: "100%",marginTop: "3%"}}>
               {
-                this.state.countDown>0?<CountdownCircleTimer
+                this.state.gameState ? <CountdownCircleTimer
+                key={this.state.countKey}
                 isPlaying
-                duration={this.state.countDown}
+                duration={this.state.countDownTimer[this.state.gameState]}
                 size={180}
+                onComplete={() => [true, 1000]}
                 colors={[
                   ['#004777', 0.33],
                   ['#F7B801', 0.33],
@@ -446,32 +540,37 @@ class Game extends React.Component {
             <Container  style={{height: "50%", width: "100%", marginTop: "3%"}}>
             <Container style={{height: "100%", width: "25%"}}>
               {
-                this.state.canLocalUserDoubt
-                  ? <ButtonContainer >
-                <Button 
-                 width ="100%"
-                 style={{backgroundColor:"yellow"}}
-                 onClick={() => {
-                  this.setState({countDown:20})//TODO : to highlight the card and select the card remove this function
-                 }}>
-                <Link>
-                Doubt
-                </Link>
-                </Button>
-              </ButtonContainer>
-                  :""
+                this.state.gameState === "EVALUATION" ? (
+                  <Evaluation stompClient={stompClient} gameId={this.state.gameId}/>
+                ) : (
+                  ""
+                )
               }
-           
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
+              <ButtonContainer style={{height: "100%", width: "50%"}}>
+                {
+                  this.state.hostId === localStorage.getItem("loginUserId")?
+                    (<Button
+                    width ="100%">
+                    <Link
+                      onClick={() => {
+                        this.endGame()
+                      }}
+                    >
+                      End Game
+                    </Link>
+                  </Button>):""
+                }
+              </ButtonContainer>
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]}/>
+            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
             : " "}
             </Container >
               <ButtonContainer style={{height: "100%", width: "25%"}}>
                 <Button 
                  width ="50%">
-                <Link>
+                <Link onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
                 Help
                 </Link>
                 </Button>
@@ -485,7 +584,7 @@ class Game extends React.Component {
             </RightFooter>
           </Footer>,
           <Container style={{display: "flex"}}>
-          <Error message={this.state.errorMessage}/>
+          <NotificationContainer/>
           </Container>
       </GameContainer>
     );

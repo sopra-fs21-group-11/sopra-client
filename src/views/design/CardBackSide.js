@@ -7,28 +7,48 @@ import placeCard from "../design/cards/placeCard.png";
 const Image = styled.img`
 `;
 
+
 const CardContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
+
+`;
+
+
+const CardContainerGreen = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  -webkit-box-shadow: 0 0 10px green;
+  box-shadow: 0 0 10px green;
+`;
+
+const CardContainerRed = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  -webkit-box-shadow: 0 0 10px red;
+  box-shadow: 0 0 10px red;
 `;
 
 const CardTextContainerContainer = styled.div`
   position: absolute;
   overflow-wrap: break-word;
   display: flex;
+  justify-content: center;
   align-content: center;
   align-items: center;
   flex-wrap: wrap;
 `;
 
 const CardTextContainer = styled.div`
-  
 `;
 
 const CardText = styled.div`
   font-weight: bold;
   color: white;
+  text-align: center;
 `;
 
 
@@ -36,9 +56,91 @@ const CardText = styled.div`
 class CardBackSide extends React.Component {
 
 
+
+  displayText(cardTextStyle){
+
+
+    switch('Coordinates'){
+      case 'Coordinates':
+        if(this.props.axis === "top" || this.props.axis === "bottom"){
+          return (
+            <CardText style={cardTextStyle}>
+              Lat.: {this.props.cardInfo.ncoord}
+            </CardText>
+          );
+        }
+        if(this.props.axis === "left" || this.props.axis === "right"){
+          return (
+            <CardText style={cardTextStyle}>
+              Long.: {this.props.cardInfo.ecoord}
+            </CardText>
+          );
+
+        }
+        if(this.props.cardInfo.id === this.props.startingCard.id){
+          return(
+            <div>
+              <CardText style={cardTextStyle}>
+                Lat.: {this.props.cardInfo.ncoord}
+              </CardText>
+              <CardText>
+                Long.: {this.props.cardInfo.ecoord}
+              </CardText>
+            </div>
+          );
+        }
+        break;
+      default:
+        return(
+          <CardText>
+            Hallo World
+          </CardText>
+        )
+    }
+  }
+
+  changeShadowAroundBox(image, cardStyle, textContainerContainerStyle, cardTextStyle){
+    if(this.props.cardInfo.id === this.props.startingCard.id){
+      return(
+        <CardContainer style={cardStyle} >
+          {image}
+          <CardTextContainerContainer style={textContainerContainerStyle}>
+            <CardTextContainer>
+              {this.displayText(cardTextStyle)}
+            </CardTextContainer>
+          </CardTextContainerContainer>
+        </CardContainer>
+      )
+    }
+    if(this.props.cardInfo.correct){
+      return(
+        <CardContainerGreen style={cardStyle} >
+          {image}
+          <CardTextContainerContainer style={textContainerContainerStyle}>
+            <CardTextContainer>
+              {this.displayText(cardTextStyle)}
+            </CardTextContainer>
+          </CardTextContainerContainer>
+        </CardContainerGreen>
+      )
+    }else{
+      return (
+        <CardContainerRed style={cardStyle} >
+          {image}
+          <CardTextContainerContainer style={textContainerContainerStyle}>
+            <CardTextContainer>
+              {this.displayText(cardTextStyle)}
+            </CardTextContainer>
+          </CardTextContainerContainer>
+        </CardContainerRed>
+      )
+    }
+
+  }
+
   render(){
     let image;
-    let standardMultiplier = 3;
+    let standardMultiplier = 1;
     let standardCardWith = 100 * standardMultiplier;
     let standardCardHeight = 69 * standardMultiplier;
     let standardFontSize = 13;
@@ -61,26 +163,8 @@ class CardBackSide extends React.Component {
     }
 
     return(
-      <CardContainer style={cardStyle}>
-        {image}
-        <CardTextContainerContainer style={textContainerContainerStyle}>
-          <CardTextContainer>
-            <CardText style={cardTextStyle}>
-              {/* should be replaced by the this.props.cardName */}
-              Coordinates (South - North):
-            </CardText>
-            <CardText style={cardTextStyle}>
-              Coordinates (West - East):
-            </CardText>
-            <CardText style={cardTextStyle}>
-              Area:
-            </CardText>
-            <CardText style={cardTextStyle}>
-              Heigth:
-            </CardText>
-          </CardTextContainer>
-        </CardTextContainerContainer>
-      </CardContainer>
+      this.changeShadowAroundBox(image, cardStyle, textContainerContainerStyle, cardTextStyle)
+
     )
   }
 }
