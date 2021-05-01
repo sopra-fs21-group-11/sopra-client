@@ -455,7 +455,6 @@ class Game extends React.Component {
             </AddButton>
           )
           : "")
-
     }
 
     return renderedCards
