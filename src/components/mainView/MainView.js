@@ -12,7 +12,7 @@ import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const MenuContainer = styled.div`
   height: 500px;
-  width: 30vw;
+  width: 50vw;
 `;
 
 const PlayerNameContainer = styled.div`
@@ -22,7 +22,7 @@ const PlayerNameContainer = styled.div`
 `;
 
 const PlayerName = styled.div`
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 900;
 `;
 
@@ -85,13 +85,13 @@ class MainView extends React.Component {
             <MenuContainer>
               <PlayerNameContainer>
                 <PlayerName>
-                  Username: {localStorage.getItem("username")}
+                  Welcome {localStorage.getItem("username")}   Let's play USGRÄCHNET BÜNZEN
                 </PlayerName>
               </PlayerNameContainer>
               <NavigationContainer>
                 <ButtonContainer>
                   <Button
-                    width="50%"
+                    width="40%"
                     style={{ margin: "5px" }}
                     onClick={() => {
                       this.props.history.push("game/lobby");
@@ -103,7 +103,7 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
-                    width ="50%"
+                   width="40%"
                     onClick={() => {
                       this.props.history.push("game/join");
                     }}
@@ -113,7 +113,7 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
-                    width ="50%"
+                    width="40%"
                     onClick={() => {
                       this.props.history.push("/Registration");
                     }}
@@ -123,7 +123,7 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
-                    width ="50%"
+                     width="40%"
                     onClick={() => {
                       this.logout();
                     }}
