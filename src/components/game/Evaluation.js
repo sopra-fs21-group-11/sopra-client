@@ -72,6 +72,7 @@ export class Evaluation extends React.Component{
   }
 
   handleInputChange(value) {
+
     this.setState({ guess: value });
 
   }
@@ -83,6 +84,8 @@ export class Evaluation extends React.Component{
         <GuessInput
           placeholder={this.state.placeholder}
           disabled={this.state.placeholder === "submitted"}
+          maxLength={3}
+          pattern="[0-9]*"
           onChange={(e) => {
             this.handleInputChange(e.target.value);
           }}
