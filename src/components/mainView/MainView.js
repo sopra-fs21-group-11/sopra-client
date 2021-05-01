@@ -6,6 +6,7 @@ import { api } from "../../helpers/api";
 import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 
 
@@ -58,6 +59,7 @@ class MainView extends React.Component {
       this.setState({
         erroMessage: error.message,
       });
+      NotificationManager.error(error.message,'',3000);
     } finally {
       localStorage.removeItem("token");
       localStorage.removeItem("loginUserId");
@@ -153,6 +155,7 @@ class MainView extends React.Component {
             </MenuContainer>
           </BaseContainer>
         </Overlay>
+        <NotificationContainer/>
       </OverlayContainer>
     );
   }

@@ -7,9 +7,7 @@ import Error from "../../views/Error";
 import { api } from "../../helpers/api";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer } from "../../views/design/Overlay";
-import SockJS from "sockjs-client";
-import * as Stomp from "@stomp/stompjs";
-import Lobby from "../lobby/Lobby";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -82,7 +80,6 @@ class JoinGame extends React.Component {
     super();
     this.state = {
       games: [],
-      errorMessage: null,
     };
   }
 
@@ -97,6 +94,7 @@ class JoinGame extends React.Component {
   }
 
   async componentDidMount() {
+    NotificationManager.info('Please select the game from list','',3000);
     //Load Games for the first time
     await this.getGames();
     this.timer = setInterval(() => this.getGames(), 10000); //polling every 10 seconds
@@ -112,9 +110,7 @@ class JoinGame extends React.Component {
       console.log(response.data);
       this.setState({ games: response.data });
     } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
+      NotificationManager.error(error.message,'',3000);
     }
   }
   async joinGame(gameid) {
@@ -137,9 +133,7 @@ class JoinGame extends React.Component {
 
 
     } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
+      NotificationManager.error(error.message,'',3000);
     }
   }
   handleInputChange(key, value) {
@@ -221,7 +215,7 @@ class JoinGame extends React.Component {
 
         </Container>
         </CustomOverlay>
-        <Error message={this.state.errorMessage} />
+        <NotificationContainer/>
       </OverlayContainer>
     );
   }

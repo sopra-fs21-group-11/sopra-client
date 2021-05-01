@@ -9,6 +9,7 @@ import {api} from "../../helpers/api";
 import {OverlayContainer} from "../../views/design/Overlay";
 import {InputField} from "../../views/design/InputField";
 import LoadingOverlay from 'react-loading-overlay';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -108,7 +109,6 @@ class Lobby extends React.Component {
       possibleNumPlayers: [2, 3, 4, 5, 6],
       possibleTokenGainOrLoss: [1, 2, 3, 4, 5],
       gameId: null,
-      errorMessage: null,
       horizontalCategories: [1, 2, 3],
       verticalCategories: [1, 2, 3],
       nrOfEvaluations: 2,
@@ -138,7 +138,7 @@ class Lobby extends React.Component {
          host: false,
          loading:true
        }, () => {console.log(this.state.gameId);});
-
+       NotificationManager.warning('Host will start the Game soon. Please wait..', '', 3000);
        await this.getPlayersAndGameState();
        this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
      }
@@ -168,8 +168,6 @@ class Lobby extends React.Component {
       const players = await Promise.all(response.data.players);
       this.handleInputChange("players", players);
 
-      console.log(this.state.host)
-      console.log(players)
       if(!this.state.host&&players.length>0)
       {
         this.setState({loading:false})
@@ -217,7 +215,7 @@ class Lobby extends React.Component {
         );
 
       //console.log(response);
-
+      NotificationManager.success('Game is Created', 'Hurray',3000);
       localStorage.setItem("gameId", response.data.id);
       localStorage.setItem("hostId", localStorage.getItem("loginUserId"));
 
@@ -232,9 +230,7 @@ class Lobby extends React.Component {
 
 
     } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
+      NotificationManager.error(error.message,'',3000);
     }
 
   }
@@ -244,7 +240,7 @@ class Lobby extends React.Component {
 
       if(this.state.playerMin>this.state.players.length)
       {
-        this.setState({errorMessage:"Minimum "+this.state.playerMin+" Players should join to start the game"})
+        NotificationManager.warning("Minimum "+this.state.playerMin+" Players should join to start the game",'',3000);
       } else{
       // start userOverview
       const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
@@ -260,9 +256,7 @@ class Lobby extends React.Component {
 
 
     } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
+        NotificationManager.error(error.message,'',3000);
     }
   }
 
@@ -301,7 +295,7 @@ class Lobby extends React.Component {
         <LoadingOverlay
             active={this.state.loading}
             spinner
-            text='Loading your content...'
+            text='Loading ...'
             >
         <CustomOverlay>
         <h2
@@ -458,7 +452,7 @@ class Lobby extends React.Component {
         </Container>
         </CustomOverlay>
         </LoadingOverlay>
-        <Error message={this.state.errorMessage}/>
+        <NotificationContainer/>
       </OverlayContainer>
     );
   }
