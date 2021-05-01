@@ -56,17 +56,16 @@ export class Evaluation extends React.Component{
   }
 
   sendGuess(){
-    this.props.stompClient.send("/app/game/guess", {},
-      JSON.stringify({
-        "nrOfWrongPlaceCards": this.state.guess,
-        "gameId": this.props.gameId
-      }));
-
-
-    console.log(JSON.stringify({
-      "nrOfWrongPlaceCards": this.state.guess,
+    let requestBoby={
+      "nrOfWrongPlacedCards": this.state.guess,
       "gameId": this.props.gameId
-    }))
+    };
+    this.props.stompClient.send("/app/game/guess", {},
+      JSON.stringify(requestBoby));
+
+
+    console.log(requestBoby)
+
 
     this.setState({guess: null});
     this.setState({placeholder: "submitted"});
