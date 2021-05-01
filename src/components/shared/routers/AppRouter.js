@@ -6,12 +6,9 @@ import { LoginGuard } from "../routeProtectors/LoginGuard";
 import Login from "../../login/Login";
 import { RegistrationGuard } from "../routeProtectors/RegistrationGuard";
 import Registration from "../../registration/Registration";
-import { UserDetailsGuard } from "../routeProtectors/UserDetailsGuard";
-import UserDetails from "../../userDetails/UserDetails";
+import { MainViewGuard } from "../routeProtectors/MainViewGuard";
 import Main from "../../mainView/MainView";
-import Lobby from "../../lobby/Lobby";
-import JoinGame from "../../joinGame/JoinGame";
-import UserOverview from "../../userOverview/UserOverview";
+
 
 /**
  * Main router of your application.
@@ -55,28 +52,13 @@ class AppRouter extends React.Component {
               )}
             />
             <Route
-              path="/userDetails"
-              exact
-              render={() => (
-                <UserDetailsGuard>
-                  <UserDetails />
-                </UserDetailsGuard>
-              )}
-            />
-            <Route
               path="/mainView"
               exact
               render={() => (
-
+                <MainViewGuard>
                   <Main />
+              </MainViewGuard>
 
-              )}
-            />
-            <Route
-              path="/userOverview"
-              exact
-              render={() => (
-                <UserOverview />
               )}
             />
             <Route path="/" exact render={() => <Redirect to={"/mainView"} />} />

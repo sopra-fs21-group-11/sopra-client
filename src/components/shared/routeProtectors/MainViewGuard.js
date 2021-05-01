@@ -6,10 +6,9 @@ import {authJwtToken} from "../../../helpers/authJWT";
  *
  * Another way to export directly your functional component.
  */
-export const RegistrationGuard = (props) => {
-  if (!authJwtToken()) {
+export const MainViewGuard = (props) => {
+  if (authJwtToken()) {
     return props.children;
   }
-  // if user is already logged in, redirects to the main /app
-  return <Redirect to={"/mainView"} />;
+  return <Redirect to={"/login"} />;
 };

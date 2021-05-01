@@ -60,6 +60,7 @@ const InputField = styled.input`
   margin-bottom: 20px;
   background: rgba(0, 102, 0, 0.2);
   color: black;
+  border-radius: 4px;
   border-color: rgb(0, 0, 0, 0.4);
 `;
 
@@ -166,7 +167,7 @@ class Login extends React.Component {
             <Form>
               <FormTitleContainer>
                 <FormTitle>
-                  Login
+                  LOGIN
                 </FormTitle>
               </FormTitleContainer>
               <Label>Username</Label>
