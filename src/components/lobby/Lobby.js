@@ -15,6 +15,8 @@ const Container = styled(BaseContainer)`
   color: white;
   text-align: center;
   overflow: hidden;
+  width: 80%;
+  height: 80%;
 `;
 
 const Users = styled.ul`
@@ -23,14 +25,14 @@ const Users = styled.ul`
   margin-top: 0;
   padding-left: 17px;
   padding-right: 17px;
-  height: 600px;
   font-size: 16px;
   font-weight: 300;
-  marginRight: "50px";
+  margin-right: 50px;
+  height: 64vh;
   background: rgb(255, 255, 255);
-  border-left: 4px black solid;
-  border-right: 4px black solid;
-  border-bottom: 4px black solid;
+  border-left: 0.15em black solid;
+  border-right: 0.15em black solid;
+  border-bottom: 0.15em black solid;
 `;
 const ButtonContainer = styled.div`
   display: flex;
@@ -59,14 +61,14 @@ const Name = styled.p`
   font-weight: 300;
 `;
 
-const Heading = styled.h3`
+const Heading = styled.h4`
   color: black;
-  border: 4px black solid;
+  border: 0.15em black solid;
   background: rgb(0, 132, 0, 1);
   width: 100%;
   padding-bottom: 0;
   margin-bottom: 0;
-  height: 50px;
+  height: 50%;
   align-items: center;
   display: flex;
   justify-content: center;
@@ -76,22 +78,22 @@ const SettingsForm = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: auto;
-  width: 70%;
-  height: 600px;
-  font-size: 16px;
+  width: 80%;
+  height: 64vh;
+  font-size: 90%;
   font-weight: 300;
   padding-top: 7px;
   padding-left: 37px;
   padding-right: 37px;
   background: rgb(255, 255, 255);
-  border-left: 4px black solid;
-  border-right: 4px black solid;
-  border-bottom: 4px black solid;
+  border-left: 0.15em black solid;
+  border-right: 0.15em black solid;
+  border-bottom: 0.15em black solid;
   overflow: scroll;
 `;
 
 const CustomSelect = styled.select`
-  margin-bottom: 10px;
+  margin-bottom: 2%;
   border-color: rgb(0, 0, 0, 0.4);
   background: rgba(0, 102, 0, 0.2);
 `;
@@ -270,21 +272,19 @@ class Lobby extends React.Component {
     let settingsText;
 
     if (this.state.created) {
-      users = <Users
-        style={{marginRight: "50px"}}
-      >
+      users = <Users>
         {this.state.players.map((player) => {
           return (<Name key={player.id}>{player.username}</Name>);
         })}
       </Users>
-      titleUsers = <Heading style={{width: "25%", marginRight: "50px"}}>Players</Heading>
+      titleUsers = <Heading style={{width: "25%", marginRight: "4.7%"}}>Players</Heading>
       settingsStyle = {}
-      styleHeading = {width: "70%", marginLeft: "auto"}
+      styleHeading = {width: "80%", marginLeft: "auto"}
     }
 
     else {
       settingsStyle = {marginRight: "auto"}
-      styleHeading = {width: "70%", marginLeft: "auto", marginRight: "auto"}
+      styleHeading = {width: "80%", marginLeft: "auto", marginRight: "auto"}
       settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
         " You cannot change them anymore once the game is created."
     }
@@ -309,7 +309,7 @@ class Lobby extends React.Component {
           <SettingsForm
           style={settingsStyle}>
             <p
-              style={{color: "black", textAlign: "left", fontSize: 18}}
+              style={{color: "black", textAlign: "left", fontSize: "100%"}}
             >
               {settingsText}
             </p>

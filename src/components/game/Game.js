@@ -27,7 +27,7 @@ const Container = styled(BaseContainer)`
 const Notification = styled(BaseContainer)`
   color: black;
   border: 4px black solid;
-  width: 100%;
+  width: 100vw;
   margin-left: 0;
   background: white;
 `;
@@ -37,14 +37,17 @@ const LeftFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 20%;
+  width: 20vw;
+  margin: 0;
 `;
 
 const RightFooter = styled(BaseContainer)`
   color: white;
   display: flex;
   flex-direction: column;
-  width: 60%;
+  justify-content: right;
+  width: 50vw;
+  margin: 0;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -52,12 +55,13 @@ const MiddleFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: row;
-  width: 20%;
+  width: 30vw;
+  margin: 0;
 `;
 
 const GameContainer = styled.div`
   width: 100vw;
-  height: 95vh;
+  height: 100vh;
   margin: 0;
   position: absolute;
   bottom: 0;
@@ -68,12 +72,14 @@ const GameContainer = styled.div`
 const Footer = styled.footer`
   color: white;
   position: absolute;
-  width: 100%;
+  width: 100vw;
   display: flex;
   flex-direction: row;
-  min-height: 25%;
+  height: 30vh;
   bottom: 0;
   background: rgb(200, 213, 0, 0.25);
+  padding: 0;
+  margin: 0;
 `;
 
 const CardsContainer = styled.div`
@@ -81,9 +87,12 @@ const CardsContainer = styled.div`
   text-align: center;
   display: flex;
   justify-content: center;
-  width: 100%;
-  height: 75%;
+  width: 100vw;
+  height: 70vh;
   overflow: scroll;
+  top: 0;
+  padding: 0;
+  margin: 0
 `;
 
 const MiddleCardsContainer = styled.div`
@@ -93,7 +102,7 @@ const MiddleCardsContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: auto;
-  height: 100%;
+  height: 100vh;
 `;
 
 const StartingCardContainer = styled.div`
@@ -103,7 +112,7 @@ const StartingCardContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: auto;
-  height: 10%;
+  height: 10vh;
 `;
 
 const HorizontalCardContainer = styled.div`
@@ -113,9 +122,9 @@ const HorizontalCardContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   width: auto;
-  height: 100%;
-  margin-left: 1%;
-  margin-right: 1%;
+  height: 100vh;
+  margin-left: 1vh;
+  margin-right: 1vh;
 `;
 
 const VerticalCardContainer = styled.div`
@@ -125,7 +134,7 @@ const VerticalCardContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   width: auto;
-  height: 45%;
+  height: 45vh;
 `;
 
 const PlayerName = styled.p`
@@ -133,7 +142,7 @@ const PlayerName = styled.p`
   color: black;
   font-size: 16px;
   font-weight: 300;
-  width: 5%;
+  width: 5vw;
   text-transform: uppercase;
 `;
 
@@ -145,18 +154,18 @@ const TokenContainer = styled(BaseContainer)`
   justify-content: left;
   margin: 0;
   padding: 0;
+  overflow: 
 `;
 
 const Token = styled.img`
-  margin: 5px;
-  height: 50px;
-  width: 50px;
+  height: 5vh;
+  width: 5vh;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin: 5px;
+  margin: 5%;
   height: fit-content;
 `;
 
@@ -175,12 +184,6 @@ const AddButton = styled.div`
   cursor: ${props => (props.disabled ? "default" : "pointer")};
 `;
 
-const Label = styled.label`
-  color: white;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-`;
-
 const Link = styled.a`
  margin: 10px;
  color: black;
@@ -197,7 +200,7 @@ class Game extends React.Component {
       username: localStorage.getItem("username"),
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
-      numTokens: 3,
+      numTokens: 6,
       gameState: null,
       cards: null,
       currentCard: null,
@@ -334,7 +337,7 @@ class Game extends React.Component {
             : "to doubt"})
             this.resetCountDown();
       } else if (this.state.gameState === "DOUBTVISIBLE") {
-        let doubtRightous=this.state.doubtResultDTO.doubtRightous;
+        let doubtRightous = this.state.doubtResultDTO.doubtRightous;
 
         this.setState({
           message: this.state.isLocalUserPLayer
@@ -507,7 +510,7 @@ class Game extends React.Component {
             <HorizontalCardContainer>
               {this.getCards(this.state.cardsRight, "right")}
             </HorizontalCardContainer>
-          </CardsContainer>,
+          </CardsContainer>
           <Footer>
             <LeftFooter>
             <PlayerName>
