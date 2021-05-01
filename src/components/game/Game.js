@@ -26,8 +26,8 @@ const Container = styled(BaseContainer)`
 
 const Notification = styled(BaseContainer)`
   color: black;
-  border: 2px black solid;
-  width: 100%;
+  border: 4px black solid;
+  width: 100vw;
   margin-left: 0;
   background: white;
   border-radius: 4px;
@@ -38,14 +38,22 @@ const LeftFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 20%;
+  width: 20vw;
+  margin: 0;
+  padding-right: 0.25vw;
+  padding-left: 0.5vw;
+  
 `;
 
 const RightFooter = styled(BaseContainer)`
   color: white;
   display: flex;
   flex-direction: column;
-  width: 60%;
+  justify-content: right;
+  width: 50vw;
+  margin: 0;
+  padding-right: 0.5vw;
+  padding-left: 0.25vw;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -53,12 +61,15 @@ const MiddleFooter = styled(BaseContainer)`
   overflow: hidden;
   display: flex;
   flex-direction: row;
-  width: 20%;
+  width: 30vw;
+  margin: 0;
+  padding-right: 0.25vw;
+  padding-left: 0.25vw;
 `;
 
 const GameContainer = styled.div`
   width: 100vw;
-  height: 95vh;
+  height: 100vh;
   margin: 0;
   position: absolute;
   bottom: 0;
@@ -69,12 +80,14 @@ const GameContainer = styled.div`
 const Footer = styled.footer`
   color: white;
   position: absolute;
-  width: 100%;
+  width: 100vw;
   display: flex;
   flex-direction: row;
-  min-height: 25%;
+  height: 30vh;
   bottom: 0;
   background: rgb(200, 213, 0, 0.25);
+  padding: 0;
+  margin: 0;
 `;
 
 const CardsContainer = styled.div`
@@ -82,9 +95,12 @@ const CardsContainer = styled.div`
   text-align: center;
   display: flex;
   justify-content: center;
-  width: 100%;
-  height: 75%;
+  width: 100vw;
+  height: 70vh;
   overflow: scroll;
+  top: 0;
+  padding: 0;
+  margin: 0
 `;
 
 const MiddleCardsContainer = styled.div`
@@ -94,7 +110,7 @@ const MiddleCardsContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: auto;
-  height: 100%;
+  height: 100vh;
 `;
 
 const StartingCardContainer = styled.div`
@@ -104,7 +120,7 @@ const StartingCardContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: auto;
-  height: 10%;
+  height: fit-content;
 `;
 
 const HorizontalCardContainer = styled.div`
@@ -114,9 +130,7 @@ const HorizontalCardContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   width: auto;
-  height: 100%;
-  margin-left: 1%;
-  margin-right: 1%;
+  height: 100vh;
 `;
 
 const VerticalCardContainer = styled.div`
@@ -126,7 +140,7 @@ const VerticalCardContainer = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   width: auto;
-  height: 45%;
+  height: 45vh;
 `;
 
 const PlayerName = styled.p`
@@ -134,7 +148,7 @@ const PlayerName = styled.p`
   color: black;
   font-size: 16px;
   font-weight: 300;
-  width: 5%;
+  width: 5vw;
   text-transform: uppercase;
 `;
 
@@ -143,21 +157,21 @@ const TokenContainer = styled(BaseContainer)`
   text-align: left;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: left;
   margin: 0;
   padding: 0;
 `;
 
 const Token = styled.img`
-  margin: 5px;
-  height: 50px;
-  width: 50px;
+  height: 5vh;
+  width: 5vh;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin: 5px;
+  margin: 5%;
   height: fit-content;
 `;
 
@@ -176,12 +190,6 @@ const AddButton = styled.div`
   cursor: ${props => (props.disabled ? "default" : "pointer")};
 `;
 
-const Label = styled.label`
-  color: white;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-`;
-
 const Link = styled.a`
  margin: 10px;
  color: black;
@@ -198,7 +206,7 @@ class Game extends React.Component {
       username: localStorage.getItem("username"),
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
-      numTokens: 3,
+      numTokens: 10,
       gameState: null,
       cards: null,
       currentCard: null,
@@ -335,7 +343,7 @@ class Game extends React.Component {
             : "to doubt"})
             this.resetCountDown();
       } else if (this.state.gameState === "DOUBTVISIBLE") {
-        let doubtRightous=this.state.doubtResultDTO.doubtRightous;
+        let doubtRightous = this.state.doubtResultDTO.doubtRightous;
 
         this.setState({
           message: this.state.isLocalUserPLayer
@@ -427,8 +435,9 @@ class Game extends React.Component {
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
         <Card
-          sizeCard={120}
-          sizeFont={120}
+          style={{padding: "10%"}}
+          sizeCard={110}
+          sizeFont={110}
           axis={direction}
           cardInfo={cards[i]}
           startingCard={this.state.startingCard}
@@ -465,7 +474,6 @@ class Game extends React.Component {
   }
 
   render() {
-    //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
 
       return (
@@ -490,15 +498,16 @@ class Game extends React.Component {
           <ReactLoading  type={"spin"} height={120} width={120} />:
           <StartingCardContainer>
                 {this.state.startingCard ?
-                <Card sizeCard={120}
-                      sizeFont={120}
+                <Card style={{padding: "5%"}}
+                      sizeCard={110}
+                      sizeFont={110}
                       cardInfo={this.state.startingCard}
                       startingCard={this.state.startingCard}
                       doubtCard={this.checkDoubtCard(this.state.startingCard.id)} doubtGame={this.doubtGame}
                       frontSide={this.checkTurnCard(this.state.startingCard)}/>
                   : " "}
 
-              </StartingCardContainer>
+            </StartingCardContainer>
               }
 
               <VerticalCardContainer>
@@ -508,7 +517,7 @@ class Game extends React.Component {
             <HorizontalCardContainer>
               {this.getCards(this.state.cardsRight, "right")}
             </HorizontalCardContainer>
-          </CardsContainer>,
+          </CardsContainer>
           <Footer>
             <LeftFooter>
             <PlayerName>
@@ -551,26 +560,13 @@ class Game extends React.Component {
               }
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-              <ButtonContainer style={{height: "100%", width: "50%"}}>
-                {
-                  this.state.hostId === localStorage.getItem("loginUserId")?
-                    (<Button
-                    width ="100%">
-                    <Link
-                      onClick={() => {
-                        this.endGame()
-                      }}
-                    >
-                      End Game
-                    </Link>
-                  </Button>):""
-                }
-              </ButtonContainer>
+
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
+            ? <Card sizeCard={110} sizeFont={110} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
             : " "}
-            </Container >
-              <ButtonContainer style={{height: "100%", width: "25%"}}>
+            </Container>
+            <Container  style={{height: "100%", width: "25%", display: "flex", flexDirection: "column", justifyContent: "center"}}>
+              <ButtonContainer>
                 <Button 
                  width ="50%">
                 <Link onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
@@ -578,6 +574,22 @@ class Game extends React.Component {
                 </Link>
                 </Button>
               </ButtonContainer>
+              <ButtonContainer>
+                {
+                  this.state.hostId === localStorage.getItem("loginUserId")?
+                    (<Button
+                      width ="100%">
+                      <Link
+                        onClick={() => {
+                          this.endGame()
+                        }}
+                      >
+                        End Game
+                      </Link>
+                    </Button>):""
+                }
+              </ButtonContainer>
+            </Container>
             </Container>
               <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
                 <Notification>
