@@ -327,9 +327,11 @@ class Game extends React.Component {
             : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
-            : "for " + this.state.currentPlayer.username + " to place card"})
+            : "for " + this.state.currentPlayer.username + "\n to place card"})
             this.resetCountDown();
-      } else if (this.state.gameState === "DOUBTINGPHASE") {
+      }
+
+      else if (this.state.gameState === "DOUBTINGPHASE") {
         if(!this.state.isLocalUserPLayer)
         {
           NotificationManager.warning('You can now doubt the card placement','',3000);
@@ -339,24 +341,27 @@ class Game extends React.Component {
             ? ">>> The other players can doubt your placement, please wait"
             : ">>> You can now doubt the card placement",
           countDownText: this.state.isLocalUserPLayer
-            ? "for the others to doubt"
+            ? "for the" + "\n" + "others to doubt"
             : "to doubt"})
             this.resetCountDown();
-      } else if (this.state.gameState === "DOUBTVISIBLE") {
+      }
+
+      else if (this.state.gameState === "DOUBTVISIBLE") {
         let doubtRightous = this.state.doubtResultDTO.doubtRightous;
 
         this.setState({
           message: this.state.isLocalUserPLayer
           ? (!doubtRightous?">>> You placed card in wrong position ":"hurray, your placed Card correctly")
           : (!doubtRightous?">>> " + this.state.currentPlayer.username +" place card in wrong position ":this.state.currentPlayer.username +" placed Card correctly"),
-          countDownText: "doubt result"})
-          this.resetCountDown();
-      } 
+          countDownText: ""})
+        this.resetCountDown();}
+
       else if (this.state.gameState === "EVALUATION") {
         NotificationManager.warning('Evaluation phase. Please Guess Number of correct card','',3000);
         this.setState({
           message: ">>> Evaluation phase",
-          countDown: "to place a bet"})
+          countDown: "to place a bet",
+          countDownText: ""})
         this.resetCountDown();
       }
 
@@ -454,7 +459,6 @@ class Game extends React.Component {
             </AddButton>
           )
           : "")
-
     }
 
     return renderedCards
@@ -477,9 +481,9 @@ class Game extends React.Component {
     const renderTime = ({ remainingTime }) => {
 
       return (
-        <div className="timer">
-          <div className="text">Remaining</div>
-          <div className="value">{remainingTime} seconds</div>
+        <div className="timer" style={{justifyContent: "center", textAlign: "center", whiteSpace: "pre-wrap"}}>
+          <div className="text">Remaining </div>
+          <div className="value"> {remainingTime} seconds </div>
           <div className="text">{this.state.countDownText}</div>
         </div>
       );
@@ -494,11 +498,11 @@ class Game extends React.Component {
               <VerticalCardContainer style={{flexDirection: "column-reverse"}}>
                 {this.getCards(this.state.cardsTop, "top")}
               </VerticalCardContainer>
-              {this.state.loading?
-          <ReactLoading  type={"spin"} height={120} width={120} />:
-          <StartingCardContainer>
-                {this.state.startingCard ?
-                <Card style={{padding: "5%"}}
+              {this.state.loading
+                ? <ReactLoading  type={"spin"} height={120} width={120} />
+                : <StartingCardContainer>
+                {this.state.startingCard
+                  ? <Card style={{padding: "5%"}}
                       sizeCard={110}
                       sizeFont={110}
                       cardInfo={this.state.startingCard}
@@ -507,9 +511,7 @@ class Game extends React.Component {
                       frontSide={this.checkTurnCard(this.state.startingCard)}/>
                   : " "}
 
-            </StartingCardContainer>
-              }
-
+                  </StartingCardContainer>}
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
