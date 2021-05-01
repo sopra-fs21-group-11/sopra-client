@@ -7,6 +7,7 @@ import { withRouter, useParams } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import Error from "../../views/Error";
 import Header from "../../views/Header";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const FormContainer = styled.div`
   margin-top: 2em;
@@ -129,10 +130,7 @@ class Registration extends React.Component {
       // registration successfully worked --> navigate to the route /userOverview in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-      //alert(`Something went wrong during the registration: \n${handleError(error)}`);
+      NotificationManager.error('Username already exist. Please try something else','',3000);
     }
   }
 
@@ -206,7 +204,7 @@ class Registration extends React.Component {
                   Go to Login
                 </Button>
               </ButtonContainer>
-              <Error message={this.state.errorMessage}/>
+              <NotificationContainer/>
             </Form>
           </FormContainer>
         </BaseContainer>

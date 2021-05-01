@@ -8,6 +8,7 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import Error from "../../views/Error";
 import Header from "../../views/Header";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const FormContainer = styled.div`
   margin-top: 2em;
@@ -104,7 +105,6 @@ class Login extends React.Component {
     this.state = {
       username: null,
       password: null,
-      errorMessage: null,
     };
   }
   /**
@@ -113,6 +113,7 @@ class Login extends React.Component {
    * and its token is stored in the localStorage.
    */
   async login() {
+    
     try {
       const requestBody = JSON.stringify({
         username: this.state.username,
@@ -130,10 +131,8 @@ class Login extends React.Component {
       // Login successfully worked --> navigate to the route /userOverview in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-      //alert(`Something went wrong during the login: \n${handleError(error)}`);
+      NotificationManager.error('Invalid username/password','',3000);
+      
     }
   }
 
@@ -162,6 +161,7 @@ class Login extends React.Component {
       <div>
         <Header height={"100"} />
         <BaseContainer>
+        <NotificationContainer/>
           <FormContainer>
             <Form>
               <FormTitleContainer>
@@ -207,8 +207,6 @@ class Login extends React.Component {
                   Go to Registration
                 </Button>
               </ButtonContainer>
-
-              <Error message={this.state.errorMessage}/>
 
             </Form>
           </FormContainer>

@@ -15,6 +15,7 @@ import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
 import ReactLoading from 'react-loading';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 
 const Container = styled(BaseContainer)`
@@ -196,7 +197,6 @@ class Game extends React.Component {
       username: localStorage.getItem("username"),
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
-      errorMessage: null,
       numTokens: 3,
       gameState: null,
       cards: null,
@@ -245,13 +245,11 @@ class Game extends React.Component {
         }
       });
 
+      NotificationManager.warning('Loading the game','',3000);
       this.getData();
     }
     catch (error) {
-      this.setState({
-        errorMessage: error.message,
-      });
-      //alert(`Something went wrong while fetching the users: \n${handleError(error)}`);
+      NotificationManager.error(error.message,'',3000);
     }
   }
 
@@ -310,6 +308,10 @@ class Game extends React.Component {
 
 
       if (this.state.gameState === "CARDPLACEMENT") {
+        if(this.state.isLocalUserPLayer)
+        {
+          NotificationManager.info('It is your turn, please place the card','',3000);
+        }
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
@@ -319,6 +321,10 @@ class Game extends React.Component {
             : "for " + this.state.currentPlayer.username + " to place card"})
             this.resetCountDown();
       } else if (this.state.gameState === "DOUBTINGPHASE") {
+        if(!this.state.isLocalUserPLayer)
+        {
+          NotificationManager.info('You can now doubt the card placement','',3000);
+        }
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> The other players can doubt your placement, please wait"
@@ -338,11 +344,13 @@ class Game extends React.Component {
           this.resetCountDown();
       } 
       else if (this.state.gameState === "EVALUATION") {
+        NotificationManager.warning('Evaluation phase. Please Guess Number of correct card','',3000);
         this.setState({
           message: ">>> Evaluation phase"})
       }
 
       if(this.state.gameState === "GAMEENDED"){
+        NotificationManager.info('END GAME','',3000);
         this.history.push("/mainView")
       }
   }
@@ -576,7 +584,7 @@ class Game extends React.Component {
             </RightFooter>
           </Footer>,
           <Container style={{display: "flex"}}>
-          <Error message={this.state.errorMessage}/>
+          <NotificationContainer/>
           </Container>
       </GameContainer>
     );
