@@ -273,6 +273,7 @@ class Lobby extends React.Component {
     let settingsStyle;
     let styleHeading;
     let settingsText;
+    let disabled;
 
     if (this.state.created) {
       users = <Users>
@@ -283,13 +284,18 @@ class Lobby extends React.Component {
       titleUsers = <Heading style={{width: "25%", marginRight: "5%"}}>Players</Heading>
       settingsStyle = {}
       styleHeading = {width: "70%", marginLeft: "auto"}
+
+      disabled = true;
     }
+
 
     else {
       settingsStyle = {marginRight: "auto"}
       styleHeading = {width: "70%", marginLeft: "auto", marginRight: "auto"}
       settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
         " You cannot change them anymore once the game is created."
+
+      disabled = true;
     }
 
 
@@ -326,7 +332,7 @@ class Lobby extends React.Component {
             />
             <Label>Min Players</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.playerMin}
               onChange={(e) => {
                 this.handleInputChange("playerMin", e.target.value);
@@ -337,7 +343,7 @@ class Lobby extends React.Component {
             </CustomSelect>
             <Label>Max Players</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.playerMax}
               onChange={(e) => {
                 this.handleInputChange("playerMax", e.target.value);
@@ -348,7 +354,7 @@ class Lobby extends React.Component {
             </CustomSelect>
             <Label>Number of evaluations</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.nrOfEvaluations}
               onChange={(e) => {
                 this.handleInputChange("nrOfEvaluations", e.target.value);
@@ -358,7 +364,7 @@ class Lobby extends React.Component {
             </CustomSelect>
             <Label>Doubt countdown time</Label>
             <InputField
-              disabled={!this.state.editable}
+              disabled={disabled}
               placeholder="Enter time in seconds ..."
               defaultValue={this.state.created ? this.state.doubtCountdown + " seconds" : null}
               onChange={(e) => {
@@ -367,7 +373,7 @@ class Lobby extends React.Component {
             />
             <Label>How long cards are visible after doubt</Label>
             <InputField
-              disabled={!this.state.editable}
+              disabled={disabled}
               placeholder="Enter time in seconds ..."
               defaultValue={this.state.created ? this.state.visibleAfterDoubtCountdown + " seconds" : null}
               onChange={(e) => {
@@ -376,7 +382,7 @@ class Lobby extends React.Component {
             />
             <Label>Countdown for one player turn</Label>
             <InputField
-              disabled={!this.state.editable}
+              disabled={disabled}
               placeholder="Enter time in seconds ... "
               defaultValue={this.state.created ? this.state.playerTurnCountdown + " seconds" : null}
               onChange={(e) => {
@@ -385,7 +391,7 @@ class Lobby extends React.Component {
             />
             <Label>Tokens for correct Guess</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.tokenGainOnCorrectGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnCorrectGuess", e.target.value);
@@ -395,7 +401,7 @@ class Lobby extends React.Component {
             </CustomSelect>
             <Label>Tokens on nearest guess</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.tokenGainOnNearestGuess}
               onChange={(e) => {
                 this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
@@ -405,7 +411,7 @@ class Lobby extends React.Component {
             </CustomSelect>
             <Label>Horizontal comparison type</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.horizontalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("horizontalValueCategoryId", e.target.value);
@@ -416,7 +422,7 @@ class Lobby extends React.Component {
             </CustomSelect>
             <Label>Vertical comparison type</Label>
             <CustomSelect
-              disabled={!this.state.editable}
+              disabled={disabled}
               defaultValue={this.state.verticalValueCategoryId}
               onChange={(e) => {
                 this.handleInputChange("verticalValueCategoryId", e.target.value);
