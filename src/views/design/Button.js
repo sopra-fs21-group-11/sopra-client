@@ -3,6 +3,8 @@ import styled from "styled-components";
 export const Button = styled.button`
   &:hover {
     transform: translateY(-2px);
+    color: white;
+    font-size: 13px;
   }
   padding: 6px;
   font-weight: 900;
@@ -13,7 +15,8 @@ export const Button = styled.button`
   width: ${props => props.width || null};
   height: 35px;
   border: rgb(0, 0, 0, 1);
-  border-width: 4px;
+  border-width: 2px;
+  border-radius: 4px;
   border-style: solid;
   cursor: ${props => (props.disabled ? "default" : "pointer")};
   opacity: ${props => (props.disabled ? 0.4 : 1)};

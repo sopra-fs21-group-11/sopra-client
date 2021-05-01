@@ -61,7 +61,7 @@ const Name = styled.p`
 
 const Heading = styled.h3`
   color: black;
-  border: 4px black solid;
+  border: 3px black solid;
   background: rgb(0, 132, 0, 1);
   width: 100%;
   padding-bottom: 0;
@@ -70,6 +70,7 @@ const Heading = styled.h3`
   align-items: center;
   display: flex;
   justify-content: center;
+  border-radius:   4px 4px 0px 0px;
 `;
 
 const SettingsForm = styled.div`
@@ -84,16 +85,18 @@ const SettingsForm = styled.div`
   padding-left: 37px;
   padding-right: 37px;
   background: rgb(255, 255, 255);
-  border-left: 4px black solid;
-  border-right: 4px black solid;
-  border-bottom: 4px black solid;
+  border-left: 3px black solid;
+  border-right: 3px black solid;
+  border-bottom: 3px black solid;
   overflow: scroll;
+  border-radius:  0px 0px 4px 4px;
 `;
 
 const CustomSelect = styled.select`
   margin-bottom: 10px;
   border-color: rgb(0, 0, 0, 0.4);
   background: rgba(0, 102, 0, 0.2);
+  border-radius:   4px;
 `;
 
 const CustomOverlay = styled.div`

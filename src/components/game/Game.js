@@ -26,10 +26,11 @@ const Container = styled(BaseContainer)`
 
 const Notification = styled(BaseContainer)`
   color: black;
-  border: 4px black solid;
+  border: 2px black solid;
   width: 100%;
   margin-left: 0;
   background: white;
+  border-radius: 4px;
 `;
 
 const LeftFooter = styled(BaseContainer)`
@@ -310,7 +311,7 @@ class Game extends React.Component {
       if (this.state.gameState === "CARDPLACEMENT") {
         if(this.state.isLocalUserPLayer)
         {
-          NotificationManager.info('It is your turn, please place the card','',3000);
+          NotificationManager.warning('It is your turn, please place the card','',3000);
         }
         this.setState({
           message: this.state.isLocalUserPLayer
@@ -323,7 +324,7 @@ class Game extends React.Component {
       } else if (this.state.gameState === "DOUBTINGPHASE") {
         if(!this.state.isLocalUserPLayer)
         {
-          NotificationManager.info('You can now doubt the card placement','',3000);
+          NotificationManager.warning('You can now doubt the card placement','',3000);
         }
         this.setState({
           message: this.state.isLocalUserPLayer

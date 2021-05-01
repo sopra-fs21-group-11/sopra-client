@@ -12,4 +12,5 @@ export const InputField = styled.input`
   background: rgba(0, 102, 0, 0.2);
   color: black;
   border-color: rgb(0, 0, 0, 0.4);
+  border-radius: 4px;
 `;
