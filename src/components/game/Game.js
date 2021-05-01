@@ -206,7 +206,7 @@ class Game extends React.Component {
       username: localStorage.getItem("username"),
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
-      numTokens: 10,
+      numTokens: 0,
       gameState: null,
       cards: null,
       currentCard: null,
@@ -360,14 +360,20 @@ class Game extends React.Component {
         NotificationManager.warning('Evaluation phase. Please Guess Number of correct card','',3000);
         this.setState({
           message: ">>> Evaluation phase",
-          countDown: "to place a bet",
-          countDownText: ""})
+          countDownText: "to place a bet"})
+        this.resetCountDown();
+      }
+      else if (this.state.gameState === "EVALUATIONVISIBLE") {
+        NotificationManager.warning('After the Evaluation phase. Please have a look at the correctly and wrongly placed cards','',3000);
+        this.setState({
+          message: ">>> After the Evaluation phase",
+          countDownText: "to look at the cards"})
         this.resetCountDown();
       }
 
-      if(this.state.gameState === "GAMEENDED"){
+      if(this.state.gameState === "GAMEEND"){
         NotificationManager.info('END GAME','',3000);
-        this.history.push("/mainView")
+        this.props.history.push("/mainView")
       }
   }
 
@@ -416,8 +422,8 @@ class Game extends React.Component {
         return false;
       }
       else if(this.state.gameState === "DOUBTVISIBLE"){
-        let doubtResultDTO=this.state.doubtResultDTO;
-        if([doubtResultDTO.referenceCard.id,doubtResultDTO.doubtedCard.id].includes(cardID)){
+        let doubtResultDTO = this.state.doubtResultDTO;
+        if([doubtResultDTO.referenceCard.id, doubtResultDTO.doubtedCard.id].includes(cardID)){
           return false;
         }
       }
@@ -446,7 +452,8 @@ class Game extends React.Component {
           axis={direction}
           cardInfo={cards[i]}
           startingCard={this.state.startingCard}
-          doubtCard={this.checkDoubtCard(cards[i].id)} doubtGame={this.doubtGame}
+          doubtCard={this.checkDoubtCard(cards[i].id)}
+          doubtGame={this.doubtGame}
           frontSide={this.checkTurnCard(cards[i].id)}/>,
         this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
           (
@@ -474,7 +481,7 @@ class Game extends React.Component {
   }
   resetCountDown(){
     let count=this.state.countDownTimer[this.state.gameState]
-    this.setState({countDown:count,countKey:this.state.countKey+1})
+    this.setState({countDown:count, countKey:this.state.countKey+1})
   }
 
   render() {
@@ -507,8 +514,9 @@ class Game extends React.Component {
                       sizeFont={110}
                       cardInfo={this.state.startingCard}
                       startingCard={this.state.startingCard}
-                      doubtCard={this.checkDoubtCard(this.state.startingCard.id)} doubtGame={this.doubtGame}
-                      frontSide={this.checkTurnCard(this.state.startingCard)}/>
+                      doubtCard={this.checkDoubtCard(this.state.startingCard.id)}
+                      doubtGame={this.doubtGame}
+                      frontSide={this.checkTurnCard(this.state.startingCard.id)}/>
                   : " "}
 
                   </StartingCardContainer>}

@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import Card from "../../views/design/Card";
 
 
 
@@ -85,7 +86,7 @@ class MainView extends React.Component {
             <MenuContainer>
               <PlayerNameContainer>
                 <PlayerName>
-                  Welcome {localStorage.getItem("username")}   Let's play USGRÄCHNET BÜNZEN
+                  Welcome {localStorage.getItem("username")} Let's play USGRÄCHNET BÜNZEN
                 </PlayerName>
               </PlayerNameContainer>
               <NavigationContainer>
@@ -140,6 +141,8 @@ class MainView extends React.Component {
     );
   }
 }
+
+
 
 export default withRouter(MainView);
 
