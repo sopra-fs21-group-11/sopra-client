@@ -346,7 +346,9 @@ class Game extends React.Component {
       else if (this.state.gameState === "EVALUATION") {
         NotificationManager.warning('Evaluation phase. Please Guess Number of correct card','',3000);
         this.setState({
-          message: ">>> Evaluation phase"})
+          message: ">>> Evaluation phase",
+          countDown: "to place a bet"})
+        this.resetCountDown();
       }
 
       if(this.state.gameState === "GAMEENDED"){
@@ -360,7 +362,7 @@ class Game extends React.Component {
     let callback = this.callback;
 
     let baseURL = getDomain();
-    const socket = SockJS(baseURL+'/gs-guide-websocket');
+    const socket = SockJS(baseURL + '/gs-guide-websocket');
     socket.withCredentials=true;
 
     stompClient = Stomp.Stomp.over(socket);
