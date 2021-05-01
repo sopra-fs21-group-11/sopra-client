@@ -1,5 +1,6 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
+import {authJwtToken} from "../../../helpers/authJWT";
 
 /**
  * routeProtectors interfaces can tell the router whether or not it should allow navigation to a requested route.
@@ -11,7 +12,7 @@ import { Redirect } from "react-router-dom";
  * @param props
  */
 export const GameGuard = props => {
-  if (localStorage.getItem("token")) {
+  if (authJwtToken()) {
     return props.children;
   }
   return <Redirect to={"/login"} />;

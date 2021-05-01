@@ -25,9 +25,10 @@ const Games = styled.ul`
   font-size: 16px;
   font-weight: 300;
   background: rgb(255, 255, 255);
-  border-left: 4px black solid;
-  border-right: 4px black solid;
-  border-bottom: 4px black solid;
+  border-left: 3px black solid;
+  border-right: 3px black solid;
+  border-bottom: 3px black solid;
+  border-radius:  0px 0px 4px 4px;
 `;
 const PrivateGame = styled.div`
   display: flex;
@@ -47,7 +48,7 @@ const PrivateGame = styled.div`
 
 const Heading = styled.h3`
   color: black;
-  border: 4px black solid;
+  border: 3px black solid;
   background: rgb(0, 132, 0, 1);
   width: 100%;
   padding-bottom: 0;
@@ -57,6 +58,7 @@ const Heading = styled.h3`
   align-items: center;
   display: flex;
   justify-content: center;
+  border-radius: 4px 4px 0px 0px;
 `;
 
 const CustomOverlay = styled.div`

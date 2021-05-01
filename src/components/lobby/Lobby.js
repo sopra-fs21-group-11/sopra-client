@@ -71,6 +71,7 @@ const Heading = styled.h4`
   align-items: center;
   display: flex;
   justify-content: center;
+  border-radius:   4px 4px 0px 0px;
 `;
 
 const SettingsForm = styled.div`
@@ -89,12 +90,14 @@ const SettingsForm = styled.div`
   border-right: 0.15em black solid;
   border-bottom: 0.15em black solid;
   overflow: scroll;
+  border-radius:  0px 0px 4px 4px;
 `;
 
 const CustomSelect = styled.select`
   margin-bottom: 2%;
   border-color: rgb(0, 0, 0, 0.4);
   background: rgba(0, 102, 0, 0.2);
+  border-radius:   4px;
 `;
 
 const CustomOverlay = styled.div`
