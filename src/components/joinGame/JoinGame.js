@@ -48,7 +48,7 @@ const PrivateGame = styled.div`
 
 const Heading = styled.h3`
   color: black;
-  border: 4px black solid;
+  border: 3px black solid;
   background: rgb(0, 132, 0, 1);
   width: 100%;
   padding-bottom: 0;
