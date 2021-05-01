@@ -23,12 +23,11 @@ const Users = styled.ul`
   list-style: none;
   width: 25%;
   margin-top: 0;
-  padding-left: 17px;
-  padding-right: 17px;
-  font-size: 16px;
+  font-size: 90%;
   font-weight: 300;
-  margin-right: 50px;
+  margin-right: 5%;
   height: 64vh;
+  padding: 0;
   background: rgb(255, 255, 255);
   border-left: 0.15em black solid;
   border-right: 0.15em black solid;
@@ -78,7 +77,7 @@ const SettingsForm = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: auto;
-  width: 80%;
+  width: 70%;
   height: 64vh;
   font-size: 90%;
   font-weight: 300;
@@ -100,6 +99,7 @@ const CustomSelect = styled.select`
 
 const CustomOverlay = styled.div`
   background: rgb(200, 213, 0, 0.25);
+  height: 90%;
 `;
 
 
@@ -277,14 +277,14 @@ class Lobby extends React.Component {
           return (<Name key={player.id}>{player.username}</Name>);
         })}
       </Users>
-      titleUsers = <Heading style={{width: "25%", marginRight: "4.7%"}}>Players</Heading>
+      titleUsers = <Heading style={{width: "25%", marginRight: "5%"}}>Players</Heading>
       settingsStyle = {}
-      styleHeading = {width: "80%", marginLeft: "auto"}
+      styleHeading = {width: "70%", marginLeft: "auto"}
     }
 
     else {
       settingsStyle = {marginRight: "auto"}
-      styleHeading = {width: "80%", marginLeft: "auto", marginRight: "auto"}
+      styleHeading = {width: "70%", marginLeft: "auto", marginRight: "auto"}
       settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
         " You cannot change them anymore once the game is created."
     }
@@ -309,7 +309,7 @@ class Lobby extends React.Component {
           <SettingsForm
           style={settingsStyle}>
             <p
-              style={{color: "black", textAlign: "left", fontSize: "100%"}}
+              style={{color: "black", textAlign: "center", fontSize: "100%"}}
             >
               {settingsText}
             </p>

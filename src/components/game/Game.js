@@ -39,6 +39,9 @@ const LeftFooter = styled(BaseContainer)`
   flex-direction: column;
   width: 20vw;
   margin: 0;
+  padding-right: 0.25vw;
+  padding-left: 0.5vw;
+  
 `;
 
 const RightFooter = styled(BaseContainer)`
@@ -48,6 +51,8 @@ const RightFooter = styled(BaseContainer)`
   justify-content: right;
   width: 50vw;
   margin: 0;
+  padding-right: 0.5vw;
+  padding-left: 0.25vw;
 `;
 
 const MiddleFooter = styled(BaseContainer)`
@@ -57,6 +62,8 @@ const MiddleFooter = styled(BaseContainer)`
   flex-direction: row;
   width: 30vw;
   margin: 0;
+  padding-right: 0.25vw;
+  padding-left: 0.25vw;
 `;
 
 const GameContainer = styled.div`
@@ -112,7 +119,7 @@ const StartingCardContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: auto;
-  height: 10vh;
+  height: fit-content;
 `;
 
 const HorizontalCardContainer = styled.div`
@@ -123,8 +130,6 @@ const HorizontalCardContainer = styled.div`
   align-items: center;
   width: auto;
   height: 100vh;
-  margin-left: 1vh;
-  margin-right: 1vh;
 `;
 
 const VerticalCardContainer = styled.div`
@@ -151,10 +156,10 @@ const TokenContainer = styled(BaseContainer)`
   text-align: left;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: left;
   margin: 0;
   padding: 0;
-  overflow: 
 `;
 
 const Token = styled.img`
@@ -200,7 +205,7 @@ class Game extends React.Component {
       username: localStorage.getItem("username"),
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
-      numTokens: 6,
+      numTokens: 10,
       gameState: null,
       cards: null,
       currentCard: null,
@@ -429,8 +434,9 @@ class Game extends React.Component {
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
         <Card
-          sizeCard={120}
-          sizeFont={120}
+          style={{padding: "10%"}}
+          sizeCard={110}
+          sizeFont={110}
           axis={direction}
           cardInfo={cards[i]}
           startingCard={this.state.startingCard}
@@ -467,7 +473,6 @@ class Game extends React.Component {
   }
 
   render() {
-    //TODO: stop timer when action was performed
     const renderTime = ({ remainingTime }) => {
 
       return (
@@ -492,15 +497,16 @@ class Game extends React.Component {
           <ReactLoading  type={"spin"} height={120} width={120} />:
           <StartingCardContainer>
                 {this.state.startingCard ?
-                <Card sizeCard={120}
-                      sizeFont={120}
+                <Card style={{padding: "5%"}}
+                      sizeCard={110}
+                      sizeFont={110}
                       cardInfo={this.state.startingCard}
                       startingCard={this.state.startingCard}
                       doubtCard={this.checkDoubtCard(this.state.startingCard.id)} doubtGame={this.doubtGame}
                       frontSide={this.checkTurnCard(this.state.startingCard)}/>
                   : " "}
 
-              </StartingCardContainer>
+            </StartingCardContainer>
               }
 
               <VerticalCardContainer>
@@ -553,26 +559,13 @@ class Game extends React.Component {
               }
             </Container>
             <Container style={{height: "100%", width: "50%", justifyContent: "center"}}>
-              <ButtonContainer style={{height: "100%", width: "50%"}}>
-                {
-                  this.state.hostId === localStorage.getItem("loginUserId")?
-                    (<Button
-                    width ="100%">
-                    <Link
-                      onClick={() => {
-                        this.endGame()
-                      }}
-                    >
-                      End Game
-                    </Link>
-                  </Button>):""
-                }
-              </ButtonContainer>
+
           {(this.state.isLocalUserPLayer && this.state.gameState === "CARDPLACEMENT")
-            ? <Card sizeCard={150} sizeFont={130} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
+            ? <Card sizeCard={110} sizeFont={110} cardInfo={this.state.currentCard} frontSide={[true]} doubtCard={false} doubtGame={this.doubtGame}/>
             : " "}
-            </Container >
-              <ButtonContainer style={{height: "100%", width: "25%"}}>
+            </Container>
+            <Container  style={{height: "100%", width: "25%", display: "flex", flexDirection: "column", justifyContent: "center"}}>
+              <ButtonContainer>
                 <Button 
                  width ="50%">
                 <Link onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
@@ -580,6 +573,22 @@ class Game extends React.Component {
                 </Link>
                 </Button>
               </ButtonContainer>
+              <ButtonContainer>
+                {
+                  this.state.hostId === localStorage.getItem("loginUserId")?
+                    (<Button
+                      width ="100%">
+                      <Link
+                        onClick={() => {
+                          this.endGame()
+                        }}
+                      >
+                        End Game
+                      </Link>
+                    </Button>):""
+                }
+              </ButtonContainer>
+            </Container>
             </Container>
               <Container  style={{height: "40%", width: "100%", bottom: "10%"}}>
                 <Notification>
