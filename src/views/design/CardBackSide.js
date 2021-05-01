@@ -32,6 +32,7 @@ const CardContainerRed = styled.div`
   box-shadow: 0 0 10px red;
 `;
 
+
 const CardTextContainerContainer = styled.div`
   position: absolute;
   overflow-wrap: break-word;
@@ -108,7 +109,7 @@ class CardBackSide extends React.Component {
       default:
         return(
           <CardText>
-            Hallo World
+            Something went wrong
           </CardText>
         )
     }
@@ -128,7 +129,7 @@ class CardBackSide extends React.Component {
     let textContainerHeigth = (standardCardHeight - 10 * standardMultiplier) * this.props.sizeCard /100;
     let topOffset = standardTopOffset * this.props.sizeCard /100;
     let sizeFont = standardFontSize * this.props.sizeFont/100;
-    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`}
+    let cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`,border: this.props.cardInfo.correct? '3px solid rgba(77,175,124,1)':(!this.props.cardInfo.correct?'3px solid rgba(255,127,80,1)':'none')}
     let cardTextStyle = {fontSize: `${sizeFont}px`, minWidth: `${textContainerWidth}px`}
     let textContainerContainerStyle = {width: `${textContainerWidth}px`, height: `${textContainerHeigth}px`, top: `${topOffset}px`}
 
@@ -142,10 +143,10 @@ class CardBackSide extends React.Component {
 
     // change card shadow in the Evaluation phase
     if(this.props.cardInfo.correct === "true"){
-      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, WebkitBoxShadow: "0 0 10px green", boxShadow: "0 0 10px green"}
+      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, border: '3px solid green'}
     }
     if(this.props.cardInfo.correct === "false"){
-      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, WebkitBoxShadow: "0 0 10px red", boxShadow: "0 0 10px red"}
+      cardStyle = {width: `${cardWidth}px`, height: `${cardHeight}px`, border: '3px solid green'}
     }
 
     return(

@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import Card from "../../views/design/Card";
 
 
 
@@ -133,6 +134,16 @@ class MainView extends React.Component {
                 </ButtonContainer>
               </NavigationContainer>
             </MenuContainer>
+            <Card
+              style={{padding: "10%"}}
+              sizeCard={110}
+              sizeFont={110}
+              axis={"top"}
+              cardInfo={card}
+              startingCard={startingCard}
+              doubtCard={false}
+              doubtGame={this.doubtGame}
+              frontSide={false}/>
           </BaseContainer>
         </Overlay>
         <NotificationContainer/>
@@ -140,6 +151,42 @@ class MainView extends React.Component {
     );
   }
 }
+
+const card={
+  "id": 49,
+  "lowerNeighbour": 0,
+  "higherNeighbour": 0,
+  "rightNeighbour": 49,
+  "leftNeighbour": 0,
+  "ncoord": 47.2,
+  "ecoord": 9.25,
+  "name": "Appenzell",
+  "population": 0,
+  "area": 0.0,
+  "height": 0,
+  "canton": null,
+  "position": 2,
+  "correct": false
+
+}
+const startingCard={
+  "id": 49,
+  "lowerNeighbour": 0,
+  "higherNeighbour": 0,
+  "rightNeighbour": 49,
+  "leftNeighbour": 0,
+  "ncoord": 47.2,
+  "ecoord": 9.25,
+  "name": "Appenzell",
+  "population": 0,
+  "area": 0.0,
+  "height": 0,
+  "canton": null,
+  "position": 2,
+  "correct": true
+
+}
+
 
 export default withRouter(MainView);
 
