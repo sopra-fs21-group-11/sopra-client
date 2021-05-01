@@ -33,7 +33,6 @@ const Header = (props) => {
   return (
     <Container height={props.height}>
       <Title>SoPra FS21 Group 11 USGRÄCHNET BÜNZEN</Title>
-      <ReactLogo width={60} height={60} />
     </Container>
   );
 };
