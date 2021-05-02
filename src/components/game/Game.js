@@ -478,7 +478,6 @@ class Game extends React.Component {
       JSON.stringify({
         "gameId": this.state.gameId
       }));
-    this.props.history.push("/mainView");
   }
   resetCountDown(){
     let count=this.state.countDownTimer[this.state.gameState]

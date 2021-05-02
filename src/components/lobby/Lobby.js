@@ -326,6 +326,7 @@ class Lobby extends React.Component {
             <InputField
               disabled={!this.state.editable}
               placeholder="Enter a game name ..."
+              value={this.state.gameName}
               onChange={(e) => {
                 this.handleInputChange("gameName", e.target.value);
               }}
