@@ -372,9 +372,10 @@ class Game extends React.Component {
       }
 
       if(this.state.gameState === "GAMEEND"){
-        NotificationManager.info('END GAMEDED. Thankyou for Playing ','',3000,() => {
+        NotificationManager.error('END GAMEDED. Thank you for Playing ','',3000,() => {
           this.props.history.push("/mainView");
-        }); 
+        });
+        setTimeout(() => {  this.props.history.push("/mainView"); }, 3000);
       }
   }
 
