@@ -71,6 +71,7 @@ export class Evaluation extends React.Component{
     this.setState({placeholder: "submitted"});
   }
 
+
   handleInputChange(value) {
 
     this.setState({ guess: value });
@@ -82,10 +83,11 @@ export class Evaluation extends React.Component{
     return (
       <EvaluationFormContainer>
         <GuessInput
+          type="number"
           placeholder={this.state.placeholder}
           disabled={this.state.placeholder === "submitted"}
-          maxLength={3}
-          pattern="[0-9]*"
+          maxLength={2}
+          pattern="[0-9]+"
           onChange={(e) => {
             this.handleInputChange(e.target.value);
           }}
