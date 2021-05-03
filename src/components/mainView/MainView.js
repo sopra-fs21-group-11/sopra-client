@@ -116,7 +116,7 @@ class MainView extends React.Component {
                   <Button
                     width="40%"
                     onClick={() => {
-                      this.props.history.push("/Registration");
+                      NotificationManager.info('Currently this feature is not avilable. ','Coming soon..',3000);
                     }}
                   >
                     Deck Editor
