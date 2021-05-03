@@ -124,6 +124,14 @@ class MainView extends React.Component {
                 </ButtonContainer>
                 <ButtonContainer>
                   <Button
+                    width="40%"
+                    onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}
+                  >
+                    Game Manual
+                  </Button>
+                </ButtonContainer>
+                <ButtonContainer>
+                  <Button
                      width="40%"
                     onClick={() => {
                       this.logout();
