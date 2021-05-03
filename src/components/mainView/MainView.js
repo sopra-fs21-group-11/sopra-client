@@ -116,7 +116,7 @@ class MainView extends React.Component {
                   <Button
                     width="40%"
                     onClick={() => {
-                      NotificationManager.info('Currently this feature is not avilable. ','Coming soon..',3000);
+                      NotificationManager.info('Currently this feature is not available. ','Coming soon..',3000);
                     }}
                   >
                     Deck Editor
