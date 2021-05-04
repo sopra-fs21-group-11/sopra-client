@@ -7,8 +7,6 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
-import Card from "../../views/design/Card";
-import DirectionCard from "../../views/design/DirectionCard";
 
 
 
@@ -117,10 +115,18 @@ class MainView extends React.Component {
                   <Button
                     width="40%"
                     onClick={() => {
-                      this.props.history.push("/Registration");
+                      this.props.history.push("/deckEditor");
                     }}
                   >
                     Deck Editor
+                  </Button>
+                </ButtonContainer>
+                <ButtonContainer>
+                  <Button
+                    width="40%"
+                    onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}
+                  >
+                    Game Manual
                   </Button>
                 </ButtonContainer>
                 <ButtonContainer>
@@ -134,23 +140,6 @@ class MainView extends React.Component {
                   </Button>
                 </ButtonContainer>
               </NavigationContainer>
-              <div>
-                <DirectionCard
-                  sizeCard={110}
-                  style={{marginTop: "100px", position: "relative", zIndex: "-9"}}
-                >
-
-                </DirectionCard>
-                <Card style={{padding: "5%", position: "relative", zIndex: "1", minHeight: "500px"}}
-                      sizeCard={110}
-                      sizeFont={110}
-                      cardInfo={startingCard}
-                      startingCard={startingCard}
-                      doubtCard={false}
-                      doubtGame={this.doubtGame}
-                      frontSide={true}/>
-              </div>
-
             </MenuContainer>
           </BaseContainer>
         </Overlay>
@@ -158,40 +147,6 @@ class MainView extends React.Component {
       </OverlayContainer>
     );
   }
-}
-
-const card = {
-  "id": 49,
-  "lowerNeighbour": 0,
-  "higherNeighbour": 0,
-  "rightNeighbour": 49,
-  "leftNeighbour": 49,
-  "ncoord": 47.2,
-  "ecoord": 9.25,
-  "name": "Appenzell",
-  "population": 0,
-  "area": 0.0,
-  "height": 0,
-  "canton": null,
-  "position": 1,
-  "correct": true
-}
-
-const startingCard = {
-  "id": 49,
-  "lowerNeighbour": 0,
-  "higherNeighbour": 0,
-  "rightNeighbour": 49,
-  "leftNeighbour": 49,
-  "ncoord": 47.2,
-  "ecoord": 9.25,
-  "name": "Appenzell",
-  "population": 0,
-  "area": 0.0,
-  "height": 0,
-  "canton": null,
-  "position": 1,
-  "correct": true
 }
 
 export default withRouter(MainView);
