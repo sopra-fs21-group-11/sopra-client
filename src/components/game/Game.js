@@ -16,6 +16,7 @@ import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
 import ReactLoading from 'react-loading';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import DirectionCard from "../../views/design/DirectionCard";
 
 
 const Container = styled(BaseContainer)`
@@ -372,7 +373,7 @@ class Game extends React.Component {
       }
 
       if(this.state.gameState === "GAMEEND"){
-        NotificationManager.info('END GAMEDED. Thankyou for Playing ','',3000,() => {
+        NotificationManager.info('GAMEDEND. Thank you for Playing ','',3000,() => {
           this.props.history.push("/mainView");
         }); 
       }
@@ -506,9 +507,15 @@ class Game extends React.Component {
                 {this.getCards(this.state.cardsTop, "top")}
               </VerticalCardContainer>
               {this.state.loading
-                ? <ReactLoading  type={"spin"} height={120} width={120} />
-                : <StartingCardContainer>
-                {this.state.startingCard
+                ? (
+                  <ReactLoading  type={"spin"} height={120} width={120} />
+                ) : (
+                  <DirectionCard>
+                  <StartingCardContainer
+                    width={100}
+                    heigth={100}
+                  >
+                  {this.state.startingCard
                   ? <Card style={{padding: "5%"}}
                       sizeCard={110}
                       sizeFont={110}
@@ -519,7 +526,9 @@ class Game extends React.Component {
                       frontSide={this.checkTurnCard(this.state.startingCard.id)}/>
                   : " "}
 
-                  </StartingCardContainer>}
+                  </StartingCardContainer>
+                  </DirectionCard>
+                )}
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
               </VerticalCardContainer>
