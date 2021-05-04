@@ -373,9 +373,9 @@ class Game extends React.Component {
 
       if(this.state.gameState === "GAMEEND"){
         NotificationManager.error('END GAMEDED. Thank you for Playing ','',3000,() => {
-          this.props.history.push("/mainView");
+          this.props.history.push("/game/scoreboard");
         });
-        setTimeout(() => {  this.props.history.push("/mainView"); }, 3000);
+        setTimeout(() => {  this.props.history.push("/game/scoreboard"); }, 3000);
       }
   }
 
@@ -535,7 +535,7 @@ class Game extends React.Component {
           {this.state.username}
             </PlayerName>
             <TokenContainer>
-          {this.countTokens()}
+              {this.countTokens()}
             </TokenContainer>
             </LeftFooter>
             <MiddleFooter>

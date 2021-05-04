@@ -117,7 +117,7 @@ class Lobby extends React.Component {
       horizontalCategories: [1, 2, 3],
       verticalCategories: [1, 2, 3],
       nrOfEvaluations: 2,
-      doubtCountdown: 5,
+      doubtCountdown: 10,
       visibleAfterDoubtCountdown: 5,
       playerTurnCountdown: 30,
       horizontalValueCategoryId: 1,
@@ -148,14 +148,31 @@ class Lobby extends React.Component {
        this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
      }
 
+     // else {
+     //   const response = await api.get("/settings/");
+     //
+     //   console.log(response.data);
+     //
+     //   this.setState({
+     //     playerMin: response.data.playerMin,
+     //     playerMax: response.data.playerMax,
+     //     cardEvaluationNumber: response.data.cardEvaluationNumber,
+     //     nrOfEvaluations: response.data.nrOfEvaluations,
+     //     doubtCountdown: response.data.doubtCountdown,
+     //     visibleAfterDoubtCountdown: response.data.visibleAfterDoubtCountdown,
+     //     playerTurnCountdown: response.data.playerTurnCountdown,
+     //     horizontalValueCategoryId: response.data.horizontalValueCategoryId,
+     //     verticalValueCategoryId: response.data.verticalValueCategoryId,
+     //     tokenGainOnCorrectGuess: response.data.tokenGainOnCorrectGuess,
+     //     tokenGainOnNearestGuess: response.data.tokenGainOnNearestGuess,
+     //   })
+     // }
+
     }
 
   componentWillUnmount() {
     window.clearInterval(this.timer);
     this.timer = null;
-
-    window.clearInterval(this.timer2);
-    this.timer2 = null;
   }
 
   exitLobby() {
@@ -173,23 +190,17 @@ class Lobby extends React.Component {
       const players = await Promise.all(response.data.players);
       this.handleInputChange("players", players);
 
-      if(!this.state.host&&players.length>0)
-      {
-        this.setState({loading:false})
+      // for non host players and if there list of players is not updated, there will be loading sign
+      if(!this.state.host && players.length>0) {
+        this.setState({loading: false})
       }
 
-      
         const gameStart = response.data.gameStarted;
-
-        console.log(gameStart);
 
         if (gameStart) {
           this.props.history.push("/game");
         }
-      
-
-        }
-
+    }
   }
 
 
@@ -200,8 +211,8 @@ class Lobby extends React.Component {
         hostId: localStorage.getItem("loginUserId"),
         token: localStorage.getItem("token"),
         name: this.state.gameName,
-        playerMin: 3,
-        playerMax: 5,
+        playerMin: this.state.playerMin,
+        playerMax: this.state.playerMax,
         cardEvaluationNumber: 2,
         nrOfEvaluations: this.state.nrOfEvaluations,
         doubtCountdown: this.state.doubtCountdown,
@@ -295,7 +306,7 @@ class Lobby extends React.Component {
       settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
         " You cannot change them anymore once the game is created."
 
-      disabled = true;
+      disabled = false;
     }
 
 
