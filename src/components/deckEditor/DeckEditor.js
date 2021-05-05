@@ -3,6 +3,8 @@ import {withRouter} from "react-router-dom";
 
 import styled from "styled-components";
 import {Button} from "../../views/design/Button";
+import {api} from "../../helpers/api";
+import LoadingOverlay from "react-loading-overlay";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -56,7 +58,7 @@ const BoxHeading = styled.div`
   align-items: center;
   display: flex;
   justify-content: center;
-  border-radius:   4px 4px 0px 0px;
+  border-radius:   4px 4px 0 0;
   font-weight: bold;
   font-size: larger;
 ;
@@ -68,7 +70,7 @@ const BoxBody = styled.div`
   overflow: scroll;
   border: 0.15em black solid;
   border-top: none;
-  border-radius:   0px 0px 4px 4px;
+  border-radius:   0 0 4px 4px;
 `;
 
 const ButtonContainer = styled.div`
@@ -86,12 +88,71 @@ const BackButtonContainer = styled.div`
   align-items: center;
 `;
 
+const Container = styled.div`
+  margin-top: 2.5%;
+  width: 100%;
+`;
+
+
+const Item = styled.div`
+  margin-bottom: 5px;
+  width: 100%;
+  text-align: center;
+
+  &:hover {
+    cursor: pointer;
+    background-color: rgba(0, 128, 0, 0.3);
+  }
+`;
+
+const ClickedItem = styled.div`
+  margin-bottom: 5px;
+  width: 100%;
+  text-align: center;
+  background-color: rgba(0, 128, 0, 0.3);
+  &:hover {
+    cursor: pointer;
+    
+  }
+`;
+
 class DeckEditor extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
+      decks: null,
+      cards: null,
+      cardInfo: null,
+      clickedDeck: null,
+      clickedCard: null,
       loading:false
     };
+  }
+
+  async componentDidMount() {
+
+    const response = await api.get("/decks/");
+    console.log(response.data);
+    this.setState({
+      decks: response.data
+    })
+
+  }
+
+  async getCards(){
+    const response = await api.get("/cards/");
+    console.log(response.data);
+    this.setState({
+      cards: response.data
+    })
+  }
+
+  async getCardInfo(cardId){
+    const response = await api.get("/cards/" + cardId);
+    console.log(response.data);
+    this.setState({
+      cardInfo: response.data
+    })
   }
 
   render() {
@@ -109,7 +170,42 @@ class DeckEditor extends React.Component{
                 Decks
               </BoxHeading>
               <BoxBody>
+                {!this.state.decks?
+                  (
+                    <LoadingOverlay
+                      active={this.state.loading}
+                      spinner
+                      text='Loading ...'
+                    />
+                  ):(
+                    <Container>
+                      {this.state.decks.map((deck)=>{
+                        return (
+                          <Container>
+                            {this.state.clickedDeck === deck.id?
+                              (
+                                <ClickedItem>
+                                  {deck.name}
+                                </ClickedItem>
+                              ):(
+                                <Item
+                                  key={deck.id}
+                                  onClick={()=>{
+                                    this.setState({clickedDeck: deck.id});
+                                    this.getCards();
+                                  }}
+                                >
+                                  {deck.name}
+                                </Item>
+                              )
+                            }
+                          </Container>
+                        )
 
+                      })}
+                    </Container>
+                  )
+                }
               </BoxBody>
               <ButtonContainer>
                   <Button
@@ -136,7 +232,38 @@ class DeckEditor extends React.Component{
                 Cards
               </BoxHeading>
               <BoxBody>
+                {!this.state.cards?
+                  (
+                    ""
+                  ):(
+                    <Container>
+                      {this.state.cards.map((card)=>{
+                        return (
+                          <Container>
+                            {this.state.clickedCard === card.id?
+                              (
+                                <ClickedItem>
+                                  {card.name}
+                                </ClickedItem>
+                              ):(
+                                <Item
+                                  key={card.id}
+                                  onClick={()=>{
+                                    this.setState({clickedCard: card.id});
+                                    this.getCardInfo(card.id);
+                                  }}
+                                >
+                                  {card.name}
+                                </Item>
+                              )
+                            }
+                          </Container>
+                        )
 
+                      })}
+                    </Container>
+                  )
+                }
               </BoxBody>
               <ButtonContainer>
                 <Button
@@ -165,7 +292,23 @@ class DeckEditor extends React.Component{
                 Card Details
               </BoxHeading>
               <BoxBody>
-
+                {!this.state.cardInfo?
+                  (
+                    ""
+                  ):(
+                    <Container>
+                      <Item>
+                        Name: {this.state.cardInfo.name}
+                      </Item>
+                      <Item>
+                        Lat.: {this.state.cardInfo.nCoordinate}
+                      </Item>
+                      <Item>
+                        Long.: {this.state.cardInfo.eCoordinate}
+                      </Item>
+                    </Container>
+                  )
+                }
               </BoxBody>
               <ButtonContainer>
                 <Button
