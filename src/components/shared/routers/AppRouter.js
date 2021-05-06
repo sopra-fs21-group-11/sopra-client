@@ -8,6 +8,8 @@ import { RegistrationGuard } from "../routeProtectors/RegistrationGuard";
 import Registration from "../../registration/Registration";
 import { MainViewGuard } from "../routeProtectors/MainViewGuard";
 import Main from "../../mainView/MainView";
+import {DeckEditorGuard} from "../routeProtectors/DeckEditorGuard";
+import DeckEditor from "../../deckEditor/DeckEditor";
 
 
 /**
@@ -61,6 +63,17 @@ class AppRouter extends React.Component {
 
               )}
             />
+            <Route
+              path="/deckEditor"
+              exact
+              render={() => (
+                <DeckEditorGuard>
+                  <DeckEditor />
+                </DeckEditorGuard>
+
+              )}
+            />
+
             <Route path="/" exact render={() => <Redirect to={"/mainView"} />} />
           </div>
         </Switch>

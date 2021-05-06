@@ -7,7 +7,6 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
-import Card from "../../views/design/Card";
 
 
 
@@ -116,7 +115,7 @@ class MainView extends React.Component {
                   <Button
                     width="40%"
                     onClick={() => {
-                      NotificationManager.info('Currently this feature is not available. ','Coming soon..',3000);
+                      this.props.history.push("/deckEditor");
                     }}
                   >
                     Deck Editor
@@ -149,8 +148,6 @@ class MainView extends React.Component {
     );
   }
 }
-
-
 
 export default withRouter(MainView);
 
