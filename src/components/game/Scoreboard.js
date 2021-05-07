@@ -92,7 +92,7 @@ class Test extends React.Component {
       <OverlayContainer>
         <CustomOverlay>
           <h2
-            style={{textAlign: "center", paddingTop: "20px"}}>Scoreboard</h2>
+            style={{textAlign: "center", paddingTop: "20px"}}>Leaderboard</h2>
           <Container>
             <Container>
               <Users>
