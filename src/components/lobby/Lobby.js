@@ -241,11 +241,13 @@ class Lobby extends React.Component {
         doubtCountdown: this.state.doubtCountdown,
         visibleAfterDoubtCountdown: this.state.visibleAfterDoubtCountdown,
         playerTurnCountdown: this.state.playerTurnCountdown,
-        horizontalValueCategoryId: this.state.horizontalValueCategoryId,
-        verticalValueCategoryId: this.state.verticalValueCategoryId,
+        horizontalValueCategoryId: 1, // TODO: fix categories in backend
+        verticalValueCategoryId: 1,
         tokenGainOnCorrectGuess: this.state.tokenGainOnCorrectGuess,
         tokenGainOnNearestGuess: this.state.tokenGainOnNearestGuess,
       });
+
+      console.log(requestBody);
 
       // create game
       const response = await api.post("/games", requestBody, {
