@@ -10,6 +10,7 @@ import {OverlayContainer} from "../../views/design/Overlay";
 import {InputField} from "../../views/design/InputField";
 import LoadingOverlay from 'react-loading-overlay';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import {Tooltip} from "@material-ui/core";
 
 const Container = styled(BaseContainer)`
   color: white;
@@ -79,7 +80,7 @@ const SettingsForm = styled.div`
   flex-direction: column;
   margin-left: auto;
   width: 70%;
-  height: 64vh;
+  height: 58vh;
   font-size: 90%;
   font-weight: 300;
   padding-top: 7px;
@@ -114,14 +115,14 @@ class Lobby extends React.Component {
       possibleNumPlayers: [2, 3, 4, 5, 6],
       possibleTokenGainOrLoss: [1, 2, 3, 4, 5],
       gameId: null,
-      horizontalCategories: [1, 2, 3],
-      verticalCategories: [1, 2, 3],
+      horizontalCategories: [],
+      verticalCategories: [],
       nrOfEvaluations: 2,
-      doubtCountdown: 5,
+      doubtCountdown: 10,
       visibleAfterDoubtCountdown: 5,
       playerTurnCountdown: 30,
-      horizontalValueCategoryId: 1,
-      verticalValueCategoryId: 1,
+      horizontalValueCategoryId: {name: ""},
+      verticalValueCategoryId: {name: ""},
       tokenGainOnCorrectGuess: 2,
       tokenGainOnNearestGuess: 2,
       playerMin: 2,
@@ -130,7 +131,14 @@ class Lobby extends React.Component {
       created: null,
       host: true,
       gameName: "",
-      loading:false
+      loading:false,
+      oneAxis: false,
+      deckId: 0,
+      nrOfStartingTokens: 0,
+      evaluationCountdown: 0,
+      evaluationCountdownVisible: 0,
+      decks: [],
+      deck: 0,
     };
   }
   async componentDidMount() {
@@ -148,14 +156,46 @@ class Lobby extends React.Component {
        this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
      }
 
+     else {
+       const settingResponse = await api.get("games/settings/");
+       const deckResponse = await api.get("decks/");
+       const compareResponse = await api.get("decks/comparetypes")
+
+       console.log(compareResponse);
+       console.log(settingResponse);
+       console.log(deckResponse);
+
+       this.setState({
+         decks: deckResponse.data,
+         deckId: settingResponse.data.deckId,
+         playerMin: settingResponse.data.playersMin,
+         playerMax: settingResponse.data.playersMax,
+         evaluationCountdown: settingResponse.data.evaluationCountdown,
+         evaluationCountdownVisible: settingResponse.data.evaluationCountdownVisible,
+         nrOfEvaluations: settingResponse.data.nrOfEvaluations,
+         nrOfStartingTokens: settingResponse.data.nrOfStartingTokens,
+         doubtCountdown: settingResponse.data.doubtCountdown,
+         visibleAfterDoubtCountdown: settingResponse.data.visibleAfterDoubtCountdown,
+         playerTurnCountdown: settingResponse.data.playerTurnCountdown,
+         horizontalValueCategoryId: settingResponse.data.horizontalValueCategoryId.name,
+         verticalValueCategoryId: settingResponse.data.verticalValueCategoryId.name,
+         tokenGainOnCorrectGuess: settingResponse.data.tokenGainOnCorrectGuess,
+         tokenGainOnNearestGuess: settingResponse.data.tokenGainOnNearestGuess,
+         horizontalCategories: compareResponse.data,
+         verticalCategories: compareResponse.data,
+       })
+
+
+
+
+       console.log(deckResponse.data);
+     }
+
     }
 
   componentWillUnmount() {
     window.clearInterval(this.timer);
     this.timer = null;
-
-    window.clearInterval(this.timer2);
-    this.timer2 = null;
   }
 
   exitLobby() {
@@ -173,23 +213,17 @@ class Lobby extends React.Component {
       const players = await Promise.all(response.data.players);
       this.handleInputChange("players", players);
 
-      if(!this.state.host&&players.length>0)
-      {
-        this.setState({loading:false})
+      // for non host players and if there list of players is not updated, there will be loading sign
+      if(!this.state.host && players.length>0) {
+        this.setState({loading: false})
       }
 
-      
         const gameStart = response.data.gameStarted;
-
-        console.log(gameStart);
 
         if (gameStart) {
           this.props.history.push("/game");
         }
-      
-
-        }
-
+    }
   }
 
 
@@ -200,17 +234,17 @@ class Lobby extends React.Component {
         hostId: localStorage.getItem("loginUserId"),
         token: localStorage.getItem("token"),
         name: this.state.gameName,
-        playerMin: 3,
-        playerMax: 5,
-        cardEvaluationNumber: 2,
+        playerMin: this.state.playerMin,
+        playerMax: this.state.playerMax,
+        cardEvaluationNumber: this.state.cardEvaluationNumber,
         nrOfEvaluations: this.state.nrOfEvaluations,
         doubtCountdown: this.state.doubtCountdown,
         visibleAfterDoubtCountdown: this.state.visibleAfterDoubtCountdown,
         playerTurnCountdown: this.state.playerTurnCountdown,
         horizontalValueCategoryId: this.state.horizontalValueCategoryId,
         verticalValueCategoryId: this.state.verticalValueCategoryId,
-        tokenGainOnCorrectGuess: 2,
-        tokenGainOnNearestGuess: 2,
+        tokenGainOnCorrectGuess: this.state.tokenGainOnCorrectGuess,
+        tokenGainOnNearestGuess: this.state.tokenGainOnNearestGuess,
       });
 
       // create game
@@ -295,7 +329,7 @@ class Lobby extends React.Component {
       settingsText = "You can change all the game settings here. If you don't change them, the default settings will be used." +
         " You cannot change them anymore once the game is created."
 
-      disabled = true;
+      disabled = false;
     }
 
 
@@ -331,6 +365,22 @@ class Lobby extends React.Component {
                 this.handleInputChange("gameName", e.target.value);
               }}
             />
+            <Label>Deck</Label>
+            <CustomSelect
+              disabled={disabled}
+              onChange={(e) => {
+                console.log(e);
+                this.handleInputChange("deck", e.target.value);
+              }}>
+              {this.state.decks.map((deck) => {
+                return (
+                  <option
+                    key={deck.id.toString()}
+                    title={deck.description}>
+                    {deck.name}
+                  </option>);
+              })}
+            </CustomSelect>
             <Label>Min Players</Label>
             <CustomSelect
               disabled={disabled}
@@ -339,7 +389,8 @@ class Lobby extends React.Component {
                 this.handleInputChange("playerMin", e.target.value);
               }}>
               {this.state.possibleNumPlayers.map((num) => {
-                return (<option key={num.toString()}>{num}</option>);
+                return (
+                  <option key={num.toString()}>{num}</option>);
               })}
             </CustomSelect>
             <Label>Max Players</Label>
@@ -410,26 +461,26 @@ class Lobby extends React.Component {
               return (<option key={num.toString()}>{num}</option>);
             })}
             </CustomSelect>
-            <Label>Horizontal comparison type</Label>
+            <Label>First comparison type</Label>
             <CustomSelect
               disabled={disabled}
-              defaultValue={this.state.horizontalValueCategoryId}
-              onChange={(e) => {
-                this.handleInputChange("horizontalValueCategoryId", e.target.value);
-              }}
-            >{this.state.horizontalCategories.map((category) => {
-              return (<option key={category.toString()}>{category}</option>);
-            })}
-            </CustomSelect>
-            <Label>Vertical comparison type</Label>
-            <CustomSelect
-              disabled={disabled}
-              defaultValue={this.state.verticalValueCategoryId}
+              defaultValue={this.state.verticalValueCategoryId.name}
               onChange={(e) => {
                 this.handleInputChange("verticalValueCategoryId", e.target.value);
               }}
             >{this.state.verticalCategories.map((category) => {
-              return (<option key={category.toString()}>{category}</option>);
+              return (<option title={category.description} key={category.id.toString()}>{category.name}</option>);
+            })}
+            </CustomSelect>
+            <Label>Second comparison type</Label>
+            <CustomSelect
+              disabled={disabled}
+              defaultValue={this.state.horizontalValueCategoryId.name}
+              onChange={(e) => {
+                this.handleInputChange("horizontalValueCategoryId", e.target.value);
+              }}
+            >{this.state.horizontalCategories.map((category) => {
+              return (<option key={category.id.toString()}>{category.name}</option>);
             })}
             </CustomSelect>
           </SettingsForm>
