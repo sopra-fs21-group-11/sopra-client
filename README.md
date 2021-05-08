@@ -1,4 +1,22 @@
-# SoPra FS21 - Client Template
+# SoPra FS21 - Group 11 - Usgrächnet Bünzen
+
+##Introduction - project aim
+
+## Technologies
+
+## High-level components
+
+## Launch & Deployment - for joining developers
+
+## Illustrations of Game
+
+## Roadmap
+
+## Authors and acknowledgment
+
+## License
+
+
 
 ## Getting started with React
 
