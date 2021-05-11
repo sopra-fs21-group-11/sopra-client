@@ -133,31 +133,26 @@ const Item = styled.div`
   }
 `;
 
-const ClickedItem = styled.div`
-  margin-bottom: 5px;
-  width: 100%;
-  text-align: center;
-  background-color: rgba(0, 128, 0, 0.3);
-  &:hover {
-    cursor: pointer;
-    
-  }
-`;
 
 class DeckCreator extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
       decks: null,
-      cards: null,
+      cardsOutOfDeck: [],
       cardInfo: null,
-      clickedDeck: null,
-      clickedCard: null,
       loading:false,
       deckName: "",
+      deckDescription: "This is a new testDeck",
       isDeckCreated: false,
       deckCreatingMethod: "Choose deck creating method",
-      isDeckCreatingMethodSubmitted: false
+      isDeckCreatingMethodSubmitted: false,
+      countryForLoading: null,
+      populationForLoading: null,
+      deckId: null,
+      waitingTimeForFetchingCards: null,
+      cardsInDeck: [],
+      isCardsLoaded: false
     };
   }
 
@@ -187,9 +182,9 @@ class DeckCreator extends React.Component{
     })
   }
 
-  handleInputChange(value){
+  handleInputChange(key, value){
     this.setState({
-      deckName: value
+      [key]: value
     });
   }
 
@@ -201,16 +196,31 @@ class DeckCreator extends React.Component{
         isDeckCreated: true
       }
     );
-    /*const response = await api.post("/games", requestBody, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`}}
-    );
+    try{
+      const requestBody = JSON.stringify({
+        "name": this.state.deckName,
+        "description": this.state.deckDescription
+      });
 
-    this.props.history.push({
-      pathname: "/deckCreator",
-      state: response.data
-      }
-    )*/
+
+      const response = await api.post("/decks", requestBody, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}}
+      );
+
+      console.log(response);
+      this.setState({
+        deckId: response.data.id
+      });
+    }catch (error) {
+      console.log(error);
+    }
+
+
+
+
+
+
   }
 
   setDeckCreatingMethod(value){
@@ -228,9 +238,107 @@ class DeckCreator extends React.Component{
       const response = await api.get("/cards");
       console.log(response.data);
       this.setState({
-        cards: response.data
+        cardsOutOfDeck: response.data
       })
     }
+  }
+
+  async loadCards(){
+
+    try{
+      const responseFetchingPossible = await api.get("/decks/" + this.state.deckId + "/fetch/available",
+        {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}
+        }
+      );
+
+      console.log(responseFetchingPossible)
+
+      if(responseFetchingPossible.data === true){
+
+        const url = "/decks/" + this.state.deckId + "/fetch?population=" + this.state.populationForLoading + "&querry=" + this.state.countryForLoading;
+        console.log(url);
+
+        const response = await api.get(url,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`}
+          }
+        );
+        this.setState({
+          cardsInDeck: response.data.cards,
+          isCardsLoaded: true
+        });
+
+        console.log(this.state.cardsInDeck);
+        console.log(response.data);
+      }else{
+        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data});
+      }
+
+
+    }catch (error){
+      console.log(error)
+    }
+
+
+  }
+
+  removeCardFromDeck(card){
+    let arrayForCardsInDeck = this.state.cardsInDeck;
+    let arrayForCardsOutOfDeck = this.state.cardsOutOfDeck;
+    let indexCard = arrayForCardsInDeck.indexOf(card);
+    arrayForCardsOutOfDeck.push(card);
+    arrayForCardsInDeck.splice(indexCard, 1);
+    this.setState({
+      cardsInDeck: arrayForCardsInDeck,
+      cardsOutOfDeck: arrayForCardsOutOfDeck
+    });
+
+  }
+
+  addCardToDeck(card){
+    let arrayForCardsOutOfDeck = this.state.cardsOutOfDeck;
+    let arrayForCardsInDeck = this.state.cardsInDeck;
+    let indexCard = arrayForCardsOutOfDeck.indexOf(card);
+    arrayForCardsInDeck.push(card);
+    arrayForCardsOutOfDeck.splice(indexCard, 1);
+    this.setState({
+      cardsOutOfDeck: arrayForCardsOutOfDeck,
+      cardsInDeck: arrayForCardsInDeck
+    });
+    console.log(this.state.cardsInDeck);
+  }
+
+  async updateDeck(){
+    try{
+      const url = "/decks/" + this.state.deckId;
+      console.log(url);
+
+      let i=0;
+      let cardIds = [];
+      for(i; i < this.state.cardsInDeck.length; i++){
+        cardIds.push(this.state.cardsInDeck[i].id);
+      }
+
+      const requestBody = JSON.stringify({
+        "name": this.state.deckName,
+        "description": this.state.deckDescription,
+        "cards": cardIds
+      });
+
+      const response = await api.put(url, requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`}
+        }
+      );
+
+    }catch (error){
+      console.log(error)
+    }
+    this.props.history.push("/DeckEditor");
   }
 
   render() {
@@ -254,7 +362,7 @@ class DeckCreator extends React.Component{
                 <DeckNameInput
                   placeholder="Enter here the name of deck"
                   value={this.state.deckName}
-                  onChange={(e)=> this.handleInputChange(e.target.value)}
+                  onChange={(e)=> this.handleInputChange("deckName", e.target.value)}
                 />
               )
             }
@@ -336,19 +444,23 @@ class DeckCreator extends React.Component{
               (
                 <LoadingInputContainer>
                   <DeckNameInput
-                    style={{width: "30%"}}
+                    style={this.state.isCardsLoaded? {width: "30%", opacity: "0.4"}:{width: "30%"}}
+                    disabled={this.state.isCardsLoaded}
                     placeholder="Enter Country or Region"
+                    onChange={(e)=> this.handleInputChange("countryForLoading", e.target.value)}
                   />
 
                   <DeckNameInput
-                    style={{width: "30%"}}
+                    style={{width: "50%"}}
+                    disabled={this.state.isCardsLoaded}
                     placeholder="Enter minimum population of the places"
-
+                    onChange={(e)=> this.handleInputChange("populationForLoading", e.target.value)}
                   />
                   <Button
                     style={{marginRight: "5%", width: "30%"}}
+                    disabled={this.state.isCardsLoaded}
                     onClick={() => {
-                      this.props.history.push("/deckEditor");
+                      this.loadCards();
                     }}
                   >
                     Load cards
@@ -362,17 +474,15 @@ class DeckCreator extends React.Component{
 
           </DeckInfoContainer>
 
-          {!this.state.isDeckCreatingMethodSubmitted ?
+          {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
             (
-              <BodyContainer/>
-            ) : (
               <BodyContainer>
                 <ComponentContainer>
                   <BoxHeading>
                     Loaded Cards
                   </BoxHeading>
                   <BoxBody>
-                    {!this.state.cards?
+                    {!this.state.cardsOutOfDeck?
                       (
                         <LoadingOverlay
                           active={this.state.loading}
@@ -381,26 +491,17 @@ class DeckCreator extends React.Component{
                         />
                       ):(
                         <Container>
-                          {this.state.cards.map((card)=>{
+                          {this.state.cardsOutOfDeck.map((card)=>{
                             return (
                               <Container>
-                                {this.state.clickedDeck === card.id?
-                                  (
-                                    <ClickedItem>
-                                      {card.name}
-                                    </ClickedItem>
-                                  ):(
-                                    <Item
-                                      key={card.id}
-                                      onClick={()=>{
-                                        this.setState({clickedDeck: card.id});
-                                        this.getCards();
-                                      }}
-                                    >
-                                      {card.name}
-                                    </Item>
-                                  )
-                                }
+                                <Item
+                                  key={card.id}
+                                  onClick={()=>{
+                                    this.addCardToDeck(card);
+                                  }}
+                                >
+                                  {card.name}
+                                </Item>
                               </Container>
                             )
 
@@ -416,31 +517,23 @@ class DeckCreator extends React.Component{
                     Cards in Deck
                   </BoxHeading>
                   <BoxBody>
-                    {!this.state.cards?
+                    {this.state.cardsInDeck === []?
                       (
                         ""
                       ):(
                         <Container>
-                          {this.state.cards.map((card)=>{
+                          {this.state.cardsInDeck.map((card)=>{
                             return (
                               <Container>
-                                {this.state.clickedCard === card.id?
-                                  (
-                                    <ClickedItem>
-                                      {card.name}
-                                    </ClickedItem>
-                                  ):(
-                                    <Item
-                                      key={card.id}
-                                      onClick={()=>{
-                                        this.setState({clickedCard: card.id});
-                                        this.getCardInfo(card.id);
-                                      }}
-                                    >
-                                      {card.name}
-                                    </Item>
-                                  )
-                                }
+                                <Item
+                                  key={card.id}
+                                  onClick={()=>{
+                                    this.getCardInfo(card.id);
+                                    this.removeCardFromDeck(card);
+                                  }}
+                                >
+                                  {card.name}
+                                </Item>
                               </Container>
                             )
 
@@ -477,6 +570,8 @@ class DeckCreator extends React.Component{
 
                 </ComponentContainer>
               </BodyContainer>
+            ) : (
+              <BodyContainer/>
             )
           }
 
@@ -492,7 +587,7 @@ class DeckCreator extends React.Component{
             <Button
               style={{width: "15%"}}
               onClick={() => {
-                this.props.history.push("/mainView");
+                this.updateDeck();
               }}
             >
               Save Deck
@@ -506,26 +601,3 @@ class DeckCreator extends React.Component{
 
 export default withRouter(DeckCreator);
 
-/*
-const cards = (
-  [
-    {
-      "id": 2,
-      "name": "testCard1",
-      "nCoordinate": 1.02,
-      "eCoordinate": 2.22
-    },
-    {
-      "id": 3,
-      "name": "testCard2",
-      "nCoordinate": 1.02,
-      "eCoordinate": 2.22
-    },
-    {
-      "id": 4,
-      "name": "testCard3",
-      "nCoordinate": 1.02,
-      "eCoordinate": 2.22
-    }
-  ]
-);*/

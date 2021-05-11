@@ -131,13 +131,6 @@ class DeckEditor extends React.Component{
 
   }
 
-  async getCards(){
-    const response = await api.get("/cards/");
-    console.log(response.data);
-    this.setState({
-      cards: response.data
-    })
-  }
 
   async getCardInfo(cardId){
     const response = await api.get("/cards/" + cardId);
@@ -147,20 +140,6 @@ class DeckEditor extends React.Component{
     })
   }
 
-  async createDeck(){
-
-
-    /*const response = await api.post("/games", requestBody, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`}}
-    );*/
-
-    /*this.props.history.push({
-      pathname: "/deckCreator",
-      state: response.data
-      }
-    )*/
-  }
 
   render() {
     return(
@@ -202,8 +181,10 @@ class DeckEditor extends React.Component{
                                 <Item
                                   key={deck.id}
                                   onClick={()=>{
-                                    this.setState({clickedDeck: deck.id});
-                                    this.getCards();
+                                    this.setState({
+                                      clickedDeck: deck.id,
+                                      cards: deck.cards
+                                    });
                                   }}
                                 >
                                   {deck.name}
