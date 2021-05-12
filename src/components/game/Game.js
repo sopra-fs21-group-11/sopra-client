@@ -234,7 +234,10 @@ class Game extends React.Component {
         "EVALUATION": 30,
         "EVALUATIONVISIBLE": 30
       },
-      winner: null
+      winners: null,
+      gameMinutes: 0,
+      gameTooShort: true,
+      scoreboard: [],
 
     };
     this.doubtGame = this.doubtGame.bind(this)
@@ -297,23 +300,26 @@ class Game extends React.Component {
   }
 
   callback = (message)  => {
-    let textMessage = JSON.parse(message.body);
-    console.log(textMessage);
+    let socketMessage = JSON.parse(message.body);
+    console.log(socketMessage);
     this.setState({
-      currentPlayer: textMessage["playersturn"],
-      gameState: textMessage["gamestate"],
-      cardsLeft: textMessage["left"],
-      cardsRight: textMessage["right"],
-      cardsTop: textMessage["top"],
-      cardsBottom: textMessage["bottom"],
-      numTokens: textMessage["playertokens"],
-      currentCard: textMessage["nextCardOnStack"],
-      startingCard: textMessage["startingCard"],
-      nextPlayer: textMessage["nextPlayer"],
-      doubtResultDTO:textMessage["gamestate"]==="DOUBTVISIBLE"?textMessage["doubtResultDTO"]:null,
-      // winner: textMessage["winner"],
+      currentPlayer: socketMessage["playersturn"],
+      gameState: socketMessage["gamestate"],
+      cardsLeft: socketMessage["left"],
+      cardsRight: socketMessage["right"],
+      cardsTop: socketMessage["top"],
+      cardsBottom: socketMessage["bottom"],
+      numTokens: socketMessage["playertokens"],
+      currentCard: socketMessage["nextCardOnStack"],
+      startingCard: socketMessage["startingCard"],
+      nextPlayer: socketMessage["nextPlayer"],
+      doubtResultDTO:socketMessage["gamestate"]==="DOUBTVISIBLE"?socketMessage["doubtResultDTO"]:null,
+      // winners: socketMessage["winnerIds"],
+      // scoreboard: socketMessage["scoreboard"],
+      // gameMinutes: socketMessage["gameMinutes"],
+      // gameTooShort: socketMessage["gameTooShort"],
       loading:false,
-      isLocalUserPLayer: localStorage.getItem("loginUserId") === textMessage["playersturn"].id.toString(),
+      isLocalUserPLayer: localStorage.getItem("loginUserId") === socketMessage["playersturn"].id.toString(),
     });
 
 
@@ -377,6 +383,17 @@ class Game extends React.Component {
           this.props.history.push("/game/scoreboard");
         });
         setTimeout(() => {  this.props.history.push("/game/scoreboard"); }, 3000);
+
+        // this.props.history.push({
+        //   pathname: "/game/scoreboard",
+        //   // state: {
+        //   //   scoreboard:  this.state.scoreboard,
+        //   //   gameTooShort: this.state.gameTooShort,
+        //   //   winners: this.state.winners,
+        //   //   gameMinutes: this.state.gameMinutes,
+        //   //   gameId: this.state.gameId,
+        //   // },
+        // });
       }
   }
 

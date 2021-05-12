@@ -66,15 +66,33 @@ const CustomOverlay = styled.div`
 
 
 class Test extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       playersTokens: {"name": 5, "another Name": 1},
       loading: false,
-
+      scoreboard:  [],
+      gameTooShort: true,
+      winners: [],
+      gameMinutes: 0,
     };
   }
   async componentDidMount() {
+
+    if(this.props.location.state) {
+      let gameId = this.props.location.state.gameId;
+      let scoreboard = this.props.location.state.scoreboard;
+      let gameTooShort = this.props.location.state.gameTooShort;
+      let winners = this.props.location.state.winners;
+      let gameMinutes = this.props.location.state.gameMinutes;
+      this.setState({
+        gameId: gameId,
+        scoreboard:  scoreboard,
+        gameTooShort: gameTooShort,
+        winners: winners,
+        gameMinutes: gameMinutes
+      }, () => {console.log(this.state);});}
+
   }
 
 
@@ -96,8 +114,8 @@ class Test extends React.Component {
           <Container>
             <Container>
               <Users>
-                {Object.entries(this.state.playersTokens).map(([name, tokens]) => {
-                  return (<Name>{name}: {tokens}</Name>);
+                {this.state.scoreboard.map((player) => {
+                  return (<Name>{player.username}: {player.currentTokens}</Name>);
                 })}
               </Users>
             </Container>
