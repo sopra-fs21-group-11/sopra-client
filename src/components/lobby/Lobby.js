@@ -27,7 +27,7 @@ const Users = styled.ul`
   font-size: 90%;
   font-weight: 300;
   margin-right: 5%;
-  height: 64vh;
+  height: 50vh;
   padding: 0;
   background: rgb(255, 255, 255);
   border-left: 0.15em black solid;
@@ -115,14 +115,10 @@ class Lobby extends React.Component {
       possibleNumPlayers: [2, 3, 4, 5, 6],
       possibleTokenGainOrLoss: [1, 2, 3, 4, 5],
       gameId: null,
-      horizontalCategories: [],
-      verticalCategories: [],
       nrOfEvaluations: 2,
       doubtCountdown: 10,
       visibleAfterDoubtCountdown: 5,
       playerTurnCountdown: 30,
-      horizontalValueCategoryId: {name: ""},
-      verticalValueCategoryId: {name: ""},
       tokenGainOnCorrectGuess: 2,
       tokenGainOnNearestGuess: 2,
       playerMin: 2,
@@ -159,9 +155,7 @@ class Lobby extends React.Component {
      else {
        const settingResponse = await api.get("games/settings/");
        const deckResponse = await api.get("decks/");
-       const compareResponse = await api.get("decks/comparetypes")
 
-       console.log(compareResponse);
        console.log(settingResponse);
        console.log(deckResponse);
 
@@ -177,18 +171,10 @@ class Lobby extends React.Component {
          doubtCountdown: settingResponse.data.doubtCountdown,
          visibleAfterDoubtCountdown: settingResponse.data.visibleAfterDoubtCountdown,
          playerTurnCountdown: settingResponse.data.playerTurnCountdown,
-         horizontalValueCategoryId: settingResponse.data.horizontalValueCategoryId.name,
-         verticalValueCategoryId: settingResponse.data.verticalValueCategoryId.name,
          tokenGainOnCorrectGuess: settingResponse.data.tokenGainOnCorrectGuess,
          tokenGainOnNearestGuess: settingResponse.data.tokenGainOnNearestGuess,
-         horizontalCategories: compareResponse.data,
-         verticalCategories: compareResponse.data,
        })
 
-
-
-
-       console.log(deckResponse.data);
      }
 
     }
@@ -241,8 +227,6 @@ class Lobby extends React.Component {
         doubtCountdown: this.state.doubtCountdown,
         visibleAfterDoubtCountdown: this.state.visibleAfterDoubtCountdown,
         playerTurnCountdown: this.state.playerTurnCountdown,
-        horizontalValueCategoryId: 1, // TODO: fix categories in backend
-        verticalValueCategoryId: 1,
         tokenGainOnCorrectGuess: this.state.tokenGainOnCorrectGuess,
         tokenGainOnNearestGuess: this.state.tokenGainOnNearestGuess,
       });
@@ -461,28 +445,6 @@ class Lobby extends React.Component {
                 this.handleInputChange("tokenGainOnNearestGuess", e.target.value);
               }}>{this.state.possibleTokenGainOrLoss.map((num) => {
               return (<option key={num.toString()}>{num}</option>);
-            })}
-            </CustomSelect>
-            <Label>First comparison type</Label>
-            <CustomSelect
-              disabled={disabled}
-              defaultValue={this.state.verticalValueCategoryId.name}
-              onChange={(e) => {
-                this.handleInputChange("verticalValueCategoryId", e.target.value);
-              }}
-            >{this.state.verticalCategories.map((category) => {
-              return (<option title={category.description} key={category.id.toString()}>{category.name}</option>);
-            })}
-            </CustomSelect>
-            <Label>Second comparison type</Label>
-            <CustomSelect
-              disabled={disabled}
-              defaultValue={this.state.horizontalValueCategoryId.name}
-              onChange={(e) => {
-                this.handleInputChange("horizontalValueCategoryId", e.target.value);
-              }}
-            >{this.state.horizontalCategories.map((category) => {
-              return (<option key={category.id.toString()}>{category.name}</option>);
             })}
             </CustomSelect>
           </SettingsForm>
