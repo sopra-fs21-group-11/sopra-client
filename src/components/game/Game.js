@@ -324,7 +324,7 @@ class Game extends React.Component {
         }
         this.setState({
           message: this.state.isLocalUserPLayer
-            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus sings"
+            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus signs"
             : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
