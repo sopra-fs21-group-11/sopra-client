@@ -65,7 +65,7 @@ const BoxHeading = styled.div`
 `;
 
 const BoxBody = styled.div`
-  height: 80%;
+  height: 90%;
   background-color: white;
   overflow: scroll;
   border: 0.15em black solid;
@@ -73,15 +73,7 @@ const BoxBody = styled.div`
   border-radius:   0 0 4px 4px;
 `;
 
-const ButtonContainer = styled.div`
-  height: 10%;
-  margin-top: 2%;
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-`;
-
-const BackButtonContainer = styled.div`
+const Footer = styled.div`
   height: 10%;
   display: flex;
   justify-content: center;
@@ -139,13 +131,6 @@ class DeckEditor extends React.Component{
 
   }
 
-  async getCards(){
-    const response = await api.get("/cards/");
-    console.log(response.data);
-    this.setState({
-      cards: response.data
-    })
-  }
 
   async getCardInfo(cardId){
     const response = await api.get("/cards/" + cardId);
@@ -154,6 +139,7 @@ class DeckEditor extends React.Component{
       cardInfo: response.data
     })
   }
+
 
   render() {
     return(
@@ -181,18 +167,24 @@ class DeckEditor extends React.Component{
                     <Container>
                       {this.state.decks.map((deck)=>{
                         return (
-                          <Container>
+                          <Container
+                            key={deck.id + "1"}
+                          >
                             {this.state.clickedDeck === deck.id?
                               (
-                                <ClickedItem>
+                                <ClickedItem
+                                  key={deck.id}
+                                >
                                   {deck.name}
                                 </ClickedItem>
                               ):(
                                 <Item
                                   key={deck.id}
                                   onClick={()=>{
-                                    this.setState({clickedDeck: deck.id});
-                                    this.getCards();
+                                    this.setState({
+                                      clickedDeck: deck.id,
+                                      cards: deck.cards
+                                    });
                                   }}
                                 >
                                   {deck.name}
@@ -207,24 +199,6 @@ class DeckEditor extends React.Component{
                   )
                 }
               </BoxBody>
-              <ButtonContainer>
-                  <Button
-                    width="50%"
-                    onClick={() => {
-
-                    }}
-                  >
-                    Create new deck
-                  </Button>
-                  <Button
-                    width="30%"
-                    onClick={() => {
-
-                    }}
-                  >
-                    Edit deck
-                  </Button>
-              </ButtonContainer>
 
             </ComponentContainer>
             <ComponentContainer>
@@ -239,10 +213,14 @@ class DeckEditor extends React.Component{
                     <Container>
                       {this.state.cards.map((card)=>{
                         return (
-                          <Container>
+                          <Container
+                            key={card.id + "1"}
+                          >
                             {this.state.clickedCard === card.id?
                               (
-                                <ClickedItem>
+                                <ClickedItem
+                                  key={card.id}
+                                >
                                   {card.name}
                                 </ClickedItem>
                               ):(
@@ -265,26 +243,6 @@ class DeckEditor extends React.Component{
                   )
                 }
               </BoxBody>
-              <ButtonContainer>
-                <Button
-                  width="50%"
-                  onClick={() => {
-
-                  }}
-                >
-                  Create new card
-                </Button>
-                <Button
-                  width="30%"
-                  onClick={() => {
-
-                  }}
-                >
-                  Edit card
-                </Button>
-
-
-              </ButtonContainer>
 
             </ComponentContainer>
             <ComponentContainer>
@@ -310,37 +268,28 @@ class DeckEditor extends React.Component{
                   )
                 }
               </BoxBody>
-              <ButtonContainer>
-                <Button
-                  width="40%"
-                  onClick={() => {
 
-                  }}
-                >
-                  Safe
-                </Button>
-                <Button
-                  width="40%"
-                  onClick={() => {
-
-                  }}
-                >
-                  Delete
-                </Button>
-              </ButtonContainer>
             </ComponentContainer>
           </BodyContainer>
-          <BackButtonContainer>
+          <Footer>
+
+              <Button
+                style={{marginRight: "5%", width: "15%"}}
+                onClick={() => {
+                  this.props.history.push("/mainView");
+                }}
+              >
+                Back to Main View
+              </Button>
             <Button
-              width="15%"
+              style={{ width: "15%"}}
               onClick={() => {
-                this.props.history.push("/mainView");
+                this.props.history.push("/deckCreator")
               }}
             >
-              Back to Main View
+              Create new deck
             </Button>
-          </BackButtonContainer>
-
+          </Footer>
         </Overlay>
       </OverlayContainer>
     )
