@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -152,7 +153,8 @@ class DeckCreator extends React.Component{
       deckId: null,
       waitingTimeForFetchingCards: null,
       cardsInDeck: [],
-      isCardsLoaded: false
+      isCardsLoaded: false,
+      loadingFetch:false
     };
   }
 
@@ -253,10 +255,33 @@ class DeckCreator extends React.Component{
         }
       );
 
-      console.log(responseFetchingPossible)
+      this.setState({
+        loadingFetch: true
+      });
+      if(responseFetchingPossible.data !== true){
+        let queueTime=responseFetchingPossible.data*1000;
+        NotificationManager.warning('You are in a queue. We are trying to load in  '+responseFetchingPossible.data+' seconds or click here to create card from exsisting cards','External Server is busy',queueTime,() => {
+          this.setState({
+            isDeckCreatingMethodSubmitted:false,
+            deckCreatingMethod: "Choose deck creating method"
+          });
+        });
+        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data});
+        setTimeout(this.fetchLocation(), queueTime);
+      }else{
+        this.fetchLocation()
+      }
+    }catch (error){
+      console.log(error)
+      
+    }
+     
 
-      if(responseFetchingPossible.data === true){
-
+  }
+  async fetchLocation()
+  {
+    try
+        {
         const url = "/decks/" + this.state.deckId + "/fetch?population=" + this.state.populationForLoading + "&querry=" + this.state.countryForLoading;
         console.log(url);
 
@@ -268,21 +293,22 @@ class DeckCreator extends React.Component{
         );
         this.setState({
           cardsInDeck: response.data.cards,
-          isCardsLoaded: true
+          isCardsLoaded:true
         });
 
         console.log(this.state.cardsInDeck);
         console.log(response.data);
-      }else{
-        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data});
+
+
+      }catch (error){
+        console.log(error)
+        NotificationManager.error('External service is currently. Please create deck with exsisting card or try again later','Sorry for the inconvenience',8000);
+        this.setState({
+          isDeckCreatingMethodSubmitted:false,
+          deckCreatingMethod: "Choose deck creating method"
+        });
+ 
       }
-
-
-    }catch (error){
-      console.log(error)
-    }
-
-
   }
 
   removeCardFromDeck(card){
@@ -445,20 +471,20 @@ class DeckCreator extends React.Component{
                 <LoadingInputContainer>
                   <DeckNameInput
                     style={this.state.isCardsLoaded? {width: "30%", opacity: "0.4"}:{width: "30%"}}
-                    disabled={this.state.isCardsLoaded}
+                    disabled={this.state.isCardsLoaded||this.state.loadingFetch}
                     placeholder="Enter Country or Region"
                     onChange={(e)=> this.handleInputChange("countryForLoading", e.target.value)}
                   />
 
                   <DeckNameInput
                     style={{width: "50%"}}
-                    disabled={this.state.isCardsLoaded}
+                    disabled={this.state.isCardsLoaded||this.state.loadingFetch}
                     placeholder="Enter minimum population of the places"
                     onChange={(e)=> this.handleInputChange("populationForLoading", e.target.value)}
                   />
                   <Button
                     style={{marginRight: "5%", width: "30%"}}
-                    disabled={this.state.isCardsLoaded}
+                    disabled={this.state.isCardsLoaded|| this.state.loadingFetch}
                     onClick={() => {
                       this.loadCards();
                     }}
@@ -594,6 +620,7 @@ class DeckCreator extends React.Component{
             </Button>
           </Footer>
         </Overlay>
+        <NotificationContainer/>
       </OverlayContainer>
     )
   }

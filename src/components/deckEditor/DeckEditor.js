@@ -131,6 +131,9 @@ class DeckEditor extends React.Component{
 
   }
 
+  async deleteDeck(deckId){
+
+  }
 
   async getCardInfo(cardId){
     const response = await api.get("/cards/" + cardId);
@@ -289,8 +292,9 @@ class DeckEditor extends React.Component{
             >
               Create new deck
             </Button>
+            { this.state.clickedDeck?(   
             <Button
-              style={{ marginRight: "5%",width: "15%"}}
+              style={{ marginRight: "5%",width: "10%",  background: "yellow"}}
               onClick={() => {
                 this.props.history.push({
                   pathname: "/DeckModify",
@@ -300,6 +304,19 @@ class DeckEditor extends React.Component{
             >
               Edit deck
             </Button>
+            ):("")}
+                      { this.state.clickedDeck?(   
+            <Button
+              style={{ marginRight: "5%",width: "10%", background: "red"}}
+              onClick={() => {
+               this.deleteDeck(this.state.clickedDeck)
+              }}
+            >
+              Delete deck
+            </Button>
+            ):("")}
+            
+         
           </Footer>
         </Overlay>
       </OverlayContainer>
