@@ -133,6 +133,10 @@ const Item = styled.div`
     background-color: rgba(0, 128, 0, 0.3);
   }
 `;
+const CustomOverlay = styled.div`
+  background: rgb(200, 213, 0, 0.25);
+  height: 100%;
+`;
 
 
 class DeckCreator extends React.Component{
@@ -256,18 +260,24 @@ class DeckCreator extends React.Component{
       );
 
       this.setState({
-        loadingFetch: true
+        loadingFetch: true,
+        loading:true
       });
       if(responseFetchingPossible.data !== true){
         let queueTime=responseFetchingPossible.data*1000;
+        let t=setTimeout(this.fetchLocation(), queueTime);
         NotificationManager.warning('You are in a queue. We are trying to load in  '+responseFetchingPossible.data+' seconds or click here to create card from exsisting cards','External Server is busy',queueTime,() => {
           this.setState({
             isDeckCreatingMethodSubmitted:false,
-            deckCreatingMethod: "Choose deck creating method"
+            deckCreatingMethod: "Choose deck creating method",
+            isCardsLoaded:false,
+            loadingFetch:false,
+            loading:false
           });
+          clearTimeout(t);
         });
-        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data});
-        setTimeout(this.fetchLocation(), queueTime);
+        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data,loading:false});
+       
       }else{
         this.fetchLocation()
       }
@@ -293,7 +303,8 @@ class DeckCreator extends React.Component{
         );
         this.setState({
           cardsInDeck: response.data.cards,
-          isCardsLoaded:true
+          isCardsLoaded:true,
+          loading:false,
         });
 
         console.log(this.state.cardsInDeck);
@@ -305,7 +316,10 @@ class DeckCreator extends React.Component{
         NotificationManager.error('External service is currently. Please create deck with exsisting card or try again later','Sorry for the inconvenience',8000);
         this.setState({
           isDeckCreatingMethodSubmitted:false,
-          deckCreatingMethod: "Choose deck creating method"
+          deckCreatingMethod: "Choose deck creating method",
+          loading:false,
+          isCardsLoaded:false,
+           loadingFetch:false
         });
  
       }
@@ -369,8 +383,16 @@ class DeckCreator extends React.Component{
 
   render() {
     return(
+      <LoadingOverlay
+      active={this.state.loading}
+      spinner
+      text='Loading the cards from external service ...'
+      styles={{wrapper :'_loading_overlay_content'}}
+      >
       <OverlayContainer>
+    
         <Overlay>
+      
           <HeaderContainer>
             <Header>
               Deck Creator
@@ -378,6 +400,7 @@ class DeckCreator extends React.Component{
           </HeaderContainer>
 
           <DeckInfoContainer>
+        
             {this.state.isDeckCreated?
               (
                 <DeckNameInput
@@ -509,13 +532,7 @@ class DeckCreator extends React.Component{
                   </BoxHeading>
                   <BoxBody>
                     {!this.state.cardsOutOfDeck?
-                      (
-                        <LoadingOverlay
-                          active={this.state.loading}
-                          spinner
-                          text='Loading ...'
-                        />
-                      ):(
+                     "":(
                         <Container>
                           {this.state.cardsOutOfDeck.map((card)=>{
                             return (
@@ -619,9 +636,12 @@ class DeckCreator extends React.Component{
               Save Deck
             </Button>
           </Footer>
+        
         </Overlay>
         <NotificationContainer/>
+       
       </OverlayContainer>
+      </LoadingOverlay>
     )
   }
 }
