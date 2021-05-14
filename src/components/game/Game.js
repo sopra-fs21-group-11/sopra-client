@@ -14,7 +14,7 @@ import Card from "../../views/design/Card";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
-import ReactLoading from 'react-loading';
+import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import DirectionCard from "../../views/design/DirectionCard";
 
@@ -498,6 +498,12 @@ class Game extends React.Component {
       );
     };
     return (
+      <LoadingOverlay
+      active={this.state.loading}
+      spinner
+      text='Loading the Game.... Please wait'
+      styles={{wrapper :'_loading_overlay_content'}}
+      >
       <GameContainer>
           <CardsContainer>
           <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
@@ -509,7 +515,7 @@ class Game extends React.Component {
               </VerticalCardContainer>
               {this.state.loading
                 ? (
-                  <ReactLoading  type={"spin"} height={120} width={120} />
+                 ""
                 ) : (
                   <DirectionCard
                     sizeCard={100}
@@ -624,6 +630,7 @@ class Game extends React.Component {
           <NotificationContainer/>
           </Container>
       </GameContainer>
+      </LoadingOverlay>
     );
   }
 }

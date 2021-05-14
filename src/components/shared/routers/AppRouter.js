@@ -11,7 +11,9 @@ import Main from "../../mainView/MainView";
 import {DeckEditorGuard} from "../routeProtectors/DeckEditorGuard";
 import DeckEditor from "../../deckEditor/DeckEditor";
 import DeckCreator from "../../deckEditor/DeckCreator";
+import DeckModify from "../../deckEditor/DeckModify";
 import {DeckCreatorGuard} from "../routeProtectors/DeckCreatorGuard";
+import {DeckModifyGuard} from "../routeProtectors/DeckModifyGuard";
 
 
 /**
@@ -82,6 +84,16 @@ class AppRouter extends React.Component {
                 <DeckCreatorGuard>
                   <DeckCreator/>
                 </DeckCreatorGuard>
+
+              )}
+            />
+                        <Route
+              path="/DeckModify"
+              exact
+              render={() => (
+                <DeckModifyGuard>
+                  <DeckModify/>
+                </DeckModifyGuard>
 
               )}
             />
