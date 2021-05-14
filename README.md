@@ -6,7 +6,7 @@ Our project's aim is to implement the game '*Usgrächnet Bünzen*'. The original
 knowledge of Swiss locations in a playful manner. Each player can place location cards on a board
 in relation to other locations based on their coordinates. All other players have the chance to doubt the 
 card placement if they believe it is wrong. Players that continuously place cards correctly and prove other 
-people's card placement to be wrong will get awarded tokens. The player with most tokens wins the game.
+people's card placement to be wrong will be awarded tokens. The player with most tokens wins the game.
 For a more extensive explanation of the original game please check out this **[manual](public/Usgrachnet_Help.pdf)**.
 
 
