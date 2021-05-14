@@ -69,13 +69,7 @@ const ButtonContainer = styled.div`
   justify-content: center;
   margin-top: 20px;
   margin-bottom: 20px;
-  
 `;
-const Link = styled.a`
- margin: 10px;
- color: black
-`;
-
 
 class JoinGame extends React.Component {
   constructor() {
@@ -203,15 +197,14 @@ class JoinGame extends React.Component {
           <Container
           style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
           <ButtonContainer>
-            <Button style={{marginRight: 60}}>
-              <Link
-                width="25%"
-                onClick={() => {
-                  this.exitJoinGame();
-                }}
+            <Button
+              style={{marginRight: 60}}
+              width="fit-content"
+              onClick={() => {
+                this.exitJoinGame();
+              }}
               >
                 Exit Join Game
-              </Link>
             </Button>
           </ButtonContainer>
 

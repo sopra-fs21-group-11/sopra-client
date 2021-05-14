@@ -596,24 +596,21 @@ class Game extends React.Component {
             <Container  style={{height: "100%", width: "25%", display: "flex", flexDirection: "column", justifyContent: "center"}}>
               <ButtonContainer>
                 <Button 
-                 width ="50%">
-                <Link onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
+                 width ="50%"
+                 onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
                 Help
-                </Link>
                 </Button>
               </ButtonContainer>
               <ButtonContainer>
                 {
                   this.state.hostId === localStorage.getItem("loginUserId")?
                     (<Button
-                      width ="100%">
-                      <Link
+                      width ="100%"
                         onClick={() => {
                           this.endGame()
                         }}
                       >
                         End Game
-                      </Link>
                     </Button>):""
                 }
               </ButtonContainer>
