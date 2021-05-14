@@ -125,7 +125,7 @@ class DeckModify extends React.Component{
   }
 
   async getCards(){
-    const response = await api.get("/cards/");
+    const response = await api.get("/decks/"+this.state.deckId+"/cards");
     console.log(response.data);
     this.setState({
       cardsOutOfDeck: response.data

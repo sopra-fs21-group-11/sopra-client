@@ -191,8 +191,12 @@ class Lobby extends React.Component {
     this.timer = null;
   }
 
-  exitLobby() {
+  async exitLobby() {
+    if (this.state.gameId) {
+      const response = await api.get("/games/" + this.state.gameId+"/leave");
+    console.log(response);
     this.props.history.push("/mainView")
+    }
   }
 
   handleInputChange(key, value) {

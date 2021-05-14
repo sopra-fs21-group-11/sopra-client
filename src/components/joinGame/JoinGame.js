@@ -93,7 +93,7 @@ class JoinGame extends React.Component {
     NotificationManager.info('Please select the game from list','',3000);
     //Load Games for the first time
     await this.getGames();
-    this.timer = setInterval(() => this.getGames(), 10000); //polling every 10 seconds
+    this.timer = setInterval(() => this.getGames(), 3000); //polling every 3 seconds
   }
   async getGames() {
     try {

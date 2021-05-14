@@ -123,16 +123,22 @@ class DeckEditor extends React.Component{
 
   async componentDidMount() {
 
+    this.getDeck();
+
+  }
+  async getDeck()
+  {
     const response = await api.get("/decks/");
     console.log(response.data);
     this.setState({
       decks: response.data
     })
-
   }
 
   async deleteDeck(deckId){
-
+    const response = await api.get("decks/" + deckId+'/delete');
+    console.log(response.data);
+    this.getDeck();
   }
 
   async getCardInfo(cardId){
