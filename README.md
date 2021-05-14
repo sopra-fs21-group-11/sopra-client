@@ -1,6 +1,7 @@
 # SoPra FS21 - Group 11 - Usgrächnet Bünzen
 
-##Introduction - project aim
+## Introduction - project aim
+
 Our project's aim is to implement the game '*Usgrächnet Bünzen*'. The original game allows users to test their
 knowledge of Swiss locations in a playful manner. Each player can place location cards on a board
 in relation to other locations based on their coordinates. All other players have the chance to doubt the 
@@ -18,7 +19,7 @@ In order to introduce more complexity we added the following features:
 
 ## Technologies
 
-###Websocket
+### Websocket
 
 ## High-level components
 
