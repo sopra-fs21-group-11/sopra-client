@@ -528,7 +528,9 @@ class Game extends React.Component {
                 ? (
                   <ReactLoading  type={"spin"} height={120} width={120} />
                 ) : (
-                  <DirectionCard>
+                  <DirectionCard
+                    sizeCard={100}
+                  >
                   <StartingCardContainer
                     width={100}
                     heigth={100}

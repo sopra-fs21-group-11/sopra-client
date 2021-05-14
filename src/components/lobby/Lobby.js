@@ -27,7 +27,7 @@ const Users = styled.ul`
   font-size: 90%;
   font-weight: 300;
   margin-right: 5%;
-  height: 50vh;
+  height: 58vh;
   padding: 0;
   background: rgb(255, 255, 255);
   border-left: 0.15em black solid;
