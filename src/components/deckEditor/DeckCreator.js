@@ -173,7 +173,7 @@ class DeckCreator extends React.Component{
   }
 
   async getCards(){
-    const response = await api.get("/cards/");
+    const response = await api.get("/decks/"+this.state.deckId+"/cards");
     console.log(response.data);
     this.setState({
       cards: response.data
@@ -288,6 +288,22 @@ class DeckCreator extends React.Component{
      
 
   }
+  async goBack()
+  {
+    if(this.state.deckId)
+    {
+      const response = await api.get("decks/" + this.state.deckId+'/delete',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}
+      });
+      console.log(response)
+      this.props.history.push("/deckEditor");
+    } else
+    {
+      this.props.history.push("/deckEditor");
+    }
+    
+  }
   async fetchLocation()
   {
     try
@@ -313,7 +329,7 @@ class DeckCreator extends React.Component{
 
       }catch (error){
         console.log(error)
-        NotificationManager.error('External service is currently. Please create deck with exsisting card or try again later','Sorry for the inconvenience',8000);
+        NotificationManager.error('External service is currently. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
         this.setState({
           isDeckCreatingMethodSubmitted:false,
           deckCreatingMethod: "Choose deck creating method",
@@ -476,6 +492,7 @@ class DeckCreator extends React.Component{
                         </option>
                       </DeckCountryDropdown>
                       <Button
+                      disabled={this.state.deckCreatingMethod==="Choose deck creating method"}
                         onClick={()=>
                           this.provideMethodForAddingCards()
                           }
@@ -622,7 +639,8 @@ class DeckCreator extends React.Component{
             <Button
               style={{marginRight: "5%", width: "15%"}}
               onClick={() => {
-                this.props.history.push("/deckEditor");
+                this.goBack();
+               
               }}
             >
               Back to Deck Editor
