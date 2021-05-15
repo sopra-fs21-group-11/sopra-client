@@ -14,7 +14,7 @@ import Card from "../../views/design/Card";
 import SockJS from "sockjs-client";
 import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
-import ReactLoading from 'react-loading';
+import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import DirectionCard from "../../views/design/DirectionCard";
 
@@ -498,6 +498,12 @@ class Game extends React.Component {
       );
     };
     return (
+      <LoadingOverlay
+      active={this.state.loading}
+      spinner
+      text='Loading the Game.... Please wait'
+      styles={{wrapper :'_loading_overlay_content'}}
+      >
       <GameContainer>
           <CardsContainer>
           <HorizontalCardContainer style={{flexDirection: "row-reverse"}}>
@@ -509,7 +515,7 @@ class Game extends React.Component {
               </VerticalCardContainer>
               {this.state.loading
                 ? (
-                  <ReactLoading  type={"spin"} height={120} width={120} />
+                 ""
                 ) : (
                   <DirectionCard
                     sizeCard={100}
@@ -590,24 +596,21 @@ class Game extends React.Component {
             <Container  style={{height: "100%", width: "25%", display: "flex", flexDirection: "column", justifyContent: "center"}}>
               <ButtonContainer>
                 <Button 
-                 width ="50%">
-                <Link onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
+                 width ="50%"
+                 onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
                 Help
-                </Link>
                 </Button>
               </ButtonContainer>
               <ButtonContainer>
                 {
                   this.state.hostId === localStorage.getItem("loginUserId")?
                     (<Button
-                      width ="100%">
-                      <Link
+                      width ="100%"
                         onClick={() => {
                           this.endGame()
                         }}
                       >
                         End Game
-                      </Link>
                     </Button>):""
                 }
               </ButtonContainer>
@@ -624,6 +627,7 @@ class Game extends React.Component {
           <NotificationContainer/>
           </Container>
       </GameContainer>
+      </LoadingOverlay>
     );
   }
 }

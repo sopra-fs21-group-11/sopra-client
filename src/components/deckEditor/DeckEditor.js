@@ -123,14 +123,26 @@ class DeckEditor extends React.Component{
 
   async componentDidMount() {
 
+    this.getDeck();
+
+  }
+  async getDeck()
+  {
     const response = await api.get("/decks/");
     console.log(response.data);
     this.setState({
       decks: response.data
     })
-
   }
 
+  async deleteDeck(deckId){
+    const response = await api.get("decks/" + deckId+'/delete',{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`}
+    });
+    console.log(response.data);
+    this.getDeck();
+  }
 
   async getCardInfo(cardId){
     const response = await api.get("/cards/" + cardId);
@@ -282,13 +294,38 @@ class DeckEditor extends React.Component{
                 Back to Main View
               </Button>
             <Button
-              style={{ width: "15%"}}
+              style={{ marginRight: "5%",width: "15%"}}
               onClick={() => {
                 this.props.history.push("/deckCreator")
               }}
             >
               Create new deck
             </Button>
+            { this.state.clickedDeck?(   
+            <Button
+              style={{ marginRight: "5%",width: "10%",  background: "yellow"}}
+              onClick={() => {
+                this.props.history.push({
+                  pathname: "/DeckModify",
+                  state: { deckID: this.state.clickedDeck },
+                });
+              }}
+            >
+              Edit deck
+            </Button>
+            ):("")}
+                      { this.state.clickedDeck?(   
+            <Button
+              style={{ marginRight: "5%",width: "10%", background: "red"}}
+              onClick={() => {
+               this.deleteDeck(this.state.clickedDeck)
+              }}
+            >
+              Delete deck
+            </Button>
+            ):("")}
+            
+         
           </Footer>
         </Overlay>
       </OverlayContainer>

@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -132,6 +133,10 @@ const Item = styled.div`
     background-color: rgba(0, 128, 0, 0.3);
   }
 `;
+const CustomOverlay = styled.div`
+  background: rgb(200, 213, 0, 0.25);
+  height: 100%;
+`;
 
 
 class DeckCreator extends React.Component{
@@ -152,7 +157,8 @@ class DeckCreator extends React.Component{
       deckId: null,
       waitingTimeForFetchingCards: null,
       cardsInDeck: [],
-      isCardsLoaded: false
+      isCardsLoaded: false,
+      loadingFetch:false
     };
   }
 
@@ -167,7 +173,7 @@ class DeckCreator extends React.Component{
   }
 
   async getCards(){
-    const response = await api.get("/cards/");
+    const response = await api.get("/decks/"+this.state.deckId+"/cards");
     console.log(response.data);
     this.setState({
       cards: response.data
@@ -253,10 +259,55 @@ class DeckCreator extends React.Component{
         }
       );
 
-      console.log(responseFetchingPossible)
+      this.setState({
+        loadingFetch: true,
+        loading:true
+      });
+      if(responseFetchingPossible.data !== true){
+        let queueTime=responseFetchingPossible.data*1000;
+        let t=setTimeout(this.fetchLocation(), queueTime);
+        NotificationManager.warning('You are in a queue. We are trying to load in  '+responseFetchingPossible.data+' seconds or click here to create card from exsisting cards','External Server is busy',queueTime,() => {
+          this.setState({
+            isDeckCreatingMethodSubmitted:false,
+            deckCreatingMethod: "Choose deck creating method",
+            isCardsLoaded:false,
+            loadingFetch:false,
+            loading:false
+          });
+          clearTimeout(t);
+        });
+        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data,loading:false});
+       
+      }else{
+        this.fetchLocation()
+      }
+    }catch (error){
+      console.log(error)
+      
+    }
+     
 
-      if(responseFetchingPossible.data === true){
-
+  }
+  async goBack()
+  {
+    if(this.state.deckId)
+    {
+      const response = await api.get("decks/" + this.state.deckId+'/delete',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}
+      });
+      console.log(response)
+      this.props.history.push("/deckEditor");
+    } else
+    {
+      this.props.history.push("/deckEditor");
+    }
+    
+  }
+  async fetchLocation()
+  {
+    try
+        {
         const url = "/decks/" + this.state.deckId + "/fetch?population=" + this.state.populationForLoading + "&querry=" + this.state.countryForLoading;
         console.log(url);
 
@@ -268,21 +319,26 @@ class DeckCreator extends React.Component{
         );
         this.setState({
           cardsInDeck: response.data.cards,
-          isCardsLoaded: true
+          isCardsLoaded:true,
+          loading:false,
         });
 
         console.log(this.state.cardsInDeck);
         console.log(response.data);
-      }else{
-        this.setState({waitingTimeForFetchingCards: responseFetchingPossible.data});
+
+
+      }catch (error){
+        console.log(error)
+        NotificationManager.error('External service is currently. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
+        this.setState({
+          isDeckCreatingMethodSubmitted:false,
+          deckCreatingMethod: "Choose deck creating method",
+          loading:false,
+          isCardsLoaded:false,
+           loadingFetch:false
+        });
+ 
       }
-
-
-    }catch (error){
-      console.log(error)
-    }
-
-
   }
 
   removeCardFromDeck(card){
@@ -343,8 +399,16 @@ class DeckCreator extends React.Component{
 
   render() {
     return(
+      <LoadingOverlay
+      active={this.state.loading}
+      spinner
+      text='Loading the cards from external service ...'
+      styles={{wrapper :'_loading_overlay_content'}}
+      >
       <OverlayContainer>
+    
         <Overlay>
+      
           <HeaderContainer>
             <Header>
               Deck Creator
@@ -352,6 +416,7 @@ class DeckCreator extends React.Component{
           </HeaderContainer>
 
           <DeckInfoContainer>
+        
             {this.state.isDeckCreated?
               (
                 <DeckNameInput
@@ -427,6 +492,7 @@ class DeckCreator extends React.Component{
                         </option>
                       </DeckCountryDropdown>
                       <Button
+                      disabled={this.state.deckCreatingMethod==="Choose deck creating method"}
                         onClick={()=>
                           this.provideMethodForAddingCards()
                           }
@@ -445,20 +511,20 @@ class DeckCreator extends React.Component{
                 <LoadingInputContainer>
                   <DeckNameInput
                     style={this.state.isCardsLoaded? {width: "30%", opacity: "0.4"}:{width: "30%"}}
-                    disabled={this.state.isCardsLoaded}
+                    disabled={this.state.isCardsLoaded||this.state.loadingFetch}
                     placeholder="Enter Country or Region"
                     onChange={(e)=> this.handleInputChange("countryForLoading", e.target.value)}
                   />
 
                   <DeckNameInput
                     style={{width: "50%"}}
-                    disabled={this.state.isCardsLoaded}
+                    disabled={this.state.isCardsLoaded||this.state.loadingFetch}
                     placeholder="Enter minimum population of the places"
                     onChange={(e)=> this.handleInputChange("populationForLoading", e.target.value)}
                   />
                   <Button
                     style={{marginRight: "5%", width: "30%"}}
-                    disabled={this.state.isCardsLoaded}
+                    disabled={this.state.isCardsLoaded|| this.state.loadingFetch}
                     onClick={() => {
                       this.loadCards();
                     }}
@@ -483,13 +549,7 @@ class DeckCreator extends React.Component{
                   </BoxHeading>
                   <BoxBody>
                     {!this.state.cardsOutOfDeck?
-                      (
-                        <LoadingOverlay
-                          active={this.state.loading}
-                          spinner
-                          text='Loading ...'
-                        />
-                      ):(
+                     "":(
                         <Container>
                           {this.state.cardsOutOfDeck.map((card)=>{
                             return (
@@ -579,7 +639,8 @@ class DeckCreator extends React.Component{
             <Button
               style={{marginRight: "5%", width: "15%"}}
               onClick={() => {
-                this.props.history.push("/deckEditor");
+                this.goBack();
+               
               }}
             >
               Back to Deck Editor
@@ -593,8 +654,12 @@ class DeckCreator extends React.Component{
               Save Deck
             </Button>
           </Footer>
+        
         </Overlay>
+        <NotificationContainer/>
+       
       </OverlayContainer>
+      </LoadingOverlay>
     )
   }
 }

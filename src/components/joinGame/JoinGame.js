@@ -69,13 +69,7 @@ const ButtonContainer = styled.div`
   justify-content: center;
   margin-top: 20px;
   margin-bottom: 20px;
-  
 `;
-const Link = styled.a`
- margin: 10px;
- color: black
-`;
-
 
 class JoinGame extends React.Component {
   constructor() {
@@ -99,7 +93,7 @@ class JoinGame extends React.Component {
     NotificationManager.info('Please select the game from list','',3000);
     //Load Games for the first time
     await this.getGames();
-    this.timer = setInterval(() => this.getGames(), 10000); //polling every 10 seconds
+    this.timer = setInterval(() => this.getGames(), 3000); //polling every 3 seconds
   }
   async getGames() {
     try {
@@ -203,15 +197,14 @@ class JoinGame extends React.Component {
           <Container
           style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
           <ButtonContainer>
-            <Button style={{marginRight: 60}}>
-              <Link
-                width="25%"
-                onClick={() => {
-                  this.exitJoinGame();
-                }}
+            <Button
+              style={{marginRight: 60}}
+              width="fit-content"
+              onClick={() => {
+                this.exitJoinGame();
+              }}
               >
                 Exit Join Game
-              </Link>
             </Button>
           </ButtonContainer>
 
