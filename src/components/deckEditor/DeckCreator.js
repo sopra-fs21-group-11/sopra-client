@@ -313,7 +313,7 @@ class DeckCreator extends React.Component{
 
       }catch (error){
         console.log(error)
-        NotificationManager.error('External service is currently. Please create deck with exsisting card or try again later','Sorry for the inconvenience',8000);
+        NotificationManager.error('External service is currently. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
         this.setState({
           isDeckCreatingMethodSubmitted:false,
           deckCreatingMethod: "Choose deck creating method",
