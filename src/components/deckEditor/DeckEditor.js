@@ -136,7 +136,10 @@ class DeckEditor extends React.Component{
   }
 
   async deleteDeck(deckId){
-    const response = await api.get("decks/" + deckId+'/delete');
+    const response = await api.get("decks/" + deckId+'/delete',{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`}
+    });
     console.log(response.data);
     this.getDeck();
   }
