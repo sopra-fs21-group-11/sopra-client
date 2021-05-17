@@ -47,13 +47,6 @@ const Label = styled.label`
   margin-top: 5px;
 `;
 
-
-const Link = styled.a`
- width: 25%;
- margin: 10px;
- color: black
-`;
-
 const Name = styled.p`
   margin: 10px;
   color: black;
@@ -184,8 +177,18 @@ class Lobby extends React.Component {
     this.timer = null;
   }
 
-  exitLobby() {
+  async exitLobby() {
+    if (this.state.gameId && this.state.host) {
+      const response = await api.get("/games/" + this.state.gameId+"/leave",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}
+      });
+    console.log(response);
     this.props.history.push("/mainView")
+    }else{
+      this.props.history.push("/mainView")
+    }
   }
 
   handleInputChange(key, value) {
@@ -452,26 +455,23 @@ class Lobby extends React.Component {
         <Container
           style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
           <ButtonContainer>
-            <Button style={{marginRight: 60}}>
-              <Link
-                onClick={() => {
-                  this.exitLobby();
-                }}
-              >
+            <Button
+              style={{marginRight: 60}}
+              onClick={() => {
+                this.exitLobby();
+              }}
+            >
                 Exit Lobby
-              </Link>
             </Button>
           </ButtonContainer>
           <ButtonContainer>
             <Button
                disabled={!this.state.host}
-              style={{marginRight: 60}}>
-              <Link
+              style={{marginRight: 60}}
                 onClick={() => {this.state.created ?
                   this.startGame(): this.createGame()}}
               >
                 {this.state.created ?  "Start Game": "Create Game"}
-              </Link>
             </Button>
           </ButtonContainer>
         </Container>
