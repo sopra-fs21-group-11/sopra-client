@@ -39,7 +39,7 @@ class DirectionCard extends React.Component{
 
     return (
       <CardContainer style={cardStyle}>
-        <Image style={cardStyle} src={directionCard} alt={"Green direction card for the background"}/>
+        <Image class="bottom" style={cardStyle} src={directionCard} alt={"Green direction card for the background"}/>
       </CardContainer>
     )
   }

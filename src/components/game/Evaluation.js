@@ -87,6 +87,8 @@ export class Evaluation extends React.Component{
           placeholder={this.state.placeholder}
           disabled={this.state.placeholder === "submitted"}
           maxLength={2}
+          min={1}
+          max={10}
           pattern="[0-9]+"
           onChange={(e) => {
             this.handleInputChange(e.target.value);
