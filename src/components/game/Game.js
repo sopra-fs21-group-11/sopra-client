@@ -17,6 +17,7 @@ import {getDomain} from "../../helpers/getDomain";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import DirectionCard from "../../views/design/DirectionCard";
+import background from "../../views/design/cards/directionCard.png"
 
 
 const Container = styled(BaseContainer)`
@@ -121,7 +122,10 @@ const StartingCardContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: auto;
-  height: fit-content;
+  height: 190px;
+  background-image: url(${background});
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 `;
 
 const HorizontalCardContainer = styled.div`
@@ -174,6 +178,7 @@ const ButtonContainer = styled.div`
   justify-content: center;
   margin: 5%;
   height: fit-content;
+  width: fit-content;
 `;
 
 const AddButton = styled.div`
@@ -234,10 +239,7 @@ class Game extends React.Component {
         "EVALUATION": 30,
         "EVALUATIONVISIBLE": 30
       },
-      winners: null,
-      gameMinutes: 0,
-      gameTooShort: true,
-      scoreboard: [],
+      gameEndScore: {},
 
     };
     this.doubtGame = this.doubtGame.bind(this)
@@ -313,13 +315,12 @@ class Game extends React.Component {
       currentCard: socketMessage["nextCardOnStack"],
       startingCard: socketMessage["startingCard"],
       nextPlayer: socketMessage["nextPlayer"],
-      doubtResultDTO:socketMessage["gamestate"]==="DOUBTVISIBLE"?socketMessage["doubtResultDTO"]:null,
-      // winners: socketMessage["winnerIds"],
-      // scoreboard: socketMessage["scoreboard"],
-      // gameMinutes: socketMessage["gameMinutes"],
-      // gameTooShort: socketMessage["gameTooShort"],
+      doubtResultDTO:socketMessage["gamestate"]==="DOUBTVISIBLE" ? socketMessage["doubtResultDTO"] : null,
+      gameEndScore: socketMessage["gameEndScore"],
       loading:false,
-      isLocalUserPLayer: localStorage.getItem("loginUserId") === socketMessage["playersturn"].id.toString(),
+      isLocalUserPLayer: socketMessage["playersturn"] ?
+        localStorage.getItem("loginUserId") === socketMessage["playersturn"].id.toString()
+      : false,
     });
 
 
@@ -384,16 +385,13 @@ class Game extends React.Component {
         });
         setTimeout(() => {  this.props.history.push("/game/scoreboard"); }, 3000);
 
-        // this.props.history.push({
-        //   pathname: "/game/scoreboard",
-        //   // state: {
-        //   //   scoreboard:  this.state.scoreboard,
-        //   //   gameTooShort: this.state.gameTooShort,
-        //   //   winners: this.state.winners,
-        //   //   gameMinutes: this.state.gameMinutes,
-        //   //   gameId: this.state.gameId,
-        //   // },
-        // });
+        this.props.history.push({
+          pathname: "/game/scoreboard",
+          state: {
+            gameEndScore: this.state.gameEndScore,
+            gameId: this.state.gameId,
+          },
+        });
       }
   }
 
@@ -534,9 +532,6 @@ class Game extends React.Component {
                 ? (
                  ""
                 ) : (
-                  <DirectionCard
-                    sizeCard={100}
-                  >
                   <StartingCardContainer
                     width={100}
                     heigth={100}
@@ -553,7 +548,6 @@ class Game extends React.Component {
                   : " "}
 
                   </StartingCardContainer>
-                  </DirectionCard>
                 )}
               <VerticalCardContainer>
                 {this.getCards(this.state.cardsBottom, "bottom")}
@@ -612,9 +606,7 @@ class Game extends React.Component {
             </Container>
             <Container  style={{height: "100%", width: "25%", display: "flex", flexDirection: "column", justifyContent: "center"}}>
               <ButtonContainer>
-                <Button 
-                 width ="50%"
-                 onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
+                <Button onClick={()=> window.open("/Usgrachnet_Help.pdf", "_blank")}>
                 Help
                 </Button>
               </ButtonContainer>
@@ -622,7 +614,6 @@ class Game extends React.Component {
                 {
                   this.state.hostId === localStorage.getItem("loginUserId")?
                     (<Button
-                      width ="100%"
                         onClick={() => {
                           this.endGame()
                         }}
@@ -639,7 +630,7 @@ class Game extends React.Component {
                 </Notification>
               </Container>
             </RightFooter>
-          </Footer>,
+          </Footer>
           <Container style={{display: "flex"}}>
           <NotificationContainer/>
           </Container>

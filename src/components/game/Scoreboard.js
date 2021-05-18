@@ -65,31 +65,30 @@ const CustomOverlay = styled.div`
 `;
 
 
-class Test extends React.Component {
+class Scoreboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      playersTokens: {"name": 5, "another Name": 1},
-      loading: false,
+      gameId: 0,
       scoreboard:  [],
-      gameTooShort: true,
-      winners: [],
+      gameTooShort: false,
+      winnerIds: [],
       gameMinutes: 0,
     };
   }
   async componentDidMount() {
 
     if(this.props.location.state) {
-      let gameId = this.props.location.state.gameId;
-      let scoreboard = this.props.location.state.scoreboard;
-      let gameTooShort = this.props.location.state.gameTooShort;
-      let winners = this.props.location.state.winners;
-      let gameMinutes = this.props.location.state.gameMinutes;
+      let gameId = this.props.location.state.gameEndScore.gameId;
+      let scoreboard = this.props.location.state.gameEndScore.scoreboard;
+      let gameTooShort = this.props.location.state.gameEndScore.gameTooShort;
+      let winnerIds = this.props.location.state.gameEndScore.winnerIds;
+      let gameMinutes = this.props.location.state.gameEndScore.gameMinutes;
       this.setState({
         gameId: gameId,
         scoreboard:  scoreboard,
         gameTooShort: gameTooShort,
-        winners: winners,
+        winnerIds: winnerIds,
         gameMinutes: gameMinutes
       }, () => {console.log(this.state);});}
 
@@ -140,4 +139,4 @@ class Test extends React.Component {
 
 
 
-export default withRouter(Test);
+export default withRouter(Scoreboard);

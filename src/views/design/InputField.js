@@ -13,4 +13,5 @@ export const InputField = styled.input`
   color: black;
   border-color: rgb(0, 0, 0, 0.4);
   border-radius: 4px;
+  opacity: ${props => (props.disabled ? 0.4 : 1)};
 `;
