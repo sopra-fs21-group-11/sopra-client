@@ -111,7 +111,7 @@ class Lobby extends React.Component {
       possibleNumEval: [1, 2, 3, 4, 5],
       gameId: null,
       gameName: "",
-      deckId: 0,
+      deckId: 1,
       deck: {
         deck: {},
         possibilities: [],
@@ -242,7 +242,7 @@ class Lobby extends React.Component {
        deck["possibilities"] = deckResponse.data;
        deck["deck"] = deckResponse.data[0];
 
-       this.setState({deck: deck});
+       this.setState({deck: deck, deckId: settingResponse.data.deckId});
 
 
        console.log(this.state);
@@ -390,16 +390,16 @@ class Lobby extends React.Component {
     }
   }
 
-  getSetting(setting) {
+  getSetting(name, setting) {
     let component = [
-      <Label>{setting[1].name} <FiHelpCircle title={setting[1].description} /></Label>,
+      <Label>{setting.name} <FiHelpCircle title={setting.description} /></Label>,
       <CustomSelect
       disabled={!this.state.editable}
-      defaultValue={setting[1].value}
+      defaultValue={setting.value}
       onChange={(e) => {
-        this.handleSettingsChange(setting[0], e.target.value);
+        this.handleSettingsChange(name, e.target.value);
       }}>
-      {setting[1].possibilities.map((num) => {
+      {setting.possibilities.map((num) => {
         return (
           <option key={num.toString()}>{num}</option>);
       })}
@@ -409,16 +409,16 @@ class Lobby extends React.Component {
     return (component);
   }
 
-  getCountdown(countdown) {
+  getCountdown(name, countdown) {
     let component = [
-      <Label>{countdown[1].name} <FiHelpCircle title={countdown[1].description} /></Label>,
+      <Label>{countdown.name} <FiHelpCircle title={countdown.description} /></Label>,
       <InputField
         type="number"
         min={"1"}
         max={"300"}
         disabled={!this.state.editable}
         placeholder={this.state.placeholderCountdown}
-        onChange={(e) => {this.handleCountdownChange(countdown[0], e);}}
+        onChange={(e) => {this.handleCountdownChange(name, e);}}
       />
     ];
 
@@ -504,11 +504,11 @@ class Lobby extends React.Component {
               })}
             </CustomSelect>
 
-            {Object.entries(this.state.settings).map((setting) =>
-              this.getSetting(setting))}
+            {Object.entries(this.state.settings).map(([name, setting]) =>
+              this.getSetting(name, setting))}
 
-            {Object.entries(this.state.countdowns).map((setting) =>
-              this.getCountdown(setting))}
+            {Object.entries(this.state.countdowns).map(([name, setting]) =>
+              this.getCountdown(name, setting))}
 
           </SettingsForm>
         </Container>
