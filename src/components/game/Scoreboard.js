@@ -41,7 +41,6 @@ const ButtonContainer = styled.div`
   justify-content: center;
   margin-top: 20px;
   margin-bottom: 20px;
-  
 `;
 
 const TableHeader = styled.th`
