@@ -12,7 +12,7 @@ import LoadingOverlay from 'react-loading-overlay';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import { FiHelpCircle } from 'react-icons/fi';
 import {Tooltip} from "@material-ui/core";
-
+import ReactTooltip from 'react-tooltip';
 const Container = styled(BaseContainer)`
   color: white;
   text-align: center;
@@ -392,7 +392,7 @@ class Lobby extends React.Component {
 
   getSetting(name, setting) {
     let component = [
-      <Label>{setting.name} <FiHelpCircle title={setting.description} /></Label>,
+      <Label>{setting.name} <FiHelpCircle data-tip={setting.description} /> </Label>,
       <CustomSelect
       disabled={!this.state.editable}
       defaultValue={setting.value}
@@ -411,7 +411,7 @@ class Lobby extends React.Component {
 
   getCountdown(name, countdown) {
     let component = [
-      <Label>{countdown.name} <FiHelpCircle title={countdown.description} /></Label>,
+      <Label>{countdown.name} <FiHelpCircle data-tip={countdown.description} /> </Label>,
       <InputField
         type="number"
         min={"1"}
@@ -486,7 +486,8 @@ class Lobby extends React.Component {
                 this.handleInputChange("gameName", e.target.value);
               }}
             />
-            <Label>Deck <FiHelpCircle title={this.state.deck.description} /></Label>
+            <Label>Deck <FiHelpCircle  data-tip={this.state.deck.description} /></Label>
+            <ReactTooltip type="warning" />
             <CustomSelect
               disabled={!this.state.editable}
               onChange={(e) => {
