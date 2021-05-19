@@ -119,13 +119,13 @@ class Lobby extends React.Component {
       },
       settings: {
         playersMin: {
-          name: "Minimal Number of PLayers",
+          name: "Minimal Number of Players",
           value: 2,
           possibilities: [2, 3, 4, 5, 6],
           description: "The minimal number of players that have to join the game to play, default is 2.",
         },
         playersMax: {
-          name: "Maximal Number of PLayers",
+          name: "Maximal Number of Players",
           value: 6,
           possibilities: [2, 3, 4, 5, 6],
           description: "The maximal number of players that can join the game, default is 6",
@@ -446,7 +446,7 @@ class Lobby extends React.Component {
           [<h4>Quick recap of the game rules </h4>,
           <ul>1. Card placement phase: One player gets to place a card in relation to the cards already on the board based on
             the coordinates. You can place it either north, south, east or west of another card. </ul>,
-          <ul>2. Doubting phase: all the other players that did not just place a card can doubt the placement of the last card.
+          <ul>2. Doubting phase: All the other players that did not just place a card can doubt the placement of the last card.
             You can gain/lose tokens if your doubt was (in)correct. </ul>,
           <ul>3. Evaluation phase: All players can place a bet on how many cards on the board are wrongly placed. You can gain tokens
              if your bet is exactly correct or if your bet is closest to the actual number of wrongly placed cards.</ul>]
