@@ -19,45 +19,42 @@ const Container = styled(BaseContainer)`
   height: 80%;
 `;
 
-const Users = styled.ul`
-  list-style: none;
-  width: 40%;
+const Users = styled.table`
+  width: 60%;
+  table-layout: auto;
+  border-collapse: collapse;  
   margin-top: 0;
   font-size: 90%;
   font-weight: 300;
+  color: black;
   margin-right: auto;
   margin-left: auto;
-  height: 30vh;
+  height: auto;
   padding: 0;
+  text-align: left;
   background: rgb(255, 255, 255);
   border: 0.15em black solid;
 `;
-
-
 
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
   margin-bottom: 20px;
+`;
+
+const TableHeader = styled.th`
+  column-width: auto;
+  border: 0.15em black solid;
+  padding-left: 5px;
+  background: rgb(0, 132, 0, 1);
+`;
+
+const TableEntry = styled.td`
+  padding-left: 5px;
+  border-left: 0.15em black solid;
   
 `;
-
-const Link = styled.a`
- width: 25%;
- margin: 10px;
- color: black
-`;
-
-const Name = styled.p`
-  margin: 10px;
-  color: black;
-  font-size: 16px;
-  font-weight: 300;
-`;
-
-
-
 
 const CustomOverlay = styled.div`
   background: rgb(200, 213, 0, 0.25);
@@ -103,6 +100,40 @@ class Scoreboard extends React.Component {
     this.setState({[key]: value});
   }
 
+  getScoreboardEntry(player) {
+    console.log(player);
+    let tableEntry = <tr key={player.id + 1}>
+      <TableEntry>{player.username}</TableEntry>
+      <TableEntry>{player.currentToken}</TableEntry>
+      <TableEntry>{player.totalWins}</TableEntry>
+      <TableEntry>{player.totalTokens}</TableEntry>
+      <TableEntry>{player.playTime}</TableEntry>
+    </tr>
+
+    console.log(tableEntry);
+
+    return tableEntry
+  }
+
+  getScoreboard() {
+
+    let scoreboard = [<tr key={0}>
+      <TableHeader>Username</TableHeader>
+      <TableHeader>Tokens</TableHeader>
+      <TableHeader>Total Wins</TableHeader>
+      <TableHeader>Total Won Tokens</TableHeader>
+      <TableHeader>Time Played</TableHeader>
+    </tr>]
+    this.state.scoreboard.map((player) => {
+      scoreboard.push(this.getScoreboardEntry(player));
+    });
+
+    console.log(scoreboard);
+
+    return scoreboard;
+
+  }
+
 
   render() {
     return (
@@ -111,23 +142,17 @@ class Scoreboard extends React.Component {
           <h2
             style={{textAlign: "center", paddingTop: "20px"}}>Leaderboard</h2>
           <Container>
-            <Container>
               <Users>
-                {this.state.scoreboard.map((player) => {
-                  return (<Name>{player.username}: {player.currentTokens}</Name>);
-                })}
+                {this.getScoreboard()}
               </Users>
-            </Container>
           </Container>
           <ButtonContainer>
-            <Button>
-              <Link
+            <Button
                 onClick={() => {
                   this.exitLobby();
                 }}
               >
                 Back to main view
-              </Link>
             </Button>
           </ButtonContainer>
         </CustomOverlay>
