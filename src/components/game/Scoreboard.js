@@ -114,7 +114,7 @@ class Scoreboard extends React.Component {
             <Container>
               <Users>
                 {this.state.scoreboard.map((player) => {
-                  return (<Name>{player.username}: {player.currentTokens}</Name>);
+                  return (<Name>{player.username}: {token}</Name>);
                 })}
               </Users>
             </Container>
