@@ -381,16 +381,15 @@ class Game extends React.Component {
 
       if(this.state.gameState === "GAMEEND"){
         localStorage.removeItem("hostId");
-        NotificationManager.error('END GAMEDED. Thank you for Playing ','',3000);
+        NotificationManager.error('END GAMEDED. Thank you for Playing ','',2900);
 
-        setTimeout(() => {  this.props.history.push("/game/scoreboard"); }, 3000);
-        this.props.history.push({
+        setTimeout( () => {
+          this.props.history.push({
           pathname: "/game/scoreboard",
           state: {
             gameEndScore: this.state.gameEndScore,
             gameId: this.state.gameId,
-          },
-        });
+          }})}, 3000);
 
       }
   }
