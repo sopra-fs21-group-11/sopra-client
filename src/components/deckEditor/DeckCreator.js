@@ -45,8 +45,9 @@ const Header = styled.h1`
 `;
 
 const DeckNameInput = styled.input`
+  font-size: 14px;
   height: 50%;
-  width: 15%;
+  width: 12%;
   margin-right: 2%;
   border-radius:   4px 4px 4px 4px;
   &::placeholder {
@@ -57,6 +58,7 @@ const DeckNameInput = styled.input`
 const DeckCountryDropdown = styled.select`
   width: 60%;
   margin-right: 2%;
+  font-size: 14px;
 `;
 
 const DeckInputForm = styled.div`
@@ -64,7 +66,7 @@ const DeckInputForm = styled.div`
 `;
 
 const LoadingInputContainer = styled.div`
-  width: 40%;
+  width: 42%;
   height: 100%;
   display: flex;
   justify-content: space-around;
@@ -152,8 +154,8 @@ class DeckCreator extends React.Component{
       isDeckCreated: false,
       deckCreatingMethod: "Choose deck creating method",
       isDeckCreatingMethodSubmitted: false,
-      countryForLoading: null,
-      populationForLoading: null,
+      countryForLoading: "",
+      populationForLoading: "",
       deckId: null,
       waitingTimeForFetchingCards: null,
       cardsInDeck: [],
@@ -221,11 +223,6 @@ class DeckCreator extends React.Component{
     }catch (error) {
       console.log(error);
     }
-
-
-
-
-
 
   }
 
@@ -329,7 +326,7 @@ class DeckCreator extends React.Component{
 
       }catch (error){
         console.log(error)
-        NotificationManager.error('External service is currently. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
+        NotificationManager.error('External service is currently unavailable. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
         this.setState({
           isDeckCreatingMethodSubmitted:false,
           deckCreatingMethod: "Choose deck creating method",
@@ -391,11 +388,35 @@ class DeckCreator extends React.Component{
         }
       );
 
+      console.log(response);
+
     }catch (error){
       console.log(error)
     }
     this.props.history.push("/DeckEditor");
   }
+
+  handleCountryInput(value){
+    console.log(value);
+    let possibleValue = value.replace(/[^a-z\s]/gi, "");
+    console.log(possibleValue);
+
+    this.setState({
+      countryForLoading: possibleValue
+    });
+  }
+
+  handlePopulationInput(value){
+    let possibleValue = value.replace(/[^0-9]/gi, "");
+    if(possibleValue.charAt(0) === "0"){
+      possibleValue = possibleValue.charAt(0);
+    }
+
+    this.setState({
+      populationForLoading: possibleValue
+    });
+  }
+
 
   render() {
     return(
@@ -425,7 +446,7 @@ class DeckCreator extends React.Component{
                 />
               ):(
                 <DeckNameInput
-                  placeholder="Enter here the name of deck"
+                  placeholder="Name of deck"
                   value={this.state.deckName}
                   onChange={(e)=> this.handleInputChange("deckName", e.target.value)}
                 />
@@ -512,19 +533,23 @@ class DeckCreator extends React.Component{
                   <DeckNameInput
                     style={this.state.isCardsLoaded? {width: "30%", opacity: "0.4"}:{width: "30%"}}
                     disabled={this.state.isCardsLoaded||this.state.loadingFetch}
-                    placeholder="Enter Country or Region"
-                    onChange={(e)=> this.handleInputChange("countryForLoading", e.target.value)}
+                    placeholder="Country or Region"
+                    value={this.state.countryForLoading}
+                    onChange={(e)=> {
+                      this.handleCountryInput(e.target.value);
+                    }}
                   />
 
                   <DeckNameInput
-                    style={{width: "50%"}}
+                    style={{width: "55%"}}
                     disabled={this.state.isCardsLoaded||this.state.loadingFetch}
-                    placeholder="Enter minimum population of the places"
-                    onChange={(e)=> this.handleInputChange("populationForLoading", e.target.value)}
+                    placeholder="Minimum population of the places"
+                    value={this.state.populationForLoading}
+                    onChange={(e)=> this.handlePopulationInput( e.target.value)}
                   />
                   <Button
                     style={{marginRight: "5%", width: "30%"}}
-                    disabled={this.state.isCardsLoaded|| this.state.loadingFetch}
+                    disabled={(this.state.countryForLoading === "" || this.state.populationForLoading === "") || this.state.isCardsLoaded|| this.state.loadingFetch}
                     onClick={() => {
                       this.loadCards();
                     }}
@@ -553,7 +578,9 @@ class DeckCreator extends React.Component{
                         <Container>
                           {this.state.cardsOutOfDeck.map((card)=>{
                             return (
-                              <Container>
+                              <Container
+                                key={card.id + "1"}
+                              >
                                 <Item
                                   key={card.id}
                                   onClick={()=>{
@@ -584,7 +611,9 @@ class DeckCreator extends React.Component{
                         <Container>
                           {this.state.cardsInDeck.map((card)=>{
                             return (
-                              <Container>
+                              <Container
+                                key={card.id + "1"}
+                              >
                                 <Item
                                   key={card.id}
                                   onClick={()=>{
@@ -645,14 +674,20 @@ class DeckCreator extends React.Component{
             >
               Back to Deck Editor
             </Button>
-            <Button
-              style={{width: "15%"}}
-              onClick={() => {
-                this.updateDeck();
-              }}
-            >
-              Save Deck
-            </Button>
+            {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
+              (
+                <Button
+                  style={{width: "15%"}}
+                  onClick={() => {
+                    this.updateDeck();
+                  }}
+                >
+                  Save Deck
+                </Button>
+              ):(
+                ""
+              )}
+
           </Footer>
         
         </Overlay>
