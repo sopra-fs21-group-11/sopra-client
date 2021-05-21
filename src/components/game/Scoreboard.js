@@ -17,6 +17,7 @@ const Container = styled(BaseContainer)`
   justify-content: center;
   width: 80%;
   height: 80%;
+  border-radius:   4px 4px 4px 4px;
 `;
 
 const Users = styled.table`
@@ -34,6 +35,7 @@ const Users = styled.table`
   text-align: left;
   background: rgb(255, 255, 255);
   border: 0.15em black solid;
+  border-radius: 4px;
 `;
 
 const ButtonContainer = styled.div`
@@ -50,11 +52,17 @@ const TableHeader = styled.th`
   background: rgb(0, 132, 0, 1);
 `;
 
+const TableRow = styled.tr`
+  border: 0.15em black solid;
+  border-radius: 4px;
+`;
+
 const TableEntry = styled.td`
   padding-left: 5px;
   border-left: 0.15em black solid;
-  
+  border-radius: 4px;
 `;
+
 
 const CustomOverlay = styled.div`
   background: rgb(200, 213, 0, 0.25);
@@ -89,10 +97,12 @@ class Scoreboard extends React.Component {
         gameMinutes: gameMinutes
       }, () => {console.log(this.state);});}
 
+    else {this.props.history.push("/mainView")}
+
   }
 
 
-  exitLobby() {
+  exitScoreboard() {
     this.props.history.push("/mainView")
   }
 
@@ -102,13 +112,13 @@ class Scoreboard extends React.Component {
 
   getScoreboardEntry(player) {
     console.log(player);
-    let tableEntry = <tr key={player.id + 1}>
+    let tableEntry = <TableRow key={player.id + 1}>
       <TableEntry>{player.username}</TableEntry>
       <TableEntry>{player.currentToken}</TableEntry>
       <TableEntry>{player.totalWins}</TableEntry>
       <TableEntry>{player.totalTokens}</TableEntry>
       <TableEntry>{player.playTime}</TableEntry>
-    </tr>
+    </TableRow>
 
     console.log(tableEntry);
 
@@ -117,13 +127,13 @@ class Scoreboard extends React.Component {
 
   getScoreboard() {
 
-    let scoreboard = [<tr key={0}>
+    let scoreboard = [<TableRow key={0}>
       <TableHeader>Username</TableHeader>
       <TableHeader>Tokens</TableHeader>
       <TableHeader>Total Wins</TableHeader>
       <TableHeader>Total Won Tokens</TableHeader>
       <TableHeader>Time Played</TableHeader>
-    </tr>]
+    </TableRow>]
     this.state.scoreboard.map((player) => {
       scoreboard.push(this.getScoreboardEntry(player));
     });
@@ -149,7 +159,7 @@ class Scoreboard extends React.Component {
           <ButtonContainer>
             <Button
                 onClick={() => {
-                  this.exitLobby();
+                  this.exitScoreboard();
                 }}
               >
                 Back to main view

@@ -1,6 +1,6 @@
 # SoPra FS21 - Group 11 - Usgrächnet Bünzen
 
-## Introduction - project aim
+## The Game - Usgrächnet Bünzen
 
 Our project's aim is to implement the game *Usgrächnet Bünzen*. The original game allows users to test their
 knowledge of Swiss locations in a playful manner. Each player can place location cards on a board
@@ -13,16 +13,21 @@ For a more extensive explanation of the original game please check out this **[m
 In order to introduce more complexity we added the following features:
 * players can choose their **own game settings**
 * players can **customize** the card decks to play with
-* players can fetch international locations and create **new cards**
+* players can fetch international locations and create **new cards and decks**
 
+Check out this project's [:computer: server repo](https://github.com/sopra-fs21-group-11/sopra-server/tree/master).
 
+## Technologies 
 
-## Technologies
+### WebSocket 🧦
+Enables bidirectional communication between client and server. We used this to implement the game. 
 
-- [styled-components](https://www.styled-components.com/docs)
-  It removes the mapping between components and styles (i.e. external css files). This means that when you're defining your styles, you're actually creating a normal React component, that has your styles attached to it
+### [React-js](https://reactjs.org/) :rocket:
+React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
-### Websocket
+### [Spring Boot](https://spring.io/) :boot:
+
+### ...
 
 ## High-level components
 
@@ -42,36 +47,51 @@ This has to be done before starting the application for the first time (only onc
 
 #### `npm run dev`
 
-Runs the app in the development mode.<br>
+Runs the app in the development mode.
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
+The page will reload if you make edits.
 You will also see any lint errors in the console (use Google Chrome!).
 
 #### `npm run test`
 
-Launches the test runner in the interactive watch mode.<br>
+Launches the test runner in the interactive watch mode.
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 > For macOS user running into an 'fsevents' error: https://github.com/jest-community/vscode-jest/issues/423
 
 #### `npm run build`
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
+Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimizes the build for the best performance.
+The build is minified and the filenames include the hashes.
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ## Illustrations of Game
 
+The project consists of two main parts: the game and a deck creator. 
+
+### Game
+Every user can create a new game and set it up with customized settings. --> add picture of lobby
+
+--> add max three small pictures of game (placement, doubt and evaluation)
+
+Users can join the game
+
+### Deck creator
+
+--> add max two pictures of editor /new deck creation
+
 ## Roadmap
+Joining developers can contribute the following things:
+
+- Add more comparison types, i.e. compare population instead of coordinates
+- Add profile pages for the users
+- ... whatever creative extensions you can come up with! :smile:
 
 ## Authors and acknowledgment
 
-A special thanks goes to our TA Raffi and the entire sopra team FS21.
+A special thanks goes to our TA Raffi and the sopra team FS21.
 
 ### Authors
 - [Martin](https://github.com/tinu0816)
@@ -83,6 +103,8 @@ A special thanks goes to our TA Raffi and the entire sopra team FS21.
 
 
 ## License
+
+The project is licensed under the Apache License 2.0. For more information check [this :page_with_curl:](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/LICENSE) out.
 
 
 
