@@ -221,7 +221,7 @@ class Lobby extends React.Component {
        for (let setting in this.state.settings) {
          if (this.state.settings.hasOwnProperty(setting) && settingResponse.data.hasOwnProperty(setting)) {
            let newSetting = this.state.settings[setting];
-           newSetting["value"]= settingResponse.data[setting]
+           newSetting["value"]= settingResponse.data[setting].toString();
 
            let newSettings = this.state.settings;
            newSettings[setting] = newSetting;
@@ -231,7 +231,7 @@ class Lobby extends React.Component {
        for (let countdown in this.state.countdowns) {
          if (this.state.countdowns.hasOwnProperty(countdown) && settingResponse.data.hasOwnProperty(countdown)) {
          let newCountdown = this.state.countdowns[countdown];
-         newCountdown["value"]= settingResponse.data[countdown]
+         newCountdown["value"]= settingResponse.data[countdown].toString();
 
          let newCountdowns = this.state.countdowns;
          newCountdowns[countdown] = newCountdown;
@@ -242,7 +242,7 @@ class Lobby extends React.Component {
        deck["possibilities"] = deckResponse.data;
        deck["deck"] = deckResponse.data[0];
 
-       this.setState({deck: deck, deckId: settingResponse.data.deckId});
+       this.setState({deck: deck, deckId: settingResponse.data.deckId.toString()});
 
 
        console.log(this.state);
