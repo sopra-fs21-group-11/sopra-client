@@ -111,18 +111,13 @@ class Scoreboard extends React.Component {
   }
 
   getScoreboardEntry(player) {
-    console.log(player);
-    let tableEntry = <TableRow key={player.id + 1}>
+    return <TableRow key={player.id + 1}>
       <TableEntry>{player.username}</TableEntry>
       <TableEntry>{player.currentToken}</TableEntry>
       <TableEntry>{player.totalWins}</TableEntry>
       <TableEntry>{player.totalTokens}</TableEntry>
       <TableEntry>{player.playTime}</TableEntry>
     </TableRow>
-
-    console.log(tableEntry);
-
-    return tableEntry
   }
 
   getScoreboard() {
@@ -132,13 +127,12 @@ class Scoreboard extends React.Component {
       <TableHeader>Tokens</TableHeader>
       <TableHeader>Total Wins</TableHeader>
       <TableHeader>Total Won Tokens</TableHeader>
-      <TableHeader>Time Played</TableHeader>
+      <TableHeader>Total Time Played</TableHeader>
     </TableRow>]
-    this.state.scoreboard.map((player) => {
+
+    this.state.scoreboard.forEach((player) => {
       scoreboard.push(this.getScoreboardEntry(player));
     });
-
-    console.log(scoreboard);
 
     return scoreboard;
 
