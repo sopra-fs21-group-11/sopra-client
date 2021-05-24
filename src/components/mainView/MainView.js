@@ -76,11 +76,11 @@ class MainView extends React.Component {
 
   async componentDidMount() {
     try {
-      let userId=localStorage.getItem("hostId");
+      let userId=localStorage.getItem("loginUserId");
       if(userId!==null)
       {
         const response = await api.get(
-          "/users/" + localStorage.getItem("hostId")
+          "/users/" + localStorage.getItem("loginUserId")
         );
         console.log(response)
       }
