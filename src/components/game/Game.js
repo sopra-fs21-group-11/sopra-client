@@ -347,7 +347,7 @@ class Game extends React.Component {
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> The other players can doubt your placement, please wait"
-            : ">>> You can now doubt the card placement",
+            : ">>> You can now doubt the card placement by clicking on the highlighted card(s) (orange border)",
           countDownText: this.state.isLocalUserPLayer
             ? "for the" + "\n" + "others to doubt"
             : "to doubt"})
@@ -365,16 +365,16 @@ class Game extends React.Component {
         this.resetCountDown();}
 
       else if (this.state.gameState === "EVALUATION") {
-        NotificationManager.warning('Evaluation phase. Please Guess Number of correct card','',3000);
+        NotificationManager.warning('Evaluation phase. Please guess the number of wrongly placed cards','',3000);
         this.setState({
-          message: ">>> Evaluation phase",
+          message: ">>> Evaluation phase: guess the number of wrongly placed cards by entering a number in the input field and then clicking on submit",
           countDownText: "to place a bet"})
         this.resetCountDown();
       }
       else if (this.state.gameState === "EVALUATIONVISIBLE") {
         NotificationManager.warning('After the Evaluation phase. Please have a look at the correctly and wrongly placed cards','',3000);
         this.setState({
-          message: ">>> After the Evaluation phase",
+          message: ">>> After the Evaluation phase: increase your chance to win next time by learning where these places are located",
           countDownText: "to look at the cards"})
         this.resetCountDown();
       }

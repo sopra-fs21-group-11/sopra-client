@@ -9,7 +9,6 @@ import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 
-
 const MenuContainer = styled.div`
   height: 500px;
   width: 50vw;
