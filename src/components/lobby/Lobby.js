@@ -492,7 +492,7 @@ class Lobby extends React.Component {
               }}
             />
             <Label>Deck <FiHelpCircle  data-tip={this.state.deck.description} /></Label>
-            <ReactTooltip type="warning" />
+            <ReactTooltip type="dark" />
             <CustomSelect
               disabled={!this.state.editable}
               onChange={(e) => {
