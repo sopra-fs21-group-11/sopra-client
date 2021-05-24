@@ -19,7 +19,7 @@ const FormContainer = styled.div`
   justify-content: center;
 `;
 
-const Form = styled.div`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -115,7 +115,8 @@ class Registration extends React.Component {
    * If the request is successful, a new user is returned to the front-end
    * and its token is stored in the localStorage.
    */
-  async registration() {
+  async registration(event) {
+     event.preventDefault();
     try {
       this.setState({ loading:true });
       const requestBody = JSON.stringify({
@@ -136,6 +137,7 @@ class Registration extends React.Component {
     } catch (error) {
       this.setState({ loading:false });
       NotificationManager.error('Username already exist. Please try something else','',3000);
+      
     }
   }
 
@@ -171,7 +173,9 @@ class Registration extends React.Component {
         <BaseContainer>
        
           <FormContainer>
-            <Form>
+            <Form onSubmit={(e) => {
+                    this.registration(e);
+                  }}>
               <FormTitleContainer>
                 <FormTitle>
                   REGISTRATION
@@ -197,9 +201,7 @@ class Registration extends React.Component {
                   disabled={!this.state.username || !this.state.password}
                   width="50%"
                   style={{ margin: "5px" }}
-                  onClick={() => {
-                    this.registration();
-                  }}
+                  type="submit"
                 >
                   Register
                 </Button>
