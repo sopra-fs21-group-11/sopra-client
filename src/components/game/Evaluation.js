@@ -2,6 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 import {Button} from "../../views/design/Button";
+import {NotificationManager} from "react-notifications";
 
 const EvaluationFormContainer = styled.form`
   width: ${(props)=>(props.width ? props.width : "140px")};
@@ -40,15 +41,15 @@ export class Evaluation extends React.Component{
   }
 
   sendGuess(){
-    let requestBoby={
+    let requestBody={
       "nrOfWrongPlacedCards": this.state.guess,
       "gameId": this.props.gameId
     };
     this.props.stompClient.send("/app/game/guess", {},
-      JSON.stringify(requestBoby));
+      JSON.stringify(requestBody));
 
 
-    console.log(requestBoby)
+    console.log(requestBody)
 
 
     this.setState({guess: null});
@@ -84,7 +85,7 @@ export class Evaluation extends React.Component{
           disabled={this.state.placeholder === "submitted"}
           value={this.state.guess}
           onChange={(e) => {
-            this.handleInputChange(e.target.value);
+            this.handleInputChange(e);
           }}
         />
         <GuessSubmitButton

@@ -31,6 +31,7 @@ const CardText = styled.div`
   color: white;
 `;
 const Link = styled.a`
+  margin: 5px;
 `;
 
 class Card extends React.Component{

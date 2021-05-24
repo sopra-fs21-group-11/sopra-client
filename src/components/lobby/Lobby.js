@@ -11,8 +11,8 @@ import {InputField} from "../../views/design/InputField";
 import LoadingOverlay from 'react-loading-overlay';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import { FiHelpCircle } from 'react-icons/fi';
-import {Tooltip} from "@material-ui/core";
 import ReactTooltip from 'react-tooltip';
+
 const Container = styled(BaseContainer)`
   color: white;
   text-align: center;
@@ -115,7 +115,7 @@ class Lobby extends React.Component {
       deck: {
         deck: {},
         possibilities: [],
-        description: "You can customize your decks in the deck creator.",
+        description: "You can customize your decks in the deck creator. The default deck consists of Swiss locations only.",
       },
       settings: {
         playersMin: {
@@ -221,7 +221,7 @@ class Lobby extends React.Component {
        for (let setting in this.state.settings) {
          if (this.state.settings.hasOwnProperty(setting) && settingResponse.data.hasOwnProperty(setting)) {
            let newSetting = this.state.settings[setting];
-           newSetting["value"]= settingResponse.data[setting]
+           newSetting["value"]= settingResponse.data[setting].toString();
 
            let newSettings = this.state.settings;
            newSettings[setting] = newSetting;
@@ -231,7 +231,7 @@ class Lobby extends React.Component {
        for (let countdown in this.state.countdowns) {
          if (this.state.countdowns.hasOwnProperty(countdown) && settingResponse.data.hasOwnProperty(countdown)) {
          let newCountdown = this.state.countdowns[countdown];
-         newCountdown["value"]= settingResponse.data[countdown]
+         newCountdown["value"]= settingResponse.data[countdown].toString();
 
          let newCountdowns = this.state.countdowns;
          newCountdowns[countdown] = newCountdown;
@@ -242,7 +242,7 @@ class Lobby extends React.Component {
        deck["possibilities"] = deckResponse.data;
        deck["deck"] = deckResponse.data[0];
 
-       this.setState({deck: deck, deckId: settingResponse.data.deckId});
+       this.setState({deck: deck, deckId: settingResponse.data.deckId.toString()});
 
 
        console.log(this.state);
@@ -276,21 +276,26 @@ class Lobby extends React.Component {
 
   handleCountdownChange(key, event)  {
       if (event.target.value<= 0 || event.target.value > 300) {
-        NotificationManager.error("Please enter a number between 1 and 300",'',3000);
+        NotificationManager.error("The countdown has to be between 1 and 300 seconds",'',3000);
         event.target.value = ""
       }
       else {
         let newState = this.state;
-        newState.countdowns[key]["value"] = event.target.value;
+        newState.countdowns[key].value = event.target.value;
         this.setState(newState);
       }
     }
 
-  handleSettingsChange(key, value)  {
+  handleSettingsChange(key, event)  {
     let newState = this.state.settings;
-    newState[key].value = value;
+    newState[key].value = event.target.value;
     this.setState({settings: newState});
-
+    if (key === "playersMin" || key === "playersMax") {
+      if (this.state.settings.playersMin.value > this.state.settings.playersMax.value) {
+        NotificationManager.error("Minimal number of players cannot be greater than maximal number", '', 3000);
+        event.target.value = key === "playersMin" ? 2 : 6;
+      }
+    }
   }
 
 
@@ -397,7 +402,7 @@ class Lobby extends React.Component {
       disabled={!this.state.editable}
       defaultValue={setting.value}
       onChange={(e) => {
-        this.handleSettingsChange(name, e.target.value);
+        this.handleSettingsChange(name, e);
       }}>
       {setting.possibilities.map((num) => {
         return (
@@ -498,7 +503,6 @@ class Lobby extends React.Component {
                   <option
                     key={deck.id}
                     value={deck.id}
-                    title={deck.description}
                   >
                     {deck.name}
                   </option>);

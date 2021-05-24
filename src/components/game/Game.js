@@ -97,7 +97,7 @@ const CardsContainer = styled.div`
   text-align: center;
   display: flex;
   justify-content: center;
-  width: 100vw;
+  width: auto;
   height: 70vh;
   overflow: scroll;
   top: 0;
@@ -380,18 +380,17 @@ class Game extends React.Component {
       }
 
       if(this.state.gameState === "GAMEEND"){
-        NotificationManager.error('END GAMEDED. Thank you for Playing ','',3000,() => {
-          this.props.history.push("/game/scoreboard");
-        });
-        setTimeout(() => {  this.props.history.push("/game/scoreboard"); }, 3000);
+        localStorage.removeItem("hostId");
+        NotificationManager.error('END GAMEDED. Thank you for Playing ','',2900);
 
-        this.props.history.push({
+        setTimeout( () => {
+          this.props.history.push({
           pathname: "/game/scoreboard",
           state: {
             gameEndScore: this.state.gameEndScore,
             gameId: this.state.gameId,
-          },
-        });
+          }})}, 3000);
+
       }
   }
 
@@ -453,18 +452,18 @@ class Game extends React.Component {
     let renderedCards = [ this.state.isLocalUserPLayer  && this.state.gameState === "CARDPLACEMENT" ?
       (
         <AddButton key={0} >
-                            <Link key={0} onClick={() => {
-                              this.placeCard(direction, 0)
-                            }}>
-                              +
-                            </Link>
-                          </AddButton>
+          <Link key={0} onClick={() => {
+            this.placeCard(direction, 0)
+          }}>
+            +
+          </Link>
+        </AddButton>
       ): ""]
 
     for (let i=0; i < cards.length; i++) {
       renderedCards.push(
         <Card
-          style={{padding: "10%"}}
+          style={{padding: "100px"}}
           sizeCard={110}
           sizeFont={110}
           axis={direction}

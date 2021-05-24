@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -126,30 +127,46 @@ class DeckEditor extends React.Component{
     this.getDeck();
 
   }
+
   async getDeck()
   {
-    const response = await api.get("/decks/");
-    console.log(response.data);
-    this.setState({
-      decks: response.data
-    })
+    try{
+      const response = await api.get("/decks/");
+      console.log(response.data);
+      this.setState({
+        decks: response.data
+      })
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async deleteDeck(deckId){
-    const response = await api.get("decks/" + deckId+'/delete',{
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`}
-    });
-    console.log(response.data);
-    this.getDeck();
+    try{
+      const response = await api.get("decks/" + deckId+'/delete',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}
+      });
+      console.log(response.data);
+      this.getDeck();
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async getCardInfo(cardId){
-    const response = await api.get("/cards/" + cardId);
-    console.log(response.data);
-    this.setState({
-      cardInfo: response.data
-    })
+    try{
+      const response = await api.get("/cards/" + cardId);
+      console.log(response.data);
+      this.setState({
+        cardInfo: response.data
+      })
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
 
@@ -182,19 +199,34 @@ class DeckEditor extends React.Component{
                           <Container
                             key={deck.id + "1"}
                           >
-                            {this.state.clickedDeck === deck.id?
+                            {this.state.clickedDeck !== null?
                               (
-                                <ClickedItem
-                                  key={deck.id}
-                                >
-                                  {deck.name}
-                                </ClickedItem>
+                                this.state.clickedDeck.id === deck.id?
+                                  (
+                                    <ClickedItem
+                                      key={deck.id}
+                                    >
+                                      {deck.name}
+                                    </ClickedItem>
+                                  ):(
+                                    <Item
+                                      key={deck.id}
+                                      onClick={()=>{
+                                        this.setState({
+                                          clickedDeck: deck,
+                                          cards: deck.cards
+                                        });
+                                      }}
+                                    >
+                                      {deck.name}
+                                    </Item>
+                                  )
                               ):(
                                 <Item
                                   key={deck.id}
                                   onClick={()=>{
                                     this.setState({
-                                      clickedDeck: deck.id,
+                                      clickedDeck: deck,
                                       cards: deck.cards
                                     });
                                   }}
@@ -202,6 +234,7 @@ class DeckEditor extends React.Component{
                                   {deck.name}
                                 </Item>
                               )
+
                             }
                           </Container>
                         )
@@ -301,32 +334,35 @@ class DeckEditor extends React.Component{
             >
               Create new deck
             </Button>
-            { this.state.clickedDeck?(   
+            { this.state.clickedDeck && this.state.clickedDeck.name !== "Default Deck" && localStorage.getItem("loginUserId") === this.state.clickedDeck.createdBy.toString(10)?(
             <Button
               style={{ marginRight: "5%",width: "10%",  background: "yellow"}}
               onClick={() => {
                 this.props.history.push({
                   pathname: "/DeckModify",
-                  state: { deckID: this.state.clickedDeck },
+                  state: { deckID: this.state.clickedDeck.id },
                 });
               }}
             >
               Edit deck
             </Button>
             ):("")}
-                      { this.state.clickedDeck?(   
+            { this.state.clickedDeck && this.state.clickedDeck.name !== "Default Deck" && localStorage.getItem("loginUserId") === this.state.clickedDeck.createdBy.toString(10)?(
             <Button
               style={{ marginRight: "5%",width: "10%", background: "red"}}
               onClick={() => {
-               this.deleteDeck(this.state.clickedDeck)
+               this.deleteDeck(this.state.clickedDeck.id)
               }}
             >
               Delete deck
             </Button>
             ):("")}
-            
+            {this.state.clickedDeck ?
+              (console.log(this.state.clickedDeck.createdBy.toString(10))):("")
+            }
          
           </Footer>
+          <NotificationContainer/>
         </Overlay>
       </OverlayContainer>
     )
