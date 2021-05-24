@@ -20,7 +20,7 @@ const FormContainer = styled.div`
   justify-content: center;
 `;
 
-const Form = styled.div`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -115,8 +115,8 @@ class Login extends React.Component {
    * If the request is successful, a new user is returned to the front-end
    * and its token is stored in the localStorage.
    */
-  async login() {
-    
+  async login(event) {
+    event.preventDefault();
     try {
       this.setState({ loading:true });
       const requestBody = JSON.stringify({
@@ -166,7 +166,9 @@ class Login extends React.Component {
     
         <NotificationContainer/>
           <FormContainer>
-            <Form>
+            <Form onSubmit ={(e) => {
+                    this.login(e);
+                  }}>
               <FormTitleContainer>
                 <FormTitle>
                   LOGIN
@@ -192,9 +194,7 @@ class Login extends React.Component {
                   disabled={!this.state.username || !this.state.password}
                   width="50%"
                   style={{ margin: "5px" }}
-                  onClick={() => {
-                    this.login();
-                  }}
+                 type="submit"
                 >
                   Login
                 </Button>
