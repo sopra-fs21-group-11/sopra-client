@@ -19,25 +19,15 @@ Check out this project's [:computer: server repo](https://github.com/sopra-fs21-
 
 ## Technologies 
 
-### WebSocket 🧦
-Enables bidirectional communication between client and server. We used this to implement the game. 
+- **WebSocket** 🧦: Enables bidirectional communication between client and server. We used this to implement the game. 
 
-### [React-js](https://reactjs.org/) :rocket:
-React-js is a framwork for building JavaScript user interfacesin a component-based way. 
+- **[React-js](https://reactjs.org/)** :rocket: : React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
-### [Spring Boot](https://spring.io/) :boot:
-
-### ...
-
+- **[Spring Boot](https://spring.io/)** :boot: : 
+- 
 ## High-level components
 
 ## Launch & Deployment - for joining developers
-
-You can clone the repo using
-
-#### `git clone https://github.com/sopra-fs21-group-11/sopra-client.git` 
-
-Open the project in your preferred IDE.
 
 For your local development environment you'll need Node.js >= 8.10. You can download it [here](https://nodejs.org). All other dependencies including React get installed with:
 
