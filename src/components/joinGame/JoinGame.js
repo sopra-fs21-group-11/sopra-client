@@ -103,7 +103,6 @@ class JoinGame extends React.Component {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log(response.data);
       this.setState({ games: response.data });
     } catch (error) {
       NotificationManager.error(error.message,'',3000);

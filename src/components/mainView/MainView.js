@@ -75,8 +75,27 @@ class MainView extends React.Component {
   }
 
 
-  componentDidMount() {}
+  async componentDidMount() {
+    try {
+      let userId=localStorage.getItem("hostId");
+      if(userId!==null)
+      {
+        const response = await api.get(
+          "/users/" + localStorage.getItem("hostId")
+        );
+        console.log(response)
+      }
+     
+    
+    } catch (error) {
+     
+      localStorage.removeItem("token");
+      localStorage.removeItem("loginUserId");
+      this.props.history.push(`/Registration`);
 
+    }
+  }
+  
   render() {
     return (
       <OverlayContainer>
