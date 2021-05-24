@@ -6,6 +6,7 @@ import { withRouter, useParams } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import Header from "../../views/Header";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import LoadingOverlay from 'react-loading-overlay';
 
 const FormContainer = styled.div`
   margin-top: 2em;
@@ -103,7 +104,8 @@ class Registration extends React.Component {
     super();
     this.state = {
       username: null,
-      password: null
+      password: null,
+      loading:false,
     };
   }
   /**
@@ -113,6 +115,7 @@ class Registration extends React.Component {
    */
   async registration() {
     try {
+      this.setState({ loading:true });
       const requestBody = JSON.stringify({
         username: this.state.username,
         password: this.state.password
@@ -125,10 +128,11 @@ class Registration extends React.Component {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("loginUserId", response.data.id);
       localStorage.setItem("username", this.state.username);
-
+     // this.setState({ loading:false });
       // registration successfully worked --> navigate to the route /userOverview in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
+      this.setState({ loading:false });
       NotificationManager.error('Username already exist. Please try something else','',3000);
     }
   }
@@ -148,9 +152,14 @@ class Registration extends React.Component {
   render() {
     return (
       <div>
-        
+        <LoadingOverlay
+            active={this.state.loading}
+            spinner
+            text='Loading ...'
+            >
         <Header height={"100"} />
         <BaseContainer>
+       
           <FormContainer>
             <Form>
               <FormTitleContainer>
@@ -198,7 +207,9 @@ class Registration extends React.Component {
               <NotificationContainer/>
             </Form>
           </FormContainer>
+        
         </BaseContainer>
+        </LoadingOverlay>
       </div>
     );
   }
