@@ -75,8 +75,6 @@ class MainView extends React.Component {
   }
 
 
-  componentDidMount() {}
-
   render() {
     return (
       <OverlayContainer>

@@ -148,14 +148,6 @@ class Login extends React.Component {
     this.setState({ [key]: value });
   }
 
-  /**
-   * componentDidMount() is invoked immediately after a component is mounted (inserted into the tree).
-   * Initialization that requires DOM nodes should go here.
-   * If you need to load data from a remote endpoint, this is a good place to instantiate the network request.
-   * You may call setState() immediately in componentDidMount().
-   * It will trigger an extra rendering, but it will happen before the browser updates the screen.
-   */
-  componentDidMount() {}
 
   render() {
     return (
