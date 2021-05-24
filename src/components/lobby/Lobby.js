@@ -264,6 +264,7 @@ class Lobby extends React.Component {
               Authorization: `Bearer ${localStorage.getItem("token")}`
             }
           });
+        localStorage.removeItem("hostId");
         this.props.history.push("/mainView")
       } else {
         // game not yet created
