@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
+import {NotificationContainer, NotificationManager} from "react-notifications";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -113,31 +114,48 @@ class DeckModify extends React.Component{
 
   async componentDidMount() {
 
-    let id = this.props.location.state.deckID;
-    const response = await api.get("/decks/"+id);
-    console.log(response.data);
-    this.setState({
-      deck:response.data,
-      cardsInDeck: response.data.cards,
-      deckId:id
-    })
-    this.getCards()
+    try{
+      let id = this.props.location.state.deckID;
+      const response = await api.get("/decks/"+id);
+      console.log(response.data);
+      this.setState({
+        deck:response.data,
+        cardsInDeck: response.data.cards,
+        deckId:id
+      })
+      this.getCards()
+    }catch(error){
+      console.log(error);
+      NotificationManager.error('There was a server error.','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async getCards(){
-    const response = await api.get("/decks/"+this.state.deckId+"/cards");
-    console.log(response.data);
-    this.setState({
-      cardsOutOfDeck: response.data
-    })
+    try{
+      const response = await api.get("/decks/"+this.state.deckId+"/cards");
+      console.log(response.data);
+      this.setState({
+        cardsOutOfDeck: response.data
+      })
+    }catch(error){
+      console.log(error);
+      NotificationManager.error('There was a server error.','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async getCardInfo(cardId){
-    const response = await api.get("/cards/" + cardId);
-    console.log(response.data);
-    this.setState({
-      cardInfo: response.data
-    })
+    try{
+      const response = await api.get("/cards/" + cardId);
+      console.log(response.data);
+      this.setState({
+        cardInfo: response.data
+      })
+    }catch(error){
+      console.log(error);
+      NotificationManager.error('There was a server error.','Sorry for the inconvenience',3000);
+    }
   }
 
 
@@ -184,17 +202,25 @@ class DeckModify extends React.Component{
         "cards": cardIds
       });
 
-      const response = await api.put(url, requestBody,
+      await api.put(url, requestBody,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`}
         }
       );
-
+      this.props.history.push("/DeckEditor");
     }catch (error){
-      console.log(error)
+      console.log(error);
+      console.log(error.response);
+
+      if(error.response.status === 400){
+        console.log(typeof error.response.status);
+        NotificationManager.error('A deck can have a minimum of 10 cards and maximum of 60 cards.','Saving failed',8000);
+      }else{
+        NotificationManager.error('There was a server error.','Sorry for the inconvenience',8000);
+      }
     }
-    this.props.history.push("/DeckEditor");
+
   }
 
   render() {
@@ -321,6 +347,7 @@ class DeckModify extends React.Component{
               Update Deck
             </Button>
           </Footer>
+          <NotificationContainer/>
         </Overlay>
       </OverlayContainer>
     )
