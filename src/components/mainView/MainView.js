@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import {Evaluation} from "../game/Evaluation";
 
 
 const MenuContainer = styled.div`
