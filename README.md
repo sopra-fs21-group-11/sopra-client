@@ -15,7 +15,7 @@ In order to introduce more complexity we added the following features:
 * players can **customize** the card decks to play with
 * players can fetch international locations and create **new cards and decks**
 
-Check out this project's [:computer: server repo](https://github.com/sopra-fs21-group-11/sopra-server/tree/master).
+Check out this project's [:computer: server repo](https://github.com/sopra-fs21-group-11/sopra-server).
 
 ## Technologies 
 
@@ -24,8 +24,19 @@ Check out this project's [:computer: server repo](https://github.com/sopra-fs21-
 - **[React-js](https://reactjs.org/)** :rocket: : React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
 - **[Spring Boot](https://spring.io/)** :boot: : 
-- 
+
+- [**JPA**](https://www.oracle.com/java/technologies/persistence-jsp.html): for card / deck and user database
+
 ## High-level components
+
+- **[Lobby](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/lobby/Lobby.js)**: Users can customize the game settings in the lobby and pick the deck to play with. Only the game host can do so. 
+- **[Game](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/game/Game.js)**: This is the implementation of the main game flow.
+
+- **[Deck Creator](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/deckEditor/DeckCreator.js)**: Users can create customized decks in the DeckCreator. This is the front-end intersection with the external API. 
+
+- **[Join Game](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/joinGame/JoinGame.js)**: Users other than the host can join any game via the JoinGame interface. 
+
+These are the four major pillars of our application flow on the client side. The lobby allows choosing customized settings including a customized deck that can be created beforehand in the deck creator. Every user can join a game via the join game component. The final stage is the game itself. 
 
 ## Launch & Deployment - for joining developers
 
