@@ -552,7 +552,7 @@ class Lobby extends React.Component {
                 this.exitLobby();
               }}
             >
-                {this.state.host ?  "Delete Game": "Exit Lobby"}
+                {this.state.host && !this.state.created ?  "Delete Game": "Exit Lobby"}
             </Button>
           </ButtonContainer>
           <ButtonContainer>
