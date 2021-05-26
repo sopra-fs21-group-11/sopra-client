@@ -526,12 +526,12 @@ class Lobby extends React.Component {
                 this.exitLobby();
               }}
             >
-                Exit Lobby
+                {this.state.host ?  "Delete Game": "Exit Lobby"}
             </Button>
           </ButtonContainer>
           <ButtonContainer>
             <Button
-               disabled={!this.state.host}
+               disabled={!this.state.host && !this.state.gameName}
               style={{marginRight: 60}}
                 onClick={() => {this.state.created ?
                   this.startGame(): this.createGame()}}
