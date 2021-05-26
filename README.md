@@ -1,6 +1,6 @@
 # SoPra FS21 - Group 11 - Usgrächnet Bünzen
 
-## The Game - Usgrächnet Bünzen
+## The Game
 
 Our project's aim is to implement the game *Usgrächnet Bünzen*. The original game allows users to test their
 knowledge of Swiss locations in a playful manner. Each player can place location cards on a board
@@ -15,17 +15,28 @@ In order to introduce more complexity we added the following features:
 * players can **customize** the card decks to play with
 * players can fetch international locations and create **new cards and decks**
 
-Check out this project's [:computer: server repo](https://github.com/sopra-fs21-group-11/sopra-server/tree/master).
+Check out this project's [:computer: server repo](https://github.com/sopra-fs21-group-11/sopra-server).
 
 ## Technologies 
 
 - **WebSocket** 🧦: Enables bidirectional communication between client and server. We used this to implement the game. 
 
-- **[React-js](https://reactjs.org/)** :rocket: : React-js is a framwork for building JavaScript user interfacesin a component-based way. 
+- **[React-js](https://reactjs.org/)** :rocket:: React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
-- **[Spring Boot](https://spring.io/)** :boot: : 
-- 
+- **[Spring Boot](https://spring.io/)** :boot:: Technology used for the backend.
+
+- [**JPA**](https://www.oracle.com/java/technologies/persistence-jsp.html): for card / deck and user database
+
 ## High-level components
+
+- **[Lobby](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/lobby/Lobby.js)**: Users can customize the game settings in the lobby and pick the deck to play with. Only the game host can do so. 
+- **[Game](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/game/Game.js)**: This is the implementation of the main game flow.
+
+- **[Deck Creator](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/deckEditor/DeckCreator.js)**: Users can create customized decks in the DeckCreator. This is the front-end intersection with the external API. 
+
+- **[Join Game](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/joinGame/JoinGame.js)**: Users other than the host can join any game via the JoinGame interface. 
+
+These are the four major pillars of our application flow on the client side. The lobby allows choosing customized settings including a customized deck that can be created beforehand in the deck creator. Every user can join a game via the join game component. The final stage is the game itself. 
 
 ## Launch & Deployment - for joining developers
 
@@ -62,7 +73,9 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 The project consists of two main parts: the game and a deck creator. 
 
 ### Game
-Every user can create a new game and set it up with customized settings. --> add picture of lobby
+Every user can create a new game and set it up with customized settings.
+ ![Settings in the Lobby](public/Settings-small.png)  
+ ![Join Game](public/joinGame-small.png) 
 
 --> add max three small pictures of game (placement, doubt and evaluation)
 
