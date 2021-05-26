@@ -353,8 +353,8 @@ class Lobby extends React.Component {
         hostId: localStorage.getItem("loginUserId"),
         token: localStorage.getItem("token"),
         name: this.state.gameName,
-        playerMin: this.state.settings.playersMin.value,
-        playerMax: this.state.settings.playersMax.value,
+        playersMin: this.state.settings.playersMin.value,
+        playersMax: this.state.settings.playersMax.value,
         nrOfEvaluations: this.state.settings.nrOfEvaluations.value,
         doubtCountdown: this.state.countdowns.doubtCountdown.value,
         playerTurnCountdown: this.state.countdowns.playerTurnCountdown.value,
@@ -552,12 +552,12 @@ class Lobby extends React.Component {
                 this.exitLobby();
               }}
             >
-                Exit Lobby
+                {this.state.host ?  "Delete Game": "Exit Lobby"}
             </Button>
           </ButtonContainer>
           <ButtonContainer>
             <Button
-               disabled={!this.state.host}
+               disabled={!this.state.host && !this.state.gameName}
               style={{marginRight: 60}}
                 onClick={() => {this.state.created ?
                   this.startGame(): this.createGame()}}
