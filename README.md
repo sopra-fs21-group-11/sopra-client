@@ -1,6 +1,6 @@
 # SoPra FS21 - Group 11 - Usgrächnet Bünzen
 
-## The Game - Usgrächnet Bünzen
+## The Game
 
 Our project's aim is to implement the game *Usgrächnet Bünzen*. The original game allows users to test their
 knowledge of Swiss locations in a playful manner. Each player can place location cards on a board
@@ -21,9 +21,9 @@ Check out this project's [:computer: server repo](https://github.com/sopra-fs21-
 
 - **WebSocket** 🧦: Enables bidirectional communication between client and server. We used this to implement the game. 
 
-- **[React-js](https://reactjs.org/)** :rocket: : React-js is a framwork for building JavaScript user interfacesin a component-based way. 
+- **[React-js](https://reactjs.org/)** :rocket:: React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
-- **[Spring Boot](https://spring.io/)** :boot: : 
+- **[Spring Boot](https://spring.io/)** :boot:: Technology used for the backend.
 
 - [**JPA**](https://www.oracle.com/java/technologies/persistence-jsp.html): for card / deck and user database
 
@@ -73,7 +73,9 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 The project consists of two main parts: the game and a deck creator. 
 
 ### Game
-Every user can create a new game and set it up with customized settings. --> add picture of lobby
+Every user can create a new game and set it up with customized settings.
+ ![Settings in the Lobby](public/Settings-small.png)  
+ ![Join Game](public/joinGame-small.png) 
 
 --> add max three small pictures of game (placement, doubt and evaluation)
 
