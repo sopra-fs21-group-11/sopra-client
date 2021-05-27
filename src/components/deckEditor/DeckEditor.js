@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -35,17 +36,28 @@ const Header = styled.h1`
   
 `;
 
+
+
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
+
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 80%;
+  height: 65%;
 `;
+
+
+
 
 const ComponentContainer = styled.div`
   width: 25%;
-  height: 90%;
+  height: 95%;
   position: relative;
 `;
 
@@ -74,7 +86,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -126,30 +138,46 @@ class DeckEditor extends React.Component{
     this.getDeck();
 
   }
+
   async getDeck()
   {
-    const response = await api.get("/decks/");
-    console.log(response.data);
-    this.setState({
-      decks: response.data
-    })
+    try{
+      const response = await api.get("/decks/");
+      console.log(response.data);
+      this.setState({
+        decks: response.data
+      })
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async deleteDeck(deckId){
-    const response = await api.get("decks/" + deckId+'/delete',{
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`}
-    });
-    console.log(response.data);
-    this.getDeck();
+    try{
+      const response = await api.get("decks/" + deckId+'/delete',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`}
+      });
+      console.log(response.data);
+      this.getDeck();
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async getCardInfo(cardId){
-    const response = await api.get("/cards/" + cardId);
-    console.log(response.data);
-    this.setState({
-      cardInfo: response.data
-    })
+    try{
+      const response = await api.get("/cards/" + cardId);
+      console.log(response.data);
+      this.setState({
+        cardInfo: response.data
+      })
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
 
@@ -162,6 +190,10 @@ class DeckEditor extends React.Component{
               Deck Editor
             </Header>
           </HeaderContainer>
+          <Explaination>
+            In the left box you see all available decks. By clicking on a name of a deck, its cards will displayed in the middle box.
+            If you click on the name of card, the details of a card will be shown in the right box. After creating a deck, you can also edit it.
+          </Explaination>
           <BodyContainer>
             <ComponentContainer>
               <BoxHeading>
@@ -182,19 +214,34 @@ class DeckEditor extends React.Component{
                           <Container
                             key={deck.id + "1"}
                           >
-                            {this.state.clickedDeck === deck.id?
+                            {this.state.clickedDeck !== null?
                               (
-                                <ClickedItem
-                                  key={deck.id}
-                                >
-                                  {deck.name}
-                                </ClickedItem>
+                                this.state.clickedDeck.id === deck.id?
+                                  (
+                                    <ClickedItem
+                                      key={deck.id}
+                                    >
+                                      {deck.name}
+                                    </ClickedItem>
+                                  ):(
+                                    <Item
+                                      key={deck.id}
+                                      onClick={()=>{
+                                        this.setState({
+                                          clickedDeck: deck,
+                                          cards: deck.cards
+                                        });
+                                      }}
+                                    >
+                                      {deck.name}
+                                    </Item>
+                                  )
                               ):(
                                 <Item
                                   key={deck.id}
                                   onClick={()=>{
                                     this.setState({
-                                      clickedDeck: deck.id,
+                                      clickedDeck: deck,
                                       cards: deck.cards
                                     });
                                   }}
@@ -202,6 +249,7 @@ class DeckEditor extends React.Component{
                                   {deck.name}
                                 </Item>
                               )
+
                             }
                           </Container>
                         )
@@ -301,32 +349,35 @@ class DeckEditor extends React.Component{
             >
               Create new deck
             </Button>
-            { this.state.clickedDeck?(   
+            { this.state.clickedDeck && this.state.clickedDeck.name !== "Default Deck" && localStorage.getItem("loginUserId") === this.state.clickedDeck.createdBy.toString(10)?(
             <Button
               style={{ marginRight: "5%",width: "10%",  background: "yellow"}}
               onClick={() => {
                 this.props.history.push({
                   pathname: "/DeckModify",
-                  state: { deckID: this.state.clickedDeck },
+                  state: { deckID: this.state.clickedDeck.id },
                 });
               }}
             >
               Edit deck
             </Button>
             ):("")}
-                      { this.state.clickedDeck?(   
+            { this.state.clickedDeck && this.state.clickedDeck.name !== "Default Deck" && localStorage.getItem("loginUserId") === this.state.clickedDeck.createdBy.toString(10)?(
             <Button
               style={{ marginRight: "5%",width: "10%", background: "red"}}
               onClick={() => {
-               this.deleteDeck(this.state.clickedDeck)
+               this.deleteDeck(this.state.clickedDeck.id)
               }}
             >
               Delete deck
             </Button>
             ):("")}
-            
+            {this.state.clickedDeck ?
+              (console.log(this.state.clickedDeck.createdBy.toString(10))):("")
+            }
          
           </Footer>
+          <NotificationContainer/>
         </Overlay>
       </OverlayContainer>
     )

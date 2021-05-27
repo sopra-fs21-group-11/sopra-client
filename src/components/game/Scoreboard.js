@@ -34,8 +34,8 @@ const Users = styled.table`
   padding: 0;
   text-align: left;
   background: rgb(255, 255, 255);
-  border: 0.15em black solid;
   border-radius: 4px;
+  overflow: hidden;
 `;
 
 const ButtonContainer = styled.div`
@@ -54,13 +54,13 @@ const TableHeader = styled.th`
 
 const TableRow = styled.tr`
   border: 0.15em black solid;
-  border-radius: 4px;
+ 
 `;
 
 const TableEntry = styled.td`
   padding-left: 5px;
   border-left: 0.15em black solid;
-  border-radius: 4px;
+ 
 `;
 
 
@@ -97,7 +97,9 @@ class Scoreboard extends React.Component {
         gameMinutes: gameMinutes
       }, () => {console.log(this.state);});}
 
-    else {this.props.history.push("/mainView")}
+    else {
+      this.props.history.push("/mainView")
+    }
 
   }
 

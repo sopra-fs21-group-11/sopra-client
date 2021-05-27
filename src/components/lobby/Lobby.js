@@ -215,9 +215,7 @@ class Lobby extends React.Component {
        const settingResponse = await api.get("games/settings/");
        const deckResponse = await api.get("decks/");
 
-       console.log(deckResponse);
-       console.log(settingResponse);
-
+       // set the game settings
        for (let setting in this.state.settings) {
          if (this.state.settings.hasOwnProperty(setting) && settingResponse.data.hasOwnProperty(setting)) {
            let newSetting = this.state.settings[setting];
@@ -228,6 +226,7 @@ class Lobby extends React.Component {
            this.setState({settings: newSettings})
        }}
 
+       // set the game countdowns
        for (let countdown in this.state.countdowns) {
          if (this.state.countdowns.hasOwnProperty(countdown) && settingResponse.data.hasOwnProperty(countdown)) {
          let newCountdown = this.state.countdowns[countdown];
@@ -257,16 +256,22 @@ class Lobby extends React.Component {
   }
 
   async exitLobby() {
-    if (this.state.gameId && this.state.host) {
-      const response = await api.get("/games/" + this.state.gameId+"/leave",
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`}
-      });
-    console.log(response);
-    this.props.history.push("/mainView")
-    }else{
-      this.props.history.push("/mainView")
+    try {
+      if (this.state.gameId) {
+        const response = await api.get("/games/" + this.state.gameId + "/leave",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          });
+        localStorage.removeItem("hostId");
+        this.props.history.push("/mainView")
+      } else {
+        // game not yet created
+        this.props.history.push("/mainView")
+      }
+    } catch (error) {
+      NotificationManager.error(error.message, '', 3000);
     }
   }
 
@@ -298,16 +303,34 @@ class Lobby extends React.Component {
     }
   }
 
-
   async getPlayersAndGameState() {
-    if (this.state.gameId) {
+    try {if (this.state.gameId) {
       const response = await api.get("/games/" + this.state.gameId);
 
       const players = await Promise.all(response.data.players);
+
+      // check if a player has left
+      if (players.length < this.state.players.length) {
+        // notify what player has left the game
+        this.state.players.forEach((formerPlayer) => {
+          if (!players.some(currentPlayer => currentPlayer.id === formerPlayer.id)) {
+            NotificationManager.info(`${formerPlayer.username} has left the game.`, '', 3000);
+          }
+        })
+
+      }
+      if (this.state.players.length !== 0 && players.length > this.state.players.length) {
+        // notify what player has joined the game
+        players.forEach((newPlayer) => {
+          if (!this.state.players.some(currentPlayer => currentPlayer.id === newPlayer.id)) {
+            NotificationManager.info(`${newPlayer.username} has joined the game.`, '', 3000);
+          }
+        })}
+
       this.handleInputChange("players", players);
 
       // for non host players and if there list of players is not updated, there will be loading sign
-      if(!this.state.host && players.length>0) {
+      if(!this.state.host && players.length > 0) {
         this.setState({loading: false})
       }
 
@@ -315,7 +338,10 @@ class Lobby extends React.Component {
 
         if (gameStart) {
           this.props.history.push("/game");
-        }
+        }}
+    } catch (error) {
+      if (!this.state.host) {
+      NotificationManager.warning(`The host has left the game.`, '', 3000, this.props.history.push("/mainView"));}
     }
   }
 
@@ -375,7 +401,7 @@ class Lobby extends React.Component {
 
       if(this.state.playerMin>this.state.players.length)
       {
-        NotificationManager.warning("Minimum "+this.state.playerMin+" Players should join to start the game",'',3000);
+        NotificationManager.warning("Minimum " + this.state.playerMin + " Players should join to start the game",'',3000);
       } else{
       // start userOverview
       const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
@@ -492,7 +518,7 @@ class Lobby extends React.Component {
               }}
             />
             <Label>Deck <FiHelpCircle  data-tip={this.state.deck.description} /></Label>
-            <ReactTooltip type="warning" />
+            <ReactTooltip type="dark" />
             <CustomSelect
               disabled={!this.state.editable}
               onChange={(e) => {
@@ -526,7 +552,7 @@ class Lobby extends React.Component {
                 this.exitLobby();
               }}
             >
-                {this.state.host ?  "Delete Game": "Exit Lobby"}
+                {this.state.host && !this.state.created ?  "Exit Lobby": "Delete Game"}
             </Button>
           </ButtonContainer>
           <ButtonContainer>

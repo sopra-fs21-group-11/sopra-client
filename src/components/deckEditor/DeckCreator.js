@@ -6,6 +6,8 @@ import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import { FiHelpCircle } from 'react-icons/fi';
+import ReactTooltip from "react-tooltip";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -32,6 +34,14 @@ const HeaderContainer = styled.div`
   height: 10%;
 `;
 
+const Label = styled.label`
+  color: black;
+  text-align: left;
+  margin-top: 5px;
+  font-size: xx-large;
+  margin-right: 1%;
+`;
+
 const DeckInfoContainer = styled.div`
   
   display: flex;
@@ -45,8 +55,9 @@ const Header = styled.h1`
 `;
 
 const DeckNameInput = styled.input`
+  font-size: 14px;
   height: 50%;
-  width: 15%;
+  width: 12%;
   margin-right: 2%;
   border-radius:   4px 4px 4px 4px;
   &::placeholder {
@@ -57,6 +68,7 @@ const DeckNameInput = styled.input`
 const DeckCountryDropdown = styled.select`
   width: 60%;
   margin-right: 2%;
+  font-size: 14px;
 `;
 
 const DeckInputForm = styled.div`
@@ -64,20 +76,25 @@ const DeckInputForm = styled.div`
 `;
 
 const LoadingInputContainer = styled.div`
-  width: 40%;
+  width: 42%;
   height: 100%;
   display: flex;
   justify-content: space-around;
   align-items: center;
 `;
 
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
 
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 70%;
+  height: 55%;
 `;
 
 const ComponentContainer = styled.div`
@@ -111,7 +128,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,10 +150,15 @@ const Item = styled.div`
     background-color: rgba(0, 128, 0, 0.3);
   }
 `;
-const CustomOverlay = styled.div`
-  background: rgb(200, 213, 0, 0.25);
-  height: 100%;
+
+
+const DisabledButton = styled(Button)`
+  &:hover {
+    transform: translateY(0px);
+    color: black;
+  }
 `;
+
 
 
 class DeckCreator extends React.Component{
@@ -152,8 +174,8 @@ class DeckCreator extends React.Component{
       isDeckCreated: false,
       deckCreatingMethod: "Choose deck creating method",
       isDeckCreatingMethodSubmitted: false,
-      countryForLoading: null,
-      populationForLoading: null,
+      countryForLoading: "",
+      populationForLoading: "",
       deckId: null,
       waitingTimeForFetchingCards: null,
       cardsInDeck: [],
@@ -163,29 +185,31 @@ class DeckCreator extends React.Component{
   }
 
   async componentDidMount() {
+    try{
+      const response = await api.get("/decks/");
+      console.log(response.data);
+      this.setState({
+        decks: response.data
+      })
+    }catch(error){
 
-    const response = await api.get("/decks/");
-    console.log(response.data);
-    this.setState({
-      decks: response.data
-    })
+    }
+
 
   }
 
-  async getCards(){
-    const response = await api.get("/decks/"+this.state.deckId+"/cards");
-    console.log(response.data);
-    this.setState({
-      cards: response.data
-    })
-  }
 
   async getCardInfo(cardId){
-    const response = await api.get("/cards/" + cardId);
-    console.log(response.data);
-    this.setState({
-      cardInfo: response.data
-    })
+    try{
+      const response = await api.get("/cards/" + cardId);
+      console.log(response.data);
+      this.setState({
+        cardInfo: response.data
+      })
+    }catch(error){
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+    }
+
   }
 
   handleInputChange(key, value){
@@ -197,11 +221,7 @@ class DeckCreator extends React.Component{
   async createDeck(){
 
     console.log(this.state.deckName);
-    this.setState(
-      {
-        isDeckCreated: true
-      }
-    );
+
     try{
       const requestBody = JSON.stringify({
         "name": this.state.deckName,
@@ -216,16 +236,14 @@ class DeckCreator extends React.Component{
 
       console.log(response);
       this.setState({
-        deckId: response.data.id
+        deckId: response.data.id,
+        isDeckCreated: true
       });
+
     }catch (error) {
       console.log(error);
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
     }
-
-
-
-
-
 
   }
 
@@ -239,13 +257,22 @@ class DeckCreator extends React.Component{
   }
 
   async provideMethodForAddingCards(){
-    this.setState({isDeckCreatingMethodSubmitted: true});
+
+
     if(this.state.deckCreatingMethod === "existingCards"){
-      const response = await api.get("/cards");
-      console.log(response.data);
-      this.setState({
-        cardsOutOfDeck: response.data
-      })
+      try{
+        const response = await api.get("/cards");
+        console.log(response.data);
+        this.setState({
+          cardsOutOfDeck: response.data,
+          isDeckCreatingMethodSubmitted: true
+        })
+      }catch (error){
+        console.log(error);
+        NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+      }
+    }else{
+      this.setState({isDeckCreatingMethodSubmitted: true});
     }
   }
 
@@ -282,8 +309,8 @@ class DeckCreator extends React.Component{
         this.fetchLocation()
       }
     }catch (error){
-      console.log(error)
-      
+      console.log(error);
+      NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
     }
      
 
@@ -292,12 +319,18 @@ class DeckCreator extends React.Component{
   {
     if(this.state.deckId)
     {
-      const response = await api.get("decks/" + this.state.deckId+'/delete',{
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`}
-      });
-      console.log(response)
-      this.props.history.push("/deckEditor");
+      try{
+        const response = await api.get("decks/" + this.state.deckId+'/delete',{
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`}
+        });
+        console.log(response)
+        this.props.history.push("/deckEditor");
+      }catch(error){
+        console.log(error);
+        NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+      }
+
     } else
     {
       this.props.history.push("/deckEditor");
@@ -329,7 +362,7 @@ class DeckCreator extends React.Component{
 
       }catch (error){
         console.log(error)
-        NotificationManager.error('External service is currently. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
+        NotificationManager.error('External service is currently unavailable. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
         this.setState({
           isDeckCreatingMethodSubmitted:false,
           deckCreatingMethod: "Choose deck creating method",
@@ -390,12 +423,44 @@ class DeckCreator extends React.Component{
             Authorization: `Bearer ${localStorage.getItem("token")}`}
         }
       );
+      console.log(response);
+      this.props.history.push("/DeckEditor");
 
     }catch (error){
-      console.log(error)
+
+      console.log(error);
+
+      if(error.response.status === 400){
+        NotificationManager.error('A deck can have a minimum of 10 cards and maximum of 60 cards.','Saving failed',8000);
+      }else{
+        NotificationManager.error('There was a server error.','Sorry for the inconvenience',8000);
+      }
+
     }
-    this.props.history.push("/DeckEditor");
+
   }
+
+  handleCountryInput(value){
+    console.log(value);
+    let possibleValue = value.replace(/[^a-z\s]/gi, "");
+    console.log(possibleValue);
+
+    this.setState({
+      countryForLoading: possibleValue
+    });
+  }
+
+  handlePopulationInput(value){
+    let possibleValue = value.replace(/[^0-9]/gi, "");
+    if(possibleValue.charAt(0) === "0"){
+      possibleValue = possibleValue.charAt(0);
+    }
+
+    this.setState({
+      populationForLoading: possibleValue
+    });
+  }
+
 
   render() {
     return(
@@ -419,29 +484,39 @@ class DeckCreator extends React.Component{
         
             {this.state.isDeckCreated?
               (
-                <DeckNameInput
-                  style={{opacity: "0.4"}}
+                [<DeckNameInput
                   placeholder={this.state.deckName}
-                />
+                  disabled={this.state.isDeckCreated}
+                />,
+              <DisabledButton
+                style={{marginRight: "2%", minWidth: "60px"}}
+                disabled={!this.state.deckName || this.state.isDeckCreated}
+                onClick={() => {
+                  this.createDeck()
+                }}
+              >
+                Next
+              </DisabledButton>]
               ):(
-                <DeckNameInput
-                  placeholder="Enter here the name of deck"
+                [<DeckNameInput
+                  placeholder="Name of deck"
                   value={this.state.deckName}
                   onChange={(e)=> this.handleInputChange("deckName", e.target.value)}
-                />
+                />,
+              <Button
+              style={{marginRight: "2%", minWidth: "60px"}}
+              disabled={!this.state.deckName || this.state.isDeckCreated}
+              onClick={() => {
+              this.createDeck()
+            }}
+              >
+              Next
+              </Button>]
               )
             }
 
 
-            <Button
-              style={{marginRight: "2%"}}
-              disabled={!this.state.deckName || this.state.isDeckCreated}
-              onClick={() => {
-                this.createDeck()
-              }}
-            >
-              Save Deck Name
-            </Button>
+
             {this.state.isDeckCreated?
               (
                 this.state.isDeckCreatingMethodSubmitted?
@@ -449,7 +524,7 @@ class DeckCreator extends React.Component{
                     <DeckInputForm>
                       <DeckCountryDropdown
                         value={this.state.deckCreatingMethod}
-                        style={{opacity: "0.4"}}
+                        disabled={this.state.isDeckCreatingMethodSubmitted}
                       >
                         <option>
                           Choose deck creating method
@@ -465,11 +540,12 @@ class DeckCreator extends React.Component{
                           Load cards from new region
                         </option>
                       </DeckCountryDropdown>
-                      <Button
-                        style={{opacity: "0.4"}}
+                      <DisabledButton
+                        style={{opacity: "0.4", minWidth: "60px"}}
+                        disabled={this.state.isDeckCreatingMethodSubmitted}
                       >
-                        Submit choice
-                      </Button>
+                        Next
+                      </DisabledButton>
                     </DeckInputForm>
                   ):(
                     <DeckInputForm>
@@ -492,12 +568,13 @@ class DeckCreator extends React.Component{
                         </option>
                       </DeckCountryDropdown>
                       <Button
+                        style={{minWidth: "60px"}}
                       disabled={this.state.deckCreatingMethod==="Choose deck creating method"}
                         onClick={()=>
                           this.provideMethodForAddingCards()
                           }
                       >
-                        Submit choice
+                        Next
                       </Button>
                     </DeckInputForm>
                   )
@@ -509,28 +586,56 @@ class DeckCreator extends React.Component{
             {this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "loadingFromApi" ?
               (
                 <LoadingInputContainer>
-                  <DeckNameInput
-                    style={this.state.isCardsLoaded? {width: "30%", opacity: "0.4"}:{width: "30%"}}
-                    disabled={this.state.isCardsLoaded||this.state.loadingFetch}
-                    placeholder="Enter Country or Region"
-                    onChange={(e)=> this.handleInputChange("countryForLoading", e.target.value)}
-                  />
+                  <Label>
+                    <FiHelpCircle data-tip="Country or region for creating cards, i.e. Italy or Europe"/>
+                  </Label>
+                  <ReactTooltip type="warning" />
 
                   <DeckNameInput
-                    style={{width: "50%"}}
+                    style={{width: "30%"}}
                     disabled={this.state.isCardsLoaded||this.state.loadingFetch}
-                    placeholder="Enter minimum population of the places"
-                    onChange={(e)=> this.handleInputChange("populationForLoading", e.target.value)}
-                  />
-                  <Button
-                    style={{marginRight: "5%", width: "30%"}}
-                    disabled={this.state.isCardsLoaded|| this.state.loadingFetch}
-                    onClick={() => {
-                      this.loadCards();
+                    placeholder="Country"
+                    value={this.state.countryForLoading}
+                    onChange={(e)=> {
+                      this.handleCountryInput(e.target.value);
                     }}
-                  >
-                    Load cards
-                  </Button>
+                  />
+
+                  <Label>
+                    <FiHelpCircle data-tip="Only cities with a population higher than the one inserted will be fetched, i.e. 100000 or 500000"/>
+                  </Label>
+
+                  <DeckNameInput
+                    style={{width: "55%"}}
+                    disabled={this.state.isCardsLoaded||this.state.loadingFetch}
+                    placeholder="Population"
+                    value={this.state.populationForLoading}
+                    onChange={(e)=> this.handlePopulationInput( e.target.value)}
+                  />
+
+                  {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
+                    (
+                      <DisabledButton
+                        style={{marginRight: "5%", width: "30%"}}
+                        disabled={(this.state.countryForLoading === "" || this.state.populationForLoading === "") || this.state.isCardsLoaded|| this.state.loadingFetch}
+                        onClick={() => {
+                          this.loadCards();
+                        }}
+                      >
+                        Load cards
+                      </DisabledButton>
+                    ):(
+                      <Button
+                        style={{marginRight: "5%", width: "30%"}}
+                        disabled={(this.state.countryForLoading === "" || this.state.populationForLoading === "") || this.state.isCardsLoaded|| this.state.loadingFetch}
+                        onClick={() => {
+                          this.loadCards();
+                        }}
+                      >
+                        Load cards
+                      </Button>
+                    )}
+
                 </LoadingInputContainer>
               ):(
                 ""
@@ -542,6 +647,11 @@ class DeckCreator extends React.Component{
 
           {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
             (
+              [<Explaination>
+                All cards in the middle box will be in your deck when you save the deck. You can remove cards from your deck by clicking on the name
+                of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+                and can have at most 60 cards.
+              </Explaination>,
               <BodyContainer>
                 <ComponentContainer>
                   <BoxHeading>
@@ -553,7 +663,9 @@ class DeckCreator extends React.Component{
                         <Container>
                           {this.state.cardsOutOfDeck.map((card)=>{
                             return (
-                              <Container>
+                              <Container
+                                key={card.id + "1"}
+                              >
                                 <Item
                                   key={card.id}
                                   onClick={()=>{
@@ -584,7 +696,9 @@ class DeckCreator extends React.Component{
                         <Container>
                           {this.state.cardsInDeck.map((card)=>{
                             return (
-                              <Container>
+                              <Container
+                                key={card.id + "1"}
+                              >
                                 <Item
                                   key={card.id}
                                   onClick={()=>{
@@ -629,9 +743,10 @@ class DeckCreator extends React.Component{
                   </BoxBody>
 
                 </ComponentContainer>
-              </BodyContainer>
+              </BodyContainer>]
             ) : (
-              <BodyContainer/>
+              [<Explaination/>,
+              <BodyContainer/>]
             )
           }
 
@@ -645,14 +760,20 @@ class DeckCreator extends React.Component{
             >
               Back to Deck Editor
             </Button>
-            <Button
-              style={{width: "15%"}}
-              onClick={() => {
-                this.updateDeck();
-              }}
-            >
-              Save Deck
-            </Button>
+            {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
+              (
+                <Button
+                  style={{width: "15%"}}
+                  onClick={() => {
+                    this.updateDeck();
+                  }}
+                >
+                  Save Deck
+                </Button>
+              ):(
+                ""
+              )}
+
           </Footer>
         
         </Overlay>

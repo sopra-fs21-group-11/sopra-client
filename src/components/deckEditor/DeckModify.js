@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
+import {NotificationContainer, NotificationManager} from "react-notifications";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -35,12 +36,18 @@ const HeaderContainer = styled.div`
 const Header = styled.h1`
 `;
 
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
+
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 70%;
+  height: 65%;
 `;
 
 const ComponentContainer = styled.div`
@@ -74,7 +81,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -113,31 +120,48 @@ class DeckModify extends React.Component{
 
   async componentDidMount() {
 
-    let id = this.props.location.state.deckID;
-    const response = await api.get("/decks/"+id);
-    console.log(response.data);
-    this.setState({
-      deck:response.data,
-      cardsInDeck: response.data.cards,
-      deckId:id
-    })
-    this.getCards()
+    try{
+      let id = this.props.location.state.deckID;
+      const response = await api.get("/decks/"+id);
+      console.log(response.data);
+      this.setState({
+        deck:response.data,
+        cardsInDeck: response.data.cards,
+        deckId:id
+      })
+      this.getCards()
+    }catch(error){
+      console.log(error);
+      NotificationManager.error('There was a server error.','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async getCards(){
-    const response = await api.get("/decks/"+this.state.deckId+"/cards");
-    console.log(response.data);
-    this.setState({
-      cardsOutOfDeck: response.data
-    })
+    try{
+      const response = await api.get("/decks/"+this.state.deckId+"/cards");
+      console.log(response.data);
+      this.setState({
+        cardsOutOfDeck: response.data
+      })
+    }catch(error){
+      console.log(error);
+      NotificationManager.error('There was a server error.','Sorry for the inconvenience',3000);
+    }
+
   }
 
   async getCardInfo(cardId){
-    const response = await api.get("/cards/" + cardId);
-    console.log(response.data);
-    this.setState({
-      cardInfo: response.data
-    })
+    try{
+      const response = await api.get("/cards/" + cardId);
+      console.log(response.data);
+      this.setState({
+        cardInfo: response.data
+      })
+    }catch(error){
+      console.log(error);
+      NotificationManager.error('There was a server error.','Sorry for the inconvenience',3000);
+    }
   }
 
 
@@ -184,17 +208,25 @@ class DeckModify extends React.Component{
         "cards": cardIds
       });
 
-      const response = await api.put(url, requestBody,
+      await api.put(url, requestBody,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`}
         }
       );
-
+      this.props.history.push("/DeckEditor");
     }catch (error){
-      console.log(error)
+      console.log(error);
+      console.log(error.response);
+
+      if(error.response.status === 400){
+        console.log(typeof error.response.status);
+        NotificationManager.error('A deck can have a minimum of 10 cards and maximum of 60 cards.','Saving failed',8000);
+      }else{
+        NotificationManager.error('There was a server error.','Sorry for the inconvenience',8000);
+      }
     }
-    this.props.history.push("/DeckEditor");
+
   }
 
   render() {
@@ -206,102 +238,105 @@ class DeckModify extends React.Component{
               Deck Edit
             </Header>
           </HeaderContainer>
+            <Explaination>
+              All cards in the middle box will be in your deck when you update the deck. You can remove cards from your deck by clicking on the name
+              of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+              and can have at most 60 cards.
+            </Explaination>
+            <BodyContainer>
+              <ComponentContainer>
+                <BoxHeading>
+                  Loaded Cards
+                </BoxHeading>
+                <BoxBody>
+                  {!this.state.cardsOutOfDeck?
+                    (
+                      <LoadingOverlay
+                        active={this.state.loading}
+                        spinner
+                        text='Loading ...'
+                      />
+                    ):(
+                      <Container>
+                        {this.state.cardsOutOfDeck.map((card)=>{
+                          return (
+                            <Container>
+                              <Item
+                                key={card.id}
+                                onClick={()=>{
+                                  this.addCardToDeck(card);
+                                }}
+                              >
+                                {card.name}
+                              </Item>
+                            </Container>
+                          )
 
+                        })}
+                      </Container>
+                    )
+                  }
+                </BoxBody>
 
-              <BodyContainer>
-                <ComponentContainer>
-                  <BoxHeading>
-                    Loaded Cards
-                  </BoxHeading>
-                  <BoxBody>
-                    {!this.state.cardsOutOfDeck?
-                      (
-                        <LoadingOverlay
-                          active={this.state.loading}
-                          spinner
-                          text='Loading ...'
-                        />
-                      ):(
-                        <Container>
-                          {this.state.cardsOutOfDeck.map((card)=>{
-                            return (
-                              <Container>
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.addCardToDeck(card);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              </Container>
-                            )
+              </ComponentContainer>
+              <ComponentContainer>
+                <BoxHeading>
+                  Cards in Deck
+                </BoxHeading>
+                <BoxBody>
+                  {this.state.cardsInDeck === []?
+                    (
+                      ""
+                    ):(
+                      <Container>
+                        {this.state.cardsInDeck.map((card)=>{
+                          return (
+                            <Container>
+                              <Item
+                                key={card.id}
+                                onClick={()=>{
+                                  this.getCardInfo(card.id);
+                                  this.removeCardFromDeck(card);
+                                }}
+                              >
+                                {card.name}
+                              </Item>
+                            </Container>
+                          )
 
-                          })}
-                        </Container>
-                      )
-                    }
-                  </BoxBody>
+                        })}
+                      </Container>
+                    )
+                  }
+                </BoxBody>
 
-                </ComponentContainer>
-                <ComponentContainer>
-                  <BoxHeading>
-                    Cards in Deck
-                  </BoxHeading>
-                  <BoxBody>
-                    {this.state.cardsInDeck === []?
-                      (
-                        ""
-                      ):(
-                        <Container>
-                          {this.state.cardsInDeck.map((card)=>{
-                            return (
-                              <Container>
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.getCardInfo(card.id);
-                                    this.removeCardFromDeck(card);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              </Container>
-                            )
+              </ComponentContainer>
+              <ComponentContainer>
+                <BoxHeading>
+                  Card Details
+                </BoxHeading>
+                <BoxBody>
+                  {!this.state.cardInfo?
+                    (
+                      ""
+                    ):(
+                      <Container>
+                        <Item>
+                          Name: {this.state.cardInfo.name}
+                        </Item>
+                        <Item>
+                          Lat.: {this.state.cardInfo.nCoordinate}
+                        </Item>
+                        <Item>
+                          Long.: {this.state.cardInfo.eCoordinate}
+                        </Item>
+                      </Container>
+                    )
+                  }
+                </BoxBody>
 
-                          })}
-                        </Container>
-                      )
-                    }
-                  </BoxBody>
-
-                </ComponentContainer>
-                <ComponentContainer>
-                  <BoxHeading>
-                    Card Details
-                  </BoxHeading>
-                  <BoxBody>
-                    {!this.state.cardInfo?
-                      (
-                        ""
-                      ):(
-                        <Container>
-                          <Item>
-                            Name: {this.state.cardInfo.name}
-                          </Item>
-                          <Item>
-                            Lat.: {this.state.cardInfo.nCoordinate}
-                          </Item>
-                          <Item>
-                            Long.: {this.state.cardInfo.eCoordinate}
-                          </Item>
-                        </Container>
-                      )
-                    }
-                  </BoxBody>
-
-                </ComponentContainer>
-              </BodyContainer>
+              </ComponentContainer>
+            </BodyContainer>
 
           <Footer>
             <Button
@@ -321,6 +356,7 @@ class DeckModify extends React.Component{
               Update Deck
             </Button>
           </Footer>
+          <NotificationContainer/>
         </Overlay>
       </OverlayContainer>
     )

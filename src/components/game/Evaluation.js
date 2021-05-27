@@ -1,6 +1,7 @@
 
 import React from "react";
 import styled from "styled-components";
+import {Button} from "../../views/design/Button";
 import {NotificationManager} from "react-notifications";
 
 const EvaluationFormContainer = styled.form`
@@ -23,25 +24,8 @@ const GuessInput = styled.input`
   width: 100%;
 `;
 
-const GuessSubmitButton =styled.button`
-  &:hover {
-    transform: translateY(-2px);
-  }
-  margin-left: 0px;
-  padding: 3px;
-  font-weight: 900;
-  text-transform: uppercase;
-  font-size: 13px;
-  text-align: center;
-  color: black;
-  height: 30px;
-  border-color: rgb(0, 0, 0, 1);
-  border-width: 4px;
-  border-style: solid;
-  cursor: ${props => (props.disabled ? "default" : "pointer")};
-  opacity: ${props => (props.disabled ? 0.4 : 1)};
-  background: rgb(0, 132, 0, 1);
-  transition: all 0.3s ease;
+const GuessSubmitButton =styled(Button)`
+  
   width: 100%;
 `;
 
@@ -51,7 +35,7 @@ export class Evaluation extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
-      guess: null,
+      guess: "",
       placeholder: "Enter guess here.."
     };
   }
@@ -70,16 +54,25 @@ export class Evaluation extends React.Component{
 
     this.setState({guess: null});
     this.setState({placeholder: "submitted"});
+
   }
 
 
-  handleInputChange(event) {
-    if (event.target.value<= 0) {
-      NotificationManager.error("Please enter a number between greater than 0",'',3000);
-      event.target.value = ""
-    }
+  isPositiveNumber(){
+    return true;
 
-    else {this.setState({ guess: event.target.value });}
+  }
+
+
+  handleInputChange(value) {
+    console.log(value);
+
+    let possibleValue = value.slice(0,2);
+    possibleValue = possibleValue.replace(/[^0-9]/, "");
+    if(value.charAt(0) === "0"){
+      possibleValue = "0";
+    }
+    this.setState({ guess: possibleValue });
 
   }
 
@@ -88,15 +81,11 @@ export class Evaluation extends React.Component{
     return (
       <EvaluationFormContainer>
         <GuessInput
-          type="number"
           placeholder={this.state.placeholder}
           disabled={this.state.placeholder === "submitted"}
-          maxLength={2}
-          min={1}
-          max={10}
-          pattern="[0-9]+"
+          value={this.state.guess}
           onChange={(e) => {
-            this.handleInputChange(e);
+            this.handleInputChange(e.target.value);
           }}
         />
         <GuessSubmitButton

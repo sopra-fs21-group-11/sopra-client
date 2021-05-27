@@ -9,6 +9,7 @@ import { Button } from "../../views/design/Button";
 import Error from "../../views/Error";
 import Header from "../../views/Header";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import LoadingOverlay from 'react-loading-overlay';
 
 const FormContainer = styled.div`
   margin-top: 2em;
@@ -19,7 +20,7 @@ const FormContainer = styled.div`
   justify-content: center;
 `;
 
-const Form = styled.div`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -106,6 +107,7 @@ class Login extends React.Component {
     this.state = {
       username: null,
       password: null,
+      loading:false,
     };
   }
   /**
@@ -113,12 +115,13 @@ class Login extends React.Component {
    * If the request is successful, a new user is returned to the front-end
    * and its token is stored in the localStorage.
    */
-  async login() {
-    
+  async login(event) {
+    event.preventDefault();
     try {
+      this.setState({ loading:true });
       const requestBody = JSON.stringify({
         username: this.state.username,
-        password: this.state.password,
+        password: this.state.password
       });
       const response = await api.post("/users/login", requestBody);
 
@@ -128,10 +131,11 @@ class Login extends React.Component {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("loginUserId", response.data.id);
       localStorage.setItem("username", this.state.username);
-
+      this.setState({ loading:false });
       // Login successfully worked --> navigate to the route /userOverview in the GameRouter
       this.props.history.push("/mainView");
     } catch (error) {
+      this.setState({ loading:false });
       NotificationManager.error('Invalid username/password','',3000);
       
     }
@@ -148,23 +152,23 @@ class Login extends React.Component {
     this.setState({ [key]: value });
   }
 
-  /**
-   * componentDidMount() is invoked immediately after a component is mounted (inserted into the tree).
-   * Initialization that requires DOM nodes should go here.
-   * If you need to load data from a remote endpoint, this is a good place to instantiate the network request.
-   * You may call setState() immediately in componentDidMount().
-   * It will trigger an extra rendering, but it will happen before the browser updates the screen.
-   */
-  componentDidMount() {}
 
   render() {
     return (
       <div>
+          <LoadingOverlay
+            active={this.state.loading}
+            spinner
+            text='Loading ...'
+            >
         <Header height={"100"} />
         <BaseContainer>
+    
         <NotificationContainer/>
           <FormContainer>
-            <Form>
+            <Form onSubmit ={(e) => {
+                    this.login(e);
+                  }}>
               <FormTitleContainer>
                 <FormTitle>
                   LOGIN
@@ -190,9 +194,7 @@ class Login extends React.Component {
                   disabled={!this.state.username || !this.state.password}
                   width="50%"
                   style={{ margin: "5px" }}
-                  onClick={() => {
-                    this.login();
-                  }}
+                 type="submit"
                 >
                   Login
                 </Button>
@@ -212,6 +214,7 @@ class Login extends React.Component {
             </Form>
           </FormContainer>
         </BaseContainer>
+        </LoadingOverlay>
       </div>
     );
   }

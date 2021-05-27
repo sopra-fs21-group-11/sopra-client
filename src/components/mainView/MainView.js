@@ -7,7 +7,7 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../../views/design/Button";
 import { OverlayContainer, Overlay } from "../../views/design/Overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
-
+import {Evaluation} from "../game/Evaluation";
 
 
 const MenuContainer = styled.div`
@@ -75,8 +75,27 @@ class MainView extends React.Component {
   }
 
 
-  componentDidMount() {}
+  async componentDidMount() {
+    try {
+      let userId=localStorage.getItem("loginUserId");
+      if(userId!==null)
+      {
+        const response = await api.get(
+          "/users/" + localStorage.getItem("loginUserId")
+        );
+        console.log(response)
+      }
+     
+    
+    } catch (error) {
+     
+      localStorage.removeItem("token");
+      localStorage.removeItem("loginUserId");
+      this.props.history.push(`/Registration`);
 
+    }
+  }
+  
   render() {
     return (
       <OverlayContainer>
