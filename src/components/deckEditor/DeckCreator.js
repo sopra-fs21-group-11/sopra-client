@@ -83,13 +83,18 @@ const LoadingInputContainer = styled.div`
   align-items: center;
 `;
 
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
 
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 70%;
+  height: 55%;
 `;
 
 const ComponentContainer = styled.div`
@@ -123,7 +128,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -642,6 +647,11 @@ class DeckCreator extends React.Component{
 
           {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
             (
+              [<Explaination>
+                All cards in the middle box will be in your deck when you save the deck. You can remove cards from your deck by clicking on the name
+                of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+                and can have at most 60 cards.
+              </Explaination>,
               <BodyContainer>
                 <ComponentContainer>
                   <BoxHeading>
@@ -733,9 +743,10 @@ class DeckCreator extends React.Component{
                   </BoxBody>
 
                 </ComponentContainer>
-              </BodyContainer>
+              </BodyContainer>]
             ) : (
-              <BodyContainer/>
+              [<Explaination/>,
+              <BodyContainer/>]
             )
           }
 

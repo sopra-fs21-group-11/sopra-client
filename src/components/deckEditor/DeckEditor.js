@@ -36,17 +36,28 @@ const Header = styled.h1`
   
 `;
 
+
+
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
+
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 80%;
+  height: 65%;
 `;
+
+
+
 
 const ComponentContainer = styled.div`
   width: 25%;
-  height: 90%;
+  height: 95%;
   position: relative;
 `;
 
@@ -75,7 +86,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -179,6 +190,10 @@ class DeckEditor extends React.Component{
               Deck Editor
             </Header>
           </HeaderContainer>
+          <Explaination>
+            In the left box you see all available decks. By clicking on a name of a deck, its cards will displayed in the middle box.
+            If you click on the name of card, the details of a card will be shown in the right box. After creating a deck, you can also edit it.
+          </Explaination>
           <BodyContainer>
             <ComponentContainer>
               <BoxHeading>
