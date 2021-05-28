@@ -85,7 +85,7 @@ export class Evaluation extends React.Component{
           disabled={this.state.placeholder === "submitted"}
           value={this.state.guess}
           onChange={(e) => {
-            this.handleInputChange(e);
+            this.handleInputChange(e.target.value);
           }}
         />
         <GuessSubmitButton
