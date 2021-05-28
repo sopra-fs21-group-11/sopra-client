@@ -126,15 +126,15 @@ class Lobby extends React.Component {
         },
         playersMax: {
           name: "Maximal Number of Players",
-          value: 6,
+          value: "",
           possibilities: [2, 3, 4, 5, 6],
           description: "The maximal number of players that can join the game, default is 6",
         },
         nrOfStartingTokens: {
           name: "Number of Starting Tokens",
-          value: 0,
+          value: "",
           possibilities: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-          description: "The amount of token each player gets at the beginning of the game.",
+          description: "The amount of tokens each player gets at the beginning of the game.",
         },
         tokenGainOnCorrectGuess: {
           name: "Tokens for Correct Guess",
@@ -191,12 +191,15 @@ class Lobby extends React.Component {
       created: null,
       host: true,
       loading:false,
-      placeholderCountdown: "Enter time in seconds (between 1 and 300) ...",
+      placeholderCountdown: "Enter time in seconds (between 5 and 300) ...",
     };
 
   }
 
   async componentDidMount() {
+    let settingResponse;
+    let deckResponse;
+
      if(this.props.location.state) {
        let gameId = this.props.location.state.gameId;
        this.setState({
@@ -209,46 +212,49 @@ class Lobby extends React.Component {
        NotificationManager.warning('Host will start the Game soon. Please wait..', '', 3000);
        await this.getPlayersAndGameState();
        this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
+
+       settingResponse = await api.get("games/" + localStorage.getItem("gameId"));
+       this.setState({gameName: settingResponse.data.name})
      }
 
      else {
-       const settingResponse = await api.get("games/settings/");
-       const deckResponse = await api.get("decks/");
-
-       // set the game settings
-       for (let setting in this.state.settings) {
-         if (this.state.settings.hasOwnProperty(setting) && settingResponse.data.hasOwnProperty(setting)) {
-           let newSetting = this.state.settings[setting];
-           newSetting["value"]= settingResponse.data[setting].toString();
-
-           let newSettings = this.state.settings;
-           newSettings[setting] = newSetting;
-           this.setState({settings: newSettings})
-       }}
-
-       // set the game countdowns
-       for (let countdown in this.state.countdowns) {
-         if (this.state.countdowns.hasOwnProperty(countdown) && settingResponse.data.hasOwnProperty(countdown)) {
-         let newCountdown = this.state.countdowns[countdown];
-         newCountdown["value"]= settingResponse.data[countdown].toString();
-
-         let newCountdowns = this.state.countdowns;
-         newCountdowns[countdown] = newCountdown;
-         this.setState({countdowns: newCountdowns})
-       }}
+       settingResponse = await api.get("games/settings/");
+       deckResponse = await api.get("decks/");
 
        let deck = this.state.deck;
        deck["possibilities"] = deckResponse.data;
        deck["deck"] = deckResponse.data[0];
 
        this.setState({deck: deck, deckId: settingResponse.data.deckId.toString()});
-
-
        console.log(this.state);
 
      }
 
-    }
+     // set the game settings
+     let newSettings = this.state.settings;
+     let newCountdowns = this.state.countdowns;
+
+     for (let setting in this.state.settings) {
+       if (this.state.settings.hasOwnProperty(setting) && settingResponse.data.hasOwnProperty(setting)) {
+         let newSetting = this.state.settings[setting];
+         newSetting["value"]= settingResponse.data[setting].toString();
+         newSettings[setting] = newSetting;
+     }}
+
+     // set the game countdowns
+     for (let countdown in this.state.countdowns) {
+       if (this.state.countdowns.hasOwnProperty(countdown) && settingResponse.data.hasOwnProperty(countdown)) {
+       let newCountdown = this.state.countdowns[countdown];
+       newCountdown["value"]= settingResponse.data[countdown].toString();
+       newCountdowns[countdown] = newCountdown;
+     }}
+
+     this.setState({settings: newSettings})
+     this.setState({countdowns: newCountdowns})
+
+     console.log(this.state);
+
+     }
 
   componentWillUnmount() {
     window.clearInterval(this.timer);
@@ -265,6 +271,7 @@ class Lobby extends React.Component {
             }
           });
         localStorage.removeItem("hostId");
+        localStorage.removeItem("gameId");
         this.props.history.push("/mainView")
       } else {
         // game not yet created
@@ -280,8 +287,8 @@ class Lobby extends React.Component {
   }
 
   handleCountdownChange(key, event)  {
-      if (event.target.value<= 0 || event.target.value > 300) {
-        NotificationManager.error("The countdown has to be between 1 and 300 seconds",'',3000);
+      if (event.target.value < 5 || event.target.value > 300) {
+        NotificationManager.error("The countdown has to be between 5 and 300 seconds",'',3000);
         event.target.value = ""
       }
       else {
@@ -329,19 +336,20 @@ class Lobby extends React.Component {
 
       this.handleInputChange("players", players);
 
-      // for non host players and if there list of players is not updated, there will be loading sign
+      // for non host players and if the list of players is not updated, there will be loading sign
       if(!this.state.host && players.length > 0) {
         this.setState({loading: false})
       }
 
-        const gameStart = response.data.gameStarted;
+      const gameStart = response.data.gameStarted;
 
-        if (gameStart) {
-          this.props.history.push("/game");
-        }}
+      if (gameStart) {
+        this.props.history.push("/game");
+      }}
     } catch (error) {
       if (!this.state.host) {
-      NotificationManager.warning(`The host has left the game.`, '', 3000, this.props.history.push("/mainView"));}
+      NotificationManager.warning(`The host has left the game.`, '', 3000, this.props.history.push("/mainView"));
+      } else {NotificationManager.error("Something went wrong, we're sorry.",'Oops...!',3000);}
     }
   }
 
@@ -391,19 +399,20 @@ class Lobby extends React.Component {
 
 
     } catch (error) {
-      NotificationManager.error(error.message,'',3000);
+      NotificationManager.error("Something went wrong, we're sorry.",'Oops...!',3000);
     }
 
   }
 
   async startGame() {
     try {
-
-      if(this.state.playerMin>this.state.players.length)
-      {
-        NotificationManager.warning("Minimum " + this.state.playerMin + " Players should join to start the game",'',3000);
+      // check player max / min
+      if(this.state.settings.playersMin.value > this.state.players.length) {
+        NotificationManager.warning("Minimum " + this.state.settings.playersMin.value + " Players should join to start the game",'',3000);
+      } else if (this.state.settings.playersMax.value < this.state.players.length) {
+        NotificationManager.warning("Maximum " + this.state.settings.playersMax.value + " Players can join to start the game",'',3000);
       } else{
-      // start userOverview
+      // start Game
       const response = await api.post("/games/" + localStorage.getItem("gameId") + "/start",
         {token: localStorage.getItem("token")},
         {
@@ -415,9 +424,8 @@ class Lobby extends React.Component {
       this.props.history.push("/game");
     }
 
-
     } catch (error) {
-        NotificationManager.error(error.message,'',3000);
+      NotificationManager.error("Something went wrong, we're sorry.",'Oops...!',3000);
     }
   }
 
@@ -425,9 +433,10 @@ class Lobby extends React.Component {
     let component = [
       <Label>{setting.name} <FiHelpCircle data-tip={setting.description} /> </Label>,
       <CustomSelect
-      disabled={!this.state.editable}
-      defaultValue={setting.value}
-      onChange={(e) => {
+        disabled={!this.state.editable}
+        defaultValue={setting.value}
+        value={setting.value}
+        onChange={(e) => {
         this.handleSettingsChange(name, e);
       }}>
       {setting.possibilities.map((num) => {
@@ -445,10 +454,10 @@ class Lobby extends React.Component {
       <Label>{countdown.name} <FiHelpCircle data-tip={countdown.description} /> </Label>,
       <InputField
         type="number"
-        min={"1"}
+        min={"5"}
         max={"300"}
         disabled={!this.state.editable}
-        placeholder={this.state.placeholderCountdown}
+        placeholder={this.state.created ? countdown.value + " seconds" : this.state.placeholderCountdown}
         onChange={(e) => {this.handleCountdownChange(name, e);}}
       />
     ];
@@ -498,7 +507,7 @@ class Lobby extends React.Component {
             >
         <CustomOverlay>
         <h2
-        style={{textAlign: "center", paddingTop: "20px"}}>Game Lobby</h2>
+        style={{textAlign: "center", paddingTop: "20px"}}>{this.state.gameName && this.state.created ? `${this.state.gameName}` : "New Game"}</h2>
         <Container style={{display: "flex"}}>
           {titleUsers}
           <Heading style={styleHeading}>Game Settings</Heading>
@@ -508,10 +517,11 @@ class Lobby extends React.Component {
           <SettingsForm
           style={settingsStyle}>
             <div style={{color: "black", textAlign: "left", fontSize: "100%"}}>{settingsText}</div>
-            <Label>Game Name</Label>
+            <Label>Game Name <FiHelpCircle  data-tip={"You can only create a game once you specified a name."} /></Label>
+            <ReactTooltip type="dark" />
             <InputField
               disabled={!this.state.editable}
-              placeholder="Enter a game name ..."
+              placeholder="Please specify a name to create a game..."
               value={this.state.gameName}
               onChange={(e) => {
                 this.handleInputChange("gameName", e.target.value);
@@ -552,12 +562,12 @@ class Lobby extends React.Component {
                 this.exitLobby();
               }}
             >
-                {this.state.host && !this.state.created ?  "Delete Game": "Exit Lobby"}
+                {this.state.created && this.state.host ?  "Delete Game": "Exit Lobby"}
             </Button>
           </ButtonContainer>
           <ButtonContainer>
             <Button
-               disabled={!this.state.host && !this.state.gameName}
+              disabled={!this.state.gameName || !this.state.host}
               style={{marginRight: 60}}
                 onClick={() => {this.state.created ?
                   this.startGame(): this.createGame()}}
