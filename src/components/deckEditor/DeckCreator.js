@@ -8,6 +8,7 @@ import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import { FiHelpCircle } from 'react-icons/fi';
 import ReactTooltip from "react-tooltip";
+import {formatLatLong} from "../../helpers/formatter";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -732,10 +733,10 @@ class DeckCreator extends React.Component{
                             Name: {this.state.cardInfo.name}
                           </Item>
                           <Item>
-                            Lat.: {this.state.cardInfo.nCoordinate}
+                            Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
                           </Item>
                           <Item>
-                            Long.: {this.state.cardInfo.eCoordinate}
+                            Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
                           </Item>
                         </Container>
                       )

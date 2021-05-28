@@ -6,6 +6,7 @@ import {Button} from "../../views/design/Button";
 import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from "react-notifications";
+import {formatLatLong} from "../../helpers/formatter";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -325,10 +326,10 @@ class DeckModify extends React.Component{
                           Name: {this.state.cardInfo.name}
                         </Item>
                         <Item>
-                          Lat.: {this.state.cardInfo.nCoordinate}
+                          Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
                         </Item>
                         <Item>
-                          Long.: {this.state.cardInfo.eCoordinate}
+                          Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
                         </Item>
                       </Container>
                     )
