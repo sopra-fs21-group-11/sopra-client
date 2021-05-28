@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
 import { withRouter } from "react-router-dom";
-import Error from "../../views/Error";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import {Evaluation} from './Evaluation';
 
@@ -16,7 +15,6 @@ import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
-import DirectionCard from "../../views/design/DirectionCard";
 import background from "../../views/design/cards/directionCard.png"
 
 
@@ -292,12 +290,9 @@ class Game extends React.Component {
   }
   checkDoubtCard(cardID) {
     let currentCard=this.state.currentCard;
-    let NeighbourCard=[currentCard.higherNeighbour,currentCard.leftNeighbour,currentCard.lowerNeighbour,currentCard.rightNeighbour];
-    if(NeighbourCard.includes(cardID) && ! this.state.isLocalUserPLayer&&this.state.gameState === "DOUBTINGPHASE")
-    {
-        return true;
-    }
-    return false;
+    let NeighbourCard=[currentCard.higherNeighbour, currentCard.leftNeighbour, currentCard.lowerNeighbour, currentCard.rightNeighbour];
+    return NeighbourCard.includes(cardID) && !this.state.isLocalUserPLayer && this.state.gameState === "DOUBTINGPHASE";
+
    
   }
 
@@ -327,11 +322,11 @@ class Game extends React.Component {
       if (this.state.gameState === "CARDPLACEMENT") {
         if(this.state.isLocalUserPLayer)
         {
-          NotificationManager.warning('It is your turn, please place the card','',3000);
+          NotificationManager.warning('It is your turn, please place the card','Your turn!',3000);
         }
         this.setState({
           message: this.state.isLocalUserPLayer
-            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus signs"
+            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus signs."
             : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
@@ -342,12 +337,12 @@ class Game extends React.Component {
       else if (this.state.gameState === "DOUBTINGPHASE") {
         if(!this.state.isLocalUserPLayer)
         {
-          NotificationManager.warning('You can now doubt the card placement','',3000);
+          NotificationManager.warning('You can now doubt the card placement','Doubting phase',3000);
         }
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> The other players can doubt your placement, please wait"
-            : ">>> You can now doubt the card placement by clicking on the highlighted card(s) (orange border)",
+            : ">>> You can now doubt the card placement by clicking on one of the orange highlighted card(s). The placed card will be compared to your chosen card.",
           countDownText: this.state.isLocalUserPLayer
             ? "for the" + "\n" + "others to doubt"
             : "to doubt"})
@@ -359,22 +354,22 @@ class Game extends React.Component {
 
         this.setState({
           message: this.state.isLocalUserPLayer
-          ? (!doubtRightous?">>> You placed card in wrong position ":"hurray, your placed Card correctly")
-          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" place card in wrong position ":this.state.currentPlayer.username +" placed Card correctly"),
+          ? (!doubtRightous?">>> You placed the card in the wrong position ":"Hurray, you placed the card correctly")
+          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" placed card in wrong position ":this.state.currentPlayer.username +" placed Card correctly"),
           countDownText: ""})
         this.resetCountDown();}
 
       else if (this.state.gameState === "EVALUATION") {
-        NotificationManager.warning('Evaluation phase. Please guess the number of wrongly placed cards','',3000);
+        NotificationManager.warning('Please guess the number of wrongly placed cards','Evaluation phase',3000);
         this.setState({
           message: ">>> Evaluation phase: guess the number of wrongly placed cards by entering a number in the input field and then clicking on submit",
           countDownText: "to place a bet"})
         this.resetCountDown();
       }
       else if (this.state.gameState === "EVALUATIONVISIBLE") {
-        NotificationManager.warning('After the Evaluation phase. Please have a look at the correctly and wrongly placed cards','',3000);
+        NotificationManager.warning('Please have a look at the correctly and wrongly placed cards','Cards are visible',3000);
         this.setState({
-          message: ">>> After the Evaluation phase: increase your chance to win next time by learning where these places are located",
+          message: ">>> Time to raise your odds: You can increase your chance to win next time by learning where these places are located!",
           countDownText: "to look at the cards"})
         this.resetCountDown();
       }
