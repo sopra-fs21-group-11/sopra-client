@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import placeCard from "../design/cards/placeCard.png";
+import {formatLatLong} from "../../helpers/formatter";
 
 
 
@@ -54,8 +55,6 @@ const CardText = styled.div`
 
 class CardBackSide extends React.Component {
 
-
-
   displayText(cardTextStyle){
 
     switch('Coordinates'){
@@ -67,7 +66,7 @@ class CardBackSide extends React.Component {
                 {this.props.cardInfo.name}
               </CardText>
               <CardText style={cardTextStyle}>
-                Lat.: {this.props.cardInfo.ncoord}
+                Lat.: {formatLatLong(this.props.cardInfo.ncoord)}
               </CardText>
             </div>
 
@@ -80,7 +79,7 @@ class CardBackSide extends React.Component {
                 {this.props.cardInfo.name}
               </CardText>
               <CardText style={cardTextStyle}>
-                Long.: {this.props.cardInfo.ecoord}
+                Long.: {formatLatLong(this.props.cardInfo.ecoord)}
               </CardText>
             </div>
 
@@ -94,10 +93,10 @@ class CardBackSide extends React.Component {
                 {this.props.cardInfo.name}
               </CardText>
               <CardText style={cardTextStyle}>
-                Lat.: {this.props.cardInfo.ncoord}
+                Lat.: {formatLatLong(this.props.cardInfo.ncoord)}
               </CardText>
               <CardText style={cardTextStyle}>
-                Long.: {this.props.cardInfo.ecoord}
+                Long.: {formatLatLong(this.props.cardInfo.ecoord)}
               </CardText>
             </div>
           );
