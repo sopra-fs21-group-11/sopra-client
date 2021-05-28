@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { BaseContainer } from "../../helpers/layout";
 import { api } from "../../helpers/api";
 import { withRouter } from "react-router-dom";
-import Error from "../../views/Error";
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import {Evaluation} from './Evaluation';
 
@@ -16,7 +15,6 @@ import * as Stomp from "@stomp/stompjs";
 import {getDomain} from "../../helpers/getDomain";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
-import DirectionCard from "../../views/design/DirectionCard";
 import background from "../../views/design/cards/directionCard.png"
 
 
@@ -295,15 +293,8 @@ class Game extends React.Component {
 
   checkDoubtCard(cardID) {
     let currentCard=this.state.currentCard;
-    let NeighbourCard=[currentCard.higherNeighbour,currentCard.leftNeighbour,currentCard.lowerNeighbour,currentCard.rightNeighbour];
-
-
-    if(NeighbourCard.includes(cardID) && ! this.state.isLocalUserPLayer&&this.state.gameState === "DOUBTINGPHASE")
-    {
-        return true;
-    }
-    return false;
-   
+    let NeighbourCard=[currentCard.higherNeighbour, currentCard.leftNeighbour, currentCard.lowerNeighbour, currentCard.rightNeighbour];
+    return NeighbourCard.includes(cardID) && !this.state.isLocalUserPLayer && this.state.gameState === "DOUBTINGPHASE";
   }
 
   callback = (message)  => {
@@ -332,11 +323,11 @@ class Game extends React.Component {
       if (this.state.gameState === "CARDPLACEMENT") {
         if(this.state.isLocalUserPLayer)
         {
-          NotificationManager.warning('It is your turn, please place the card','',3000);
+          NotificationManager.warning('It is your turn, please place the card','Your turn!',3000);
         }
         this.setState({
           message: this.state.isLocalUserPLayer
-            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus signs"
+            ? ">>> It is your turn, please place the card above on the board by clicking on one of the plus signs."
             : ">>> It is player " + this.state.currentPlayer.username + "'s turn",
           countDownText: this.state.isLocalUserPLayer
             ? "to place card"
@@ -347,12 +338,12 @@ class Game extends React.Component {
       else if (this.state.gameState === "DOUBTINGPHASE") {
         if(!this.state.isLocalUserPLayer)
         {
-          NotificationManager.warning('You can now doubt the card placement','',3000);
+          NotificationManager.warning('You can now doubt the card placement','Doubting phase',3000);
         }
         this.setState({
           message: this.state.isLocalUserPLayer
             ? ">>> The other players can doubt your placement, please wait"
-            : ">>> You can now doubt the card placement by clicking on the highlighted card(s) (orange border)",
+            : ">>> You can now doubt the card placement by clicking on one of the orange highlighted card(s). The placed card will be compared to your chosen card.",
           countDownText: this.state.isLocalUserPLayer
             ? "for the" + "\n" + "others to doubt"
             : "to doubt"})
@@ -366,15 +357,14 @@ class Game extends React.Component {
 
         this.setState({
           message: this.state.isLocalUserPLayer
-          ? (!doubtRightous?">>> You placed card in wrong position. You lost " + numberOfTokenGained.toString() + " token."
-              :"Hurray, you placed Card correctly. You won " + numberOfTokenGained.toString() + " token")
+          ? (!doubtRightous?">>> You placed the card in the wrong position. You lost " + numberOfTokenGained.toString() + " token(s)."
+              :"Hurray, you placed the card correctly. You won " + numberOfTokenGained.toString() + " token")
           : (!doubtRightous?">>> " + this.state.currentPlayer.username +" placed card in wrong position. " + this.state.currentPlayer.username + " lost " + numberOfTokenGained.toString() + " token"
-              :this.state.currentPlayer.username +" placed Card correctly. " + this.state.currentPlayer.username + " won " + numberOfTokenGained.toString() + " token" ),
+              :this.state.currentPlayer.username +" placed card correctly. " + this.state.currentPlayer.username + " won " + numberOfTokenGained.toString() + " token" ),
           countDownText: ""})
         this.resetCountDown();}
 
       else if (this.state.gameState === "EVALUATION") {
-
         // as we get twice this game state we need the prPreviousNumberOfTokens
         this.setState({
           prPreviousNumberOfTokens: this.state.prNumberOfTokens
@@ -382,7 +372,8 @@ class Game extends React.Component {
         this.setState({
           prNumberOfTokens: this.state.numTokens
         })
-        NotificationManager.warning('Evaluation phase. Please guess the number of wrongly placed cards','',3000);
+        NotificationManager.warning('Evaluation phase. Please guess the number of wrongly placed cards','Evaluation phase',3000);
+
         this.setState({
           message: ">>> Evaluation phase: guess the number of wrongly placed cards by entering a number in the input field and then clicking on submit",
           countDownText: "to place a bet"})
@@ -391,9 +382,9 @@ class Game extends React.Component {
       else if (this.state.gameState === "EVALUATIONVISIBLE") {
         // we have to use here the previous previous value as we get Evaluation state twice
         let numberOfTokensWon = this.state.numTokens - this.state.prPreviousNumberOfTokens;
-        NotificationManager.warning('After the Evaluation phase. Please have a look at the correctly and wrongly placed cards','',3000);
+        NotificationManager.warning('You can have a look at the correctly and wrongly placed cards','Time to raise the odds!',3000);
         this.setState({
-          message: ">>> After the Evaluation phase: You won " + numberOfTokensWon + " token/s. Increase your chance to win next time by learning where these places are located",
+          message: ">>> After the Evaluation phase: You won " + numberOfTokensWon + " token(s). You can increase your chance to win next time by learning where these places are located!",
           countDownText: "to look at the cards"})
         this.resetCountDown();
       }
