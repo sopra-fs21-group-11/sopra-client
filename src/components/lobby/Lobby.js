@@ -287,8 +287,8 @@ class Lobby extends React.Component {
   }
 
   handleCountdownChange(key, event)  {
-      if (event.target.value < 5 || event.target.value > 300) {
-        NotificationManager.error("The countdown has to be between 5 and 300 seconds",'',3000);
+      if (event.target.value < 1 || event.target.value > 300) {
+        NotificationManager.error("The countdown has to be between 1 and 300 seconds",'',3000);
         event.target.value = ""
       }
       else {
@@ -454,7 +454,7 @@ class Lobby extends React.Component {
       <Label>{countdown.name} <FiHelpCircle data-tip={countdown.description} /> </Label>,
       <InputField
         type="number"
-        min={"5"}
+        min={"1"}
         max={"300"}
         disabled={!this.state.editable}
         placeholder={this.state.created ? countdown.value + " seconds" : this.state.placeholderCountdown}
