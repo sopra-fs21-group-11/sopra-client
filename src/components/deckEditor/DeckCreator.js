@@ -83,13 +83,18 @@ const LoadingInputContainer = styled.div`
   align-items: center;
 `;
 
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
 
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 70%;
+  height: 55%;
 `;
 
 const ComponentContainer = styled.div`
@@ -123,7 +128,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -484,13 +489,13 @@ class DeckCreator extends React.Component{
                   disabled={this.state.isDeckCreated}
                 />,
               <DisabledButton
-                style={{marginRight: "2%"}}
+                style={{marginRight: "2%", minWidth: "60px"}}
                 disabled={!this.state.deckName || this.state.isDeckCreated}
                 onClick={() => {
                   this.createDeck()
                 }}
               >
-                Save Deck Name
+                Next
               </DisabledButton>]
               ):(
                 [<DeckNameInput
@@ -499,13 +504,13 @@ class DeckCreator extends React.Component{
                   onChange={(e)=> this.handleInputChange("deckName", e.target.value)}
                 />,
               <Button
-              style={{marginRight: "2%"}}
+              style={{marginRight: "2%", minWidth: "60px"}}
               disabled={!this.state.deckName || this.state.isDeckCreated}
               onClick={() => {
               this.createDeck()
             }}
               >
-              Save Deck Name
+              Next
               </Button>]
               )
             }
@@ -536,10 +541,10 @@ class DeckCreator extends React.Component{
                         </option>
                       </DeckCountryDropdown>
                       <DisabledButton
-                        style={{opacity: "0.4"}}
+                        style={{opacity: "0.4", minWidth: "60px"}}
                         disabled={this.state.isDeckCreatingMethodSubmitted}
                       >
-                        Submit choice
+                        Next
                       </DisabledButton>
                     </DeckInputForm>
                   ):(
@@ -563,12 +568,13 @@ class DeckCreator extends React.Component{
                         </option>
                       </DeckCountryDropdown>
                       <Button
+                        style={{minWidth: "60px"}}
                       disabled={this.state.deckCreatingMethod==="Choose deck creating method"}
                         onClick={()=>
                           this.provideMethodForAddingCards()
                           }
                       >
-                        Submit choice
+                        Next
                       </Button>
                     </DeckInputForm>
                   )
@@ -581,25 +587,28 @@ class DeckCreator extends React.Component{
               (
                 <LoadingInputContainer>
                   <Label>
-                    <FiHelpCircle data-tip="Write a country or region into the left field. In the right field you can specify
-                    the minimum population a city needs to appear in the output. Example: Italy and 100000"/>
+                    <FiHelpCircle data-tip="Country or region for creating cards, i.e. Italy or Europe"/>
                   </Label>
                   <ReactTooltip type="warning" />
 
                   <DeckNameInput
                     style={{width: "30%"}}
                     disabled={this.state.isCardsLoaded||this.state.loadingFetch}
-                    placeholder="Country or Region"
+                    placeholder="Country"
                     value={this.state.countryForLoading}
                     onChange={(e)=> {
                       this.handleCountryInput(e.target.value);
                     }}
                   />
 
+                  <Label>
+                    <FiHelpCircle data-tip="Only cities with a population higher than the one inserted will be fetched, i.e. 100000 or 500000"/>
+                  </Label>
+
                   <DeckNameInput
                     style={{width: "55%"}}
                     disabled={this.state.isCardsLoaded||this.state.loadingFetch}
-                    placeholder="Minimum population of the places"
+                    placeholder="Population"
                     value={this.state.populationForLoading}
                     onChange={(e)=> this.handlePopulationInput( e.target.value)}
                   />
@@ -638,6 +647,11 @@ class DeckCreator extends React.Component{
 
           {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
             (
+              [<Explaination>
+                All cards in the middle box will be in your deck when you save the deck. You can remove cards from your deck by clicking on the name
+                of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+                and can have at most 60 cards.
+              </Explaination>,
               <BodyContainer>
                 <ComponentContainer>
                   <BoxHeading>
@@ -729,9 +743,10 @@ class DeckCreator extends React.Component{
                   </BoxBody>
 
                 </ComponentContainer>
-              </BodyContainer>
+              </BodyContainer>]
             ) : (
-              <BodyContainer/>
+              [<Explaination/>,
+              <BodyContainer/>]
             )
           }
 

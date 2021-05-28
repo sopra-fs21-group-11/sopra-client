@@ -213,6 +213,8 @@ class Game extends React.Component {
       gameId: localStorage.getItem("gameId"),
       currentPlayer: null,
       numTokens: 0,
+      previousNumberOfTokens: 0,
+      prPreviousNumberOfTokens: 0,
       gameState: null,
       cards: null,
       currentCard: null,
@@ -290,9 +292,12 @@ class Game extends React.Component {
       }));
     }
   }
+
   checkDoubtCard(cardID) {
     let currentCard=this.state.currentCard;
     let NeighbourCard=[currentCard.higherNeighbour,currentCard.leftNeighbour,currentCard.lowerNeighbour,currentCard.rightNeighbour];
+
+
     if(NeighbourCard.includes(cardID) && ! this.state.isLocalUserPLayer&&this.state.gameState === "DOUBTINGPHASE")
     {
         return true;
@@ -351,20 +356,32 @@ class Game extends React.Component {
           countDownText: this.state.isLocalUserPLayer
             ? "for the" + "\n" + "others to doubt"
             : "to doubt"})
-            this.resetCountDown();
+        this.setState({previousNumberOfTokens: this.state.numTokens});
+        this.resetCountDown();
       }
 
       else if (this.state.gameState === "DOUBTVISIBLE") {
         let doubtRightous = this.state.doubtResultDTO.doubtRightous;
+        let numberOfTokenGained = Math.abs(this.state.numTokens - this.state.previousNumberOfTokens);
 
         this.setState({
           message: this.state.isLocalUserPLayer
-          ? (!doubtRightous?">>> You placed card in wrong position ":"hurray, your placed Card correctly")
-          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" place card in wrong position ":this.state.currentPlayer.username +" placed Card correctly"),
+          ? (!doubtRightous?">>> You placed card in wrong position. You lost " + numberOfTokenGained.toString() + " token."
+              :"Hurray, you placed Card correctly. You won " + numberOfTokenGained.toString() + " token")
+          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" placed card in wrong position. " + this.state.currentPlayer.username + " lost " + numberOfTokenGained.toString() + " token"
+              :this.state.currentPlayer.username +" placed Card correctly. " + this.state.currentPlayer.username + " won " + numberOfTokenGained.toString() + " token" ),
           countDownText: ""})
         this.resetCountDown();}
 
       else if (this.state.gameState === "EVALUATION") {
+
+        // as we get twice this game state we need the prPreviousNumberOfTokens
+        this.setState({
+          prPreviousNumberOfTokens: this.state.prNumberOfTokens
+        })
+        this.setState({
+          prNumberOfTokens: this.state.numTokens
+        })
         NotificationManager.warning('Evaluation phase. Please guess the number of wrongly placed cards','',3000);
         this.setState({
           message: ">>> Evaluation phase: guess the number of wrongly placed cards by entering a number in the input field and then clicking on submit",
@@ -372,9 +389,11 @@ class Game extends React.Component {
         this.resetCountDown();
       }
       else if (this.state.gameState === "EVALUATIONVISIBLE") {
+        // we have to use here the previous previous value as we get Evaluation state twice
+        let numberOfTokensWon = this.state.numTokens - this.state.prPreviousNumberOfTokens;
         NotificationManager.warning('After the Evaluation phase. Please have a look at the correctly and wrongly placed cards','',3000);
         this.setState({
-          message: ">>> After the Evaluation phase: increase your chance to win next time by learning where these places are located",
+          message: ">>> After the Evaluation phase: You won " + numberOfTokensWon + " token/s. Increase your chance to win next time by learning where these places are located",
           countDownText: "to look at the cards"})
         this.resetCountDown();
       }

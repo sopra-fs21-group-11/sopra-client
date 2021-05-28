@@ -36,12 +36,18 @@ const HeaderContainer = styled.div`
 const Header = styled.h1`
 `;
 
+const Explaination = styled.div`
+  height: 8%;
+  margin: 1% 5%;
+  width: 90%;
+`;
+
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 70%;
+  height: 65%;
 `;
 
 const ComponentContainer = styled.div`
@@ -75,7 +81,7 @@ const BoxBody = styled.div`
 `;
 
 const Footer = styled.div`
-  height: 10%;
+  height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -232,102 +238,105 @@ class DeckModify extends React.Component{
               Deck Edit
             </Header>
           </HeaderContainer>
+            <Explaination>
+              All cards in the middle box will be in your deck when you update the deck. You can remove cards from your deck by clicking on the name
+              of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+              and can have at most 60 cards.
+            </Explaination>
+            <BodyContainer>
+              <ComponentContainer>
+                <BoxHeading>
+                  Loaded Cards
+                </BoxHeading>
+                <BoxBody>
+                  {!this.state.cardsOutOfDeck?
+                    (
+                      <LoadingOverlay
+                        active={this.state.loading}
+                        spinner
+                        text='Loading ...'
+                      />
+                    ):(
+                      <Container>
+                        {this.state.cardsOutOfDeck.map((card)=>{
+                          return (
+                            <Container>
+                              <Item
+                                key={card.id}
+                                onClick={()=>{
+                                  this.addCardToDeck(card);
+                                }}
+                              >
+                                {card.name}
+                              </Item>
+                            </Container>
+                          )
 
+                        })}
+                      </Container>
+                    )
+                  }
+                </BoxBody>
 
-              <BodyContainer>
-                <ComponentContainer>
-                  <BoxHeading>
-                    Loaded Cards
-                  </BoxHeading>
-                  <BoxBody>
-                    {!this.state.cardsOutOfDeck?
-                      (
-                        <LoadingOverlay
-                          active={this.state.loading}
-                          spinner
-                          text='Loading ...'
-                        />
-                      ):(
-                        <Container>
-                          {this.state.cardsOutOfDeck.map((card)=>{
-                            return (
-                              <Container>
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.addCardToDeck(card);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              </Container>
-                            )
+              </ComponentContainer>
+              <ComponentContainer>
+                <BoxHeading>
+                  Cards in Deck
+                </BoxHeading>
+                <BoxBody>
+                  {this.state.cardsInDeck === []?
+                    (
+                      ""
+                    ):(
+                      <Container>
+                        {this.state.cardsInDeck.map((card)=>{
+                          return (
+                            <Container>
+                              <Item
+                                key={card.id}
+                                onClick={()=>{
+                                  this.getCardInfo(card.id);
+                                  this.removeCardFromDeck(card);
+                                }}
+                              >
+                                {card.name}
+                              </Item>
+                            </Container>
+                          )
 
-                          })}
-                        </Container>
-                      )
-                    }
-                  </BoxBody>
+                        })}
+                      </Container>
+                    )
+                  }
+                </BoxBody>
 
-                </ComponentContainer>
-                <ComponentContainer>
-                  <BoxHeading>
-                    Cards in Deck
-                  </BoxHeading>
-                  <BoxBody>
-                    {this.state.cardsInDeck === []?
-                      (
-                        ""
-                      ):(
-                        <Container>
-                          {this.state.cardsInDeck.map((card)=>{
-                            return (
-                              <Container>
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.getCardInfo(card.id);
-                                    this.removeCardFromDeck(card);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              </Container>
-                            )
+              </ComponentContainer>
+              <ComponentContainer>
+                <BoxHeading>
+                  Card Details
+                </BoxHeading>
+                <BoxBody>
+                  {!this.state.cardInfo?
+                    (
+                      ""
+                    ):(
+                      <Container>
+                        <Item>
+                          Name: {this.state.cardInfo.name}
+                        </Item>
+                        <Item>
+                          Lat.: {this.state.cardInfo.nCoordinate}
+                        </Item>
+                        <Item>
+                          Long.: {this.state.cardInfo.eCoordinate}
+                        </Item>
+                      </Container>
+                    )
+                  }
+                </BoxBody>
 
-                          })}
-                        </Container>
-                      )
-                    }
-                  </BoxBody>
-
-                </ComponentContainer>
-                <ComponentContainer>
-                  <BoxHeading>
-                    Card Details
-                  </BoxHeading>
-                  <BoxBody>
-                    {!this.state.cardInfo?
-                      (
-                        ""
-                      ):(
-                        <Container>
-                          <Item>
-                            Name: {this.state.cardInfo.name}
-                          </Item>
-                          <Item>
-                            Lat.: {this.state.cardInfo.nCoordinate}
-                          </Item>
-                          <Item>
-                            Long.: {this.state.cardInfo.eCoordinate}
-                          </Item>
-                        </Container>
-                      )
-                    }
-                  </BoxBody>
-
-                </ComponentContainer>
-              </BodyContainer>
+              </ComponentContainer>
+            </BodyContainer>
 
           <Footer>
             <Button
