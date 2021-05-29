@@ -297,16 +297,23 @@ class Lobby extends React.Component {
     }
 
   handleSettingsChange(key, event)  {
+    if (key === "playersMin") {
+      if (event.target.value > this.state.settings.playersMax.value) {
+        NotificationManager.error("Minimal number of players cannot be greater than maximal number", '', 3000);
+        event.target.value = 2;
+      }
+    }
+    if (key === "playersMax") {
+      if (event.target.value < this.state.settings.playersMin.value) {
+        NotificationManager.error("Minimal number of players cannot be greater than maximal number", '', 3000);
+        event.target.value = 6;
+      }
+    }
     let newState = this.state.settings;
     newState[key].value = event.target.value;
     this.setState({settings: newState});
-    if (key === "playersMin" || key === "playersMax") {
-      if (this.state.settings.playersMin.value > this.state.settings.playersMax.value) {
-        NotificationManager.error("Minimal number of players cannot be greater than maximal number", '', 3000);
-        event.target.value = key === "playersMin" ? 2 : 6;
-      }
-    }
   }
+
 
   async getPlayersAndGameState() {
     try {if (this.state.gameId) {
@@ -522,7 +529,7 @@ class Lobby extends React.Component {
           <SettingsForm
           style={settingsStyle}>
             <div style={{color: "black", textAlign: "left", fontSize: "100%"}}>{settingsText}</div>
-            <Label>Game Name <FiHelpCircle  data-tip={"You can only create a game once you specified a name."} /></Label>
+            <Label>Game Name <span style={{color: "red"}}>(required)</span> <FiHelpCircle  data-tip={"You can only create a game once you specified a name."} /></Label>
             <ReactTooltip type="dark" />
             <InputField
               disabled={!this.state.editable}
