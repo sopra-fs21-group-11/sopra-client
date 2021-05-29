@@ -126,10 +126,10 @@ class Scoreboard extends React.Component {
 
     let scoreboard = [<TableRow key={0}>
       <TableHeader>Username</TableHeader>
-      <TableHeader>Tokens</TableHeader>
+      <TableHeader>Won Tokens</TableHeader>
       <TableHeader>Total Wins</TableHeader>
-      <TableHeader>Total Won Tokens</TableHeader>
-      <TableHeader>Total Time Played</TableHeader>
+      <TableHeader>Total Tokens Won</TableHeader>
+      <TableHeader>Total Time Played (min)</TableHeader>
     </TableRow>]
 
     this.state.scoreboard.forEach((player) => {
