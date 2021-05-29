@@ -32,7 +32,7 @@ Check out this project's [:computer: server repo](https://github.com/sopra-fs21-
 - **[Lobby](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/lobby/Lobby.js)**: Users can customize the game settings in the lobby and pick the deck to play with. Only the game host can do so. 
 - **[Game](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/game/Game.js)**: This is the implementation of the main game flow.
 
-- **[Deck Creator](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/deckEditor/DeckCreator.js)**: Users can create customized decks in the DeckCreator. This is the front-end intersection with the external API. 
+- **[Deck Creator](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/deckEditor/DeckCreator.js)**: Users can create customized decks in the DeckCreator. This is the front-end intersection with the [external API](#disclaimer). 
 
 - **[Join Game](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/src/components/joinGame/JoinGame.js)**: Users other than the host can join any game via the JoinGame interface. 
 
@@ -109,7 +109,7 @@ A special thanks goes to our TA Raffi and the sopra team FS21.
 
 The project is licensed under the Apache License 2.0. For more information check [this :page_with_curl:](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/LICENSE) out.
 
-## Disclaimer on the extrnal API
+## Disclaimer on the extrnal API<a name="disclaimer"></a>
 
 Given that heroku terminates all requests that take [longer than 30s](https://devcenter.heroku.com/articles/request-timeout), we were not able to fully exploit the usage of our external API. Fetching really large sets of places can in some cases take longer than 30s. We are aware of this but under the given circumstances were not able to resolve it. 
 
