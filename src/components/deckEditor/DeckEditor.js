@@ -95,7 +95,11 @@ const Footer = styled.div`
 
 const ClickedItem = styled.div`
   width: 100%;
-  text-align: center;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
   background-color: rgba(0, 128, 0, 0.3);
   &:hover {
     cursor: pointer;

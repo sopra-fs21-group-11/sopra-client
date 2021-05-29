@@ -14,7 +14,10 @@ export const ItemContainer = styled.div`
 
 export const Item = styled.div`
   width: 100%;
-  text-align: center;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
     cursor: pointer;
