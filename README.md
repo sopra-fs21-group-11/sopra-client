@@ -74,16 +74,19 @@ The project consists of two main parts: the game and a deck creator.
 
 ### Game
 Every user can create a new game and set it up with customized settings.
- ![Settings in the Lobby](public/Settings-small.png)  
- ![Join Game](public/joinGame-small.png) 
+ ![Settings in the Lobby](public/Settings.png)  
+ 
+The below screenshot shows the game. The current player can place the card. The tokens are on the left, the card to place on the right. 
+ ![Game](public/game.png)  
+ 
+This is the evaluation phase of the game. It shows the backsides of the cards and highlights wrongly placed ones. After the doubting phase, the game looks similar. 
+ ![Join Game](public/evaluation.png) 
 
---> add max three small pictures of game (placement, doubt and evaluation)
-
-Users can join the game
 
 ### Deck creator
 
---> add max two pictures of editor /new deck creation
+In the deck creator, a user can customize decks.
+![Editor](public/editor.png) 
 
 ## Roadmap
 Joining developers can contribute the following things:
@@ -112,10 +115,6 @@ The project is licensed under the Apache License 2.0. For more information check
 ## Disclaimer on the extrnal API
 
 Given that heroku terminates all requests that take [longer than 30s](https://devcenter.heroku.com/articles/request-timeout), we were not able to fully exploit the usage of our external API. Fetching really large sets of places can in some cases take longer than 30s. We are aware of this but under the given circumstances were not able to resolve it. 
-
-
-
-
 
 
 
