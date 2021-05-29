@@ -178,8 +178,8 @@ class DeckEditor extends React.Component{
             </Header>
           </HeaderContainer>
           <Explaination style={{height: "8%"}}>
-            In the left box you see all available decks. By clicking on a name of a deck, its cards will displayed in the middle box.
-            If you click on the name of card, the details of a card will be shown in the right box. After creating a deck, you can also edit it.
+            In the left box you see all available decks. By clicking on a name of a deck, its cards will be displayed in the middle box.
+            If you click on the name of a card, the details of a card will be shown in the right box. After creating a deck, you can also edit it.
           </Explaination>
           <BodyContainer>
             <ComponentContainer>
