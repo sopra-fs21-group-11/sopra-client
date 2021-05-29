@@ -354,22 +354,21 @@ class Game extends React.Component {
       else if (this.state.gameState === "DOUBTVISIBLE") {
         let doubtRightous = this.state.doubtResultDTO.doubtRightous;
         let numberOfTokenGained = Math.abs(this.state.numTokens - this.state.previousNumberOfTokens);
-
-        this.setState({
+        numberOfTokenGained=isNaN(numberOfTokenGained)?0:numberOfTokenGained;
+          this.setState({
           message: this.state.isLocalUserPLayer
           ? (!doubtRightous?">>> You placed the card in the wrong position. You lost " + numberOfTokenGained.toString() + " token(s)."
               :"Hurray, you placed the card correctly. You won " + numberOfTokenGained.toString() + " token")
-          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" placed card in wrong position. " + this.state.currentPlayer.username + " lost " + numberOfTokenGained.toString() + " token"
-              :this.state.currentPlayer.username +" placed card correctly. " + this.state.currentPlayer.username + " won " + numberOfTokenGained.toString() + " token" ),
+          : (!doubtRightous?">>> " + this.state.currentPlayer.username +" placed card in wrong position."
+              :this.state.currentPlayer.username +" placed card correctly."),
           countDownText: ""})
         this.resetCountDown();}
 
       else if (this.state.gameState === "EVALUATION") {
         // as we get twice this game state we need the prPreviousNumberOfTokens
+        let prPreviousNumberOfTokens = this.state.prNumberOfTokens;
         this.setState({
-          prPreviousNumberOfTokens: this.state.prNumberOfTokens
-        })
-        this.setState({
+          prPreviousNumberOfTokens,
           prNumberOfTokens: this.state.numTokens
         })
         NotificationManager.warning('Evaluation phase. Please guess the number of wrongly placed cards','Evaluation phase',3000);
@@ -382,6 +381,7 @@ class Game extends React.Component {
       else if (this.state.gameState === "EVALUATIONVISIBLE") {
         // we have to use here the previous previous value as we get Evaluation state twice
         let numberOfTokensWon = this.state.numTokens - this.state.prPreviousNumberOfTokens;
+        numberOfTokensWon= isNaN(numberOfTokensWon)? 0 : numberOfTokensWon;
         NotificationManager.warning('You can have a look at the correctly and wrongly placed cards','Time to raise the odds!',3000);
         this.setState({
           message: ">>> After the Evaluation phase: You won " + numberOfTokensWon + " token(s). You can increase your chance to win next time by learning where these places are located!",
@@ -391,12 +391,17 @@ class Game extends React.Component {
 
       if(this.state.gameState === "GAMEEND"){
         localStorage.removeItem("hostId");
-        NotificationManager.warning('The game ended. You will be redirected to the leaderboard.','Thank you for Playing!', 3000, this.props.history.push({
-          pathname: "/game/scoreboard",
-          state: {
-            gameEndScore: this.state.gameEndScore,
-            gameId: this.state.gameId,
-          }}));
+        if (this.state.gameEndScore.unexpectedEnd) {
+          NotificationManager.warning('Players did not take actions for too long. Game ended.','Inactive', 5000, this.props.history.push("/mainView"));
+        } else if (this.state.gameEndScore.gameTooShort) {
+          NotificationManager.warning('There is no scoreboard, the game was too short.','Game too short', 5000, this.props.history.push("/mainView"));
+        } else {
+          NotificationManager.warning('The game ended. You will be redirected to the leaderboard.','Thank you for Playing!', 5000, this.props.history.push({
+            pathname: "/game/scoreboard",
+            state: {
+              gameEndScore: this.state.gameEndScore,
+              gameId: this.state.gameId,
+            }}));}
       }
   }
 

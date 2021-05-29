@@ -7,6 +7,8 @@ import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from "react-notifications";
 import {formatLatLong} from "../../helpers/formatter";
+import {Explaination, ItemCardDetails, ItemContainer, ItemDeckCreator, AddBoxPlus, MinusBox} from "./EditorElements";
+
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -37,18 +39,13 @@ const HeaderContainer = styled.div`
 const Header = styled.h1`
 `;
 
-const Explaination = styled.div`
-  height: 8%;
-  margin: 1% 5%;
-  width: 90%;
-`;
 
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 65%;
+  height: 60%;
 `;
 
 const ComponentContainer = styled.div`
@@ -93,17 +90,6 @@ const Container = styled.div`
   width: 100%;
 `;
 
-
-const Item = styled.div`
-  margin-bottom: 5px;
-  width: 100%;
-  text-align: center;
-
-  &:hover {
-    cursor: pointer;
-    background-color: rgba(0, 128, 0, 0.3);
-  }
-`;
 
 
 class DeckModify extends React.Component{
@@ -240,8 +226,9 @@ class DeckModify extends React.Component{
             </Header>
           </HeaderContainer>
             <Explaination>
-              All cards in the middle box will be in your deck when you update the deck. You can remove cards from your deck by clicking on the name
-              of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+              All cards in the middle box will be in your deck when you update the deck. You can remove cards from your deck by clicking on the minus button
+              of a card in the middle box. Cards can be added by clicking on the plus buttons of the cards in the left box. Clicking on the card
+              will reveal its details in the right box. A deck needs a least 10 cards
               and can have at most 60 cards.
             </Explaination>
             <BodyContainer>
@@ -261,16 +248,25 @@ class DeckModify extends React.Component{
                       <Container>
                         {this.state.cardsOutOfDeck.map((card)=>{
                           return (
-                            <Container>
-                              <Item
+                            <ItemContainer
+                              key={card.id + "1"}
+                            >
+                              <ItemDeckCreator
                                 key={card.id}
                                 onClick={()=>{
-                                  this.addCardToDeck(card);
+                                  this.getCardInfo(card.id);
                                 }}
                               >
                                 {card.name}
-                              </Item>
-                            </Container>
+                              </ItemDeckCreator>
+                              <AddBoxPlus
+                                fontSize="large"
+                                style={{ color: "green"}}
+                                onClick={()=>{
+                                  this.addCardToDeck(card);
+                                }}
+                              />
+                            </ItemContainer>
                           )
 
                         })}
@@ -292,17 +288,26 @@ class DeckModify extends React.Component{
                       <Container>
                         {this.state.cardsInDeck.map((card)=>{
                           return (
-                            <Container>
-                              <Item
+                            <ItemContainer
+                              key={card.id + "1"}
+                            >
+                              <ItemDeckCreator
                                 key={card.id}
                                 onClick={()=>{
                                   this.getCardInfo(card.id);
-                                  this.removeCardFromDeck(card);
+
                                 }}
                               >
                                 {card.name}
-                              </Item>
-                            </Container>
+                              </ItemDeckCreator>
+                              <MinusBox
+                                fontSize="large"
+                                style={{ color: "red" }}
+                                onClick={()=>{
+                                  this.removeCardFromDeck(card);
+                                }}
+                              />
+                            </ItemContainer>
                           )
 
                         })}
@@ -321,17 +326,21 @@ class DeckModify extends React.Component{
                     (
                       ""
                     ):(
-                      <Container>
-                        <Item>
+                      [<ItemContainer>
+                        <ItemCardDetails>
                           Name: {this.state.cardInfo.name}
-                        </Item>
-                        <Item>
-                          Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
-                        </Item>
-                        <Item>
-                          Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
-                        </Item>
-                      </Container>
+                        </ItemCardDetails>
+                      </ItemContainer>,
+                        <ItemContainer>
+                          <ItemCardDetails>
+                            Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
+                          </ItemCardDetails>
+                        </ItemContainer>,
+                        <ItemContainer>
+                          <ItemCardDetails>
+                            Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
+                          </ItemCardDetails>
+                        </ItemContainer>]
                     )
                   }
                 </BoxBody>

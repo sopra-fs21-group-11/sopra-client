@@ -9,6 +9,8 @@ import {NotificationContainer, NotificationManager} from 'react-notifications';
 import { FiHelpCircle } from 'react-icons/fi';
 import ReactTooltip from "react-tooltip";
 import {formatLatLong} from "../../helpers/formatter";
+import {ItemDeckCreator, ItemContainer, ItemCardDetails, Explaination, AddBoxPlus, MinusBox} from "./EditorElements";
+
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -84,18 +86,12 @@ const LoadingInputContainer = styled.div`
   align-items: center;
 `;
 
-const Explaination = styled.div`
-  height: 8%;
-  margin: 1% 5%;
-  width: 90%;
-`;
-
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  height: 55%;
+  height: 50%;
 `;
 
 const ComponentContainer = styled.div`
@@ -128,28 +124,13 @@ const BoxBody = styled.div`
   border-radius:   0 0 4px 4px;
 `;
 
+
+
 const Footer = styled.div`
   height: 15%;
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const Container = styled.div`
-  margin-top: 2.5%;
-  width: 100%;
-`;
-
-
-const Item = styled.div`
-  margin-bottom: 5px;
-  width: 100%;
-  text-align: center;
-
-  &:hover {
-    cursor: pointer;
-    background-color: rgba(0, 128, 0, 0.3);
-  }
 `;
 
 
@@ -329,7 +310,8 @@ class DeckCreator extends React.Component{
         this.props.history.push("/deckEditor");
       }catch(error){
         console.log(error);
-        NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+        this.props.history.push("/deckEditor");
+        //NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
       }
 
     } else
@@ -363,15 +345,18 @@ class DeckCreator extends React.Component{
 
       }catch (error){
         console.log(error)
-        NotificationManager.error('External service is currently unavailable. Please create a deck with the existing card or try again later','Sorry for the inconvenience',8000);
-        this.setState({
-          isDeckCreatingMethodSubmitted:false,
-          deckCreatingMethod: "Choose deck creating method",
-          loading:false,
-          isCardsLoaded:false,
-           loadingFetch:false
-        });
- 
+        if(error.response.status === 503){
+          this.goBack();
+        }else {
+          NotificationManager.error('External service is currently unavailable. Please create a deck with the existing card or try again later', 'Sorry for the inconvenience', 8000);
+          this.setState({
+            isDeckCreatingMethodSubmitted: false,
+            deckCreatingMethod: "Choose deck creating method",
+            loading: false,
+            isCardsLoaded: false,
+            loadingFetch: false
+          });
+        }
       }
   }
 
@@ -649,8 +634,9 @@ class DeckCreator extends React.Component{
           {this.state.isCardsLoaded || (this.state.isDeckCreatingMethodSubmitted && this.state.deckCreatingMethod === "existingCards") ?
             (
               [<Explaination>
-                All cards in the middle box will be in your deck when you save the deck. You can remove cards from your deck by clicking on the name
-                of a card which is located in middle box. Cards can be added by clicking on the names of the cards in the left box. A deck needs a least 10 cards
+                All cards in the middle box will be in your deck when you save the deck. You can remove cards from your deck by clicking on the minus button
+                of a card in the middle box. Cards can be added by clicking on the plus buttons of the cards in the left box. Clicking on the card
+                will reveal its details in the right box. A deck needs a least 10 cards
                 and can have at most 60 cards.
               </Explaination>,
               <BodyContainer>
@@ -661,25 +647,30 @@ class DeckCreator extends React.Component{
                   <BoxBody>
                     {!this.state.cardsOutOfDeck?
                      "":(
-                        <Container>
-                          {this.state.cardsOutOfDeck.map((card)=>{
-                            return (
-                              <Container
-                                key={card.id + "1"}
+                        this.state.cardsOutOfDeck.map((card)=>{
+                          return (
+                            <ItemContainer
+                              key={card.id + "1"}
+                            >
+                              <ItemDeckCreator
+                                key={card.id}
+                                onClick={()=>{
+                                  this.getCardInfo(card.id);
+                                }}
                               >
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.addCardToDeck(card);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              </Container>
-                            )
+                                {card.name}
+                              </ItemDeckCreator>
+                              <AddBoxPlus
+                                fontSize="large"
+                                style={{ color: "green"}}
+                                onClick={()=>{
+                                  this.addCardToDeck(card);
+                                }}
+                              />
+                            </ItemContainer>
+                          )
 
-                          })}
-                        </Container>
+                        })
                       )
                     }
                   </BoxBody>
@@ -694,26 +685,30 @@ class DeckCreator extends React.Component{
                       (
                         ""
                       ):(
-                        <Container>
-                          {this.state.cardsInDeck.map((card)=>{
-                            return (
-                              <Container
-                                key={card.id + "1"}
-                              >
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.getCardInfo(card.id);
-                                    this.removeCardFromDeck(card);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              </Container>
-                            )
+                        this.state.cardsInDeck.map((card)=>{
+                          return (
+                            <ItemContainer
+                              key={card.id + "1"}
+                            >
+                              <ItemDeckCreator
+                                key={card.id}
+                                onClick={()=>{
+                                  this.getCardInfo(card.id);
 
-                          })}
-                        </Container>
+                                }}
+                              >
+                                {card.name}
+                              </ItemDeckCreator>
+                              <MinusBox
+                                fontSize="large"
+                                style={{ color: "red" }}
+                                onClick={()=>{
+                                  this.removeCardFromDeck(card);
+                                }}
+                              />
+                            </ItemContainer>
+                          )
+                        })
                       )
                     }
                   </BoxBody>
@@ -728,17 +723,21 @@ class DeckCreator extends React.Component{
                       (
                         ""
                       ):(
-                        <Container>
-                          <Item>
+                        [<ItemContainer>
+                          <ItemCardDetails>
                             Name: {this.state.cardInfo.name}
-                          </Item>
-                          <Item>
-                            Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
-                          </Item>
-                          <Item>
-                            Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
-                          </Item>
-                        </Container>
+                          </ItemCardDetails>
+                        </ItemContainer>,
+                        <ItemContainer>
+                          <ItemCardDetails>
+                          Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
+                          </ItemCardDetails>
+                        </ItemContainer>,
+                        <ItemContainer>
+                          <ItemCardDetails>
+                          Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
+                          </ItemCardDetails>
+                        </ItemContainer>]
                       )
                     }
                   </BoxBody>
@@ -746,7 +745,7 @@ class DeckCreator extends React.Component{
                 </ComponentContainer>
               </BodyContainer>]
             ) : (
-              [<Explaination/>,
+              [<Explaination style={{backgroundColor: "transparent", borderStyle: "none"}}/>,
               <BodyContainer/>]
             )
           }
