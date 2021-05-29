@@ -9,6 +9,7 @@ import {NotificationContainer, NotificationManager} from 'react-notifications';
 import {formatLatLong} from "../../helpers/formatter";
 import {Explaination, ItemContainer, ItemCardDetails, Item} from "./EditorElements";
 
+
 const OverlayContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -295,7 +296,6 @@ class DeckEditor extends React.Component{
                   (
                     ""
                   ):(
-
                       [<ItemContainer>
                         <ItemCardDetails>
                           Name: {this.state.cardInfo.name}
@@ -311,7 +311,6 @@ class DeckEditor extends React.Component{
                           Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
                         </ItemCardDetails>
                       </ItemContainer>]
-
                   )
                 }
               </BoxBody>

@@ -391,12 +391,17 @@ class Game extends React.Component {
 
       if(this.state.gameState === "GAMEEND"){
         localStorage.removeItem("hostId");
-        NotificationManager.warning('The game ended. You will be redirected to the leaderboard.','Thank you for Playing!', 3000, this.props.history.push({
-          pathname: "/game/scoreboard",
-          state: {
-            gameEndScore: this.state.gameEndScore,
-            gameId: this.state.gameId,
-          }}));
+        if (this.state.gameEndScore.unexpectedEnd) {
+          NotificationManager.warning('Players did not take actions for too long. Game ended.','Inactive', 5000, this.props.history.push("/mainView"));
+        } else if (this.state.gameEndScore.gameTooShort) {
+          NotificationManager.warning('There is no scoreboard, the game was too short.','Game too short', 5000, this.props.history.push("/mainView"));
+        } else {
+          NotificationManager.warning('The game ended. You will be redirected to the leaderboard.','Thank you for Playing!', 5000, this.props.history.push({
+            pathname: "/game/scoreboard",
+            state: {
+              gameEndScore: this.state.gameEndScore,
+              gameId: this.state.gameId,
+            }}));}
       }
   }
 

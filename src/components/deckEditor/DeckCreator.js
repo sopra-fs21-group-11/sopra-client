@@ -11,6 +11,7 @@ import ReactTooltip from "react-tooltip";
 import {formatLatLong} from "../../helpers/formatter";
 import {ItemDeckCreator, ItemContainer, ItemCardDetails, Explaination, AddBoxPlus, MinusBox} from "./EditorElements";
 
+
 const OverlayContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -309,7 +310,8 @@ class DeckCreator extends React.Component{
         this.props.history.push("/deckEditor");
       }catch(error){
         console.log(error);
-        NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+        this.props.history.push("/deckEditor");
+        //NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
       }
 
     } else

@@ -105,7 +105,7 @@ class JoinGame extends React.Component {
       });
       this.setState({ games: response.data });
     } catch (error) {
-      NotificationManager.error(error.message,'',3000);
+      NotificationManager.error("Something went wrong, we're sorry.",'Oops...!',3000);
     }
   }
   async joinGame(gameid) {
@@ -128,7 +128,7 @@ class JoinGame extends React.Component {
 
 
     } catch (error) {
-      NotificationManager.error(error.message,'',3000);
+      NotificationManager.warning("Please join another game.", 'Game is full!', 3000);
     }
   }
   handleInputChange(key, value) {

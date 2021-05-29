@@ -191,7 +191,7 @@ class Lobby extends React.Component {
       created: null,
       host: true,
       loading:false,
-      placeholderCountdown: "Enter time in seconds (between 5 and 300) ...",
+      placeholderCountdown: "Enter time in seconds...",
     };
 
   }
@@ -214,6 +214,7 @@ class Lobby extends React.Component {
        this.timer = setInterval(() => this.getPlayersAndGameState(), 10000); //polling every 10 seconds
 
        settingResponse = await api.get("games/" + localStorage.getItem("gameId"));
+       console.log(settingResponse)
        this.setState({gameName: settingResponse.data.name})
      }
 
@@ -226,7 +227,6 @@ class Lobby extends React.Component {
        deck["deck"] = deckResponse.data[0];
 
        this.setState({deck: deck, deckId: settingResponse.data.deckId.toString()});
-       console.log(this.state);
 
      }
 
@@ -251,8 +251,6 @@ class Lobby extends React.Component {
 
      this.setState({settings: newSettings})
      this.setState({countdowns: newCountdowns})
-
-     console.log(this.state);
 
      }
 
@@ -287,8 +285,8 @@ class Lobby extends React.Component {
   }
 
   handleCountdownChange(key, event)  {
-      if (event.target.value < 5 || event.target.value > 300) {
-        NotificationManager.error("The countdown has to be between 5 and 300 seconds",'',3000);
+      if ((event.target.value < 1 || event.target.value > 300) && event.target.value !== "") {
+        NotificationManager.error("The countdown has to be between 1 and 300 seconds",'',3000);
         event.target.value = ""
       }
       else {
@@ -460,17 +458,24 @@ class Lobby extends React.Component {
     let component = [
       <Label>{countdown.name} <FiHelpCircle data-tip={countdown.description} /> </Label>,
       <InputField
+        id={countdown.name}
         type="number"
-        min={"5"}
+        min={"1"}
         max={"300"}
         disabled={!this.state.editable}
-        placeholder={this.state.created ? countdown.value + " seconds" : this.state.placeholderCountdown}
-        onChange={(e) => {this.handleCountdownChange(name, e);}}
+        placeholder={this.state.created ? countdown.value + " second(s)" : this.state.placeholderCountdown}
+        onBlur={(e) => {this.handleCountdownChange(name, e);}}
       />
     ];
 
     return (component);
 
+  }
+
+  clearCountdowns() {
+    for (let countdown in this.state.countdowns) {
+      document.getElementById(this.state.countdowns[countdown].name).value = ""
+    }
   }
 
   render() {
@@ -577,7 +582,7 @@ class Lobby extends React.Component {
               disabled={!this.state.gameName || !this.state.host}
               style={{marginRight: 60}}
                 onClick={() => {this.state.created ?
-                  this.startGame(): this.createGame()}}
+                  this.startGame(): this.createGame(); this.clearCountdowns()}}
               >
                 {this.state.created ?  "Start Game": "Create Game"}
             </Button>
