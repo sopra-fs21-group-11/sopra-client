@@ -7,6 +7,7 @@ import {api} from "../../helpers/api";
 import LoadingOverlay from "react-loading-overlay";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import {formatLatLong} from "../../helpers/formatter";
+import {Explaination, ItemContainer, ItemCardDetails, Item} from "./EditorElements";
 
 const OverlayContainer = styled.div`
   width: 100%;
@@ -37,13 +38,6 @@ const Header = styled.h1`
   
 `;
 
-
-
-const Explaination = styled.div`
-  height: 8%;
-  margin: 1% 5%;
-  width: 90%;
-`;
 
 const BodyContainer = styled.div`
   display: flex;
@@ -84,6 +78,8 @@ const BoxBody = styled.div`
   border: 0.15em black solid;
   border-top: none;
   border-radius:   0 0 4px 4px;
+  padding-top: 2%;
+  padding-bottom: 2%;
 `;
 
 const Footer = styled.div`
@@ -93,25 +89,11 @@ const Footer = styled.div`
   align-items: center;
 `;
 
-const Container = styled.div`
-  margin-top: 2.5%;
-  width: 100%;
-`;
 
 
-const Item = styled.div`
-  margin-bottom: 5px;
-  width: 100%;
-  text-align: center;
 
-  &:hover {
-    cursor: pointer;
-    background-color: rgba(0, 128, 0, 0.3);
-  }
-`;
 
 const ClickedItem = styled.div`
-  margin-bottom: 5px;
   width: 100%;
   text-align: center;
   background-color: rgba(0, 128, 0, 0.3);
@@ -191,7 +173,7 @@ class DeckEditor extends React.Component{
               Deck Editor
             </Header>
           </HeaderContainer>
-          <Explaination>
+          <Explaination style={{height: "8%"}}>
             In the left box you see all available decks. By clicking on a name of a deck, its cards will displayed in the middle box.
             If you click on the name of card, the details of a card will be shown in the right box. After creating a deck, you can also edit it.
           </Explaination>
@@ -209,54 +191,51 @@ class DeckEditor extends React.Component{
                       text='Loading ...'
                     />
                   ):(
-                    <Container>
-                      {this.state.decks.map((deck)=>{
-                        return (
-                          <Container
-                            key={deck.id + "1"}
-                          >
-                            {this.state.clickedDeck !== null?
-                              (
-                                this.state.clickedDeck.id === deck.id?
-                                  (
-                                    <ClickedItem
-                                      key={deck.id}
-                                    >
-                                      {deck.name}
-                                    </ClickedItem>
-                                  ):(
-                                    <Item
-                                      key={deck.id}
-                                      onClick={()=>{
-                                        this.setState({
-                                          clickedDeck: deck,
-                                          cards: deck.cards
-                                        });
-                                      }}
-                                    >
-                                      {deck.name}
-                                    </Item>
-                                  )
-                              ):(
-                                <Item
-                                  key={deck.id}
-                                  onClick={()=>{
-                                    this.setState({
-                                      clickedDeck: deck,
-                                      cards: deck.cards
-                                    });
-                                  }}
-                                >
-                                  {deck.name}
-                                </Item>
-                              )
+                    this.state.decks.map((deck)=>{
+                      return (
+                        <ItemContainer
+                          key={deck.id + "1"}
+                        >
+                          {this.state.clickedDeck !== null?
+                            (
+                              this.state.clickedDeck.id === deck.id?
+                                (
+                                  <ClickedItem
+                                    key={deck.id}
+                                  >
+                                    {deck.name}
+                                  </ClickedItem>
+                                ):(
+                                  <Item
+                                    key={deck.id}
+                                    onClick={()=>{
+                                      this.setState({
+                                        clickedDeck: deck,
+                                        cards: deck.cards
+                                      });
+                                    }}
+                                  >
+                                    {deck.name}
+                                  </Item>
+                                )
+                            ):(
+                              <Item
+                                key={deck.id}
+                                onClick={()=>{
+                                  this.setState({
+                                    clickedDeck: deck,
+                                    cards: deck.cards
+                                  });
+                                }}
+                              >
+                                {deck.name}
+                              </Item>
+                            )
 
-                            }
-                          </Container>
-                        )
-
-                      })}
-                    </Container>
+                          }
+                        </ItemContainer>
+                      )
+                    })
                   )
                 }
               </BoxBody>
@@ -271,36 +250,33 @@ class DeckEditor extends React.Component{
                   (
                     ""
                   ):(
-                    <Container>
-                      {this.state.cards.map((card)=>{
-                        return (
-                          <Container
-                            key={card.id + "1"}
-                          >
-                            {this.state.clickedCard === card.id?
-                              (
-                                <ClickedItem
-                                  key={card.id}
-                                >
-                                  {card.name}
-                                </ClickedItem>
-                              ):(
-                                <Item
-                                  key={card.id}
-                                  onClick={()=>{
-                                    this.setState({clickedCard: card.id});
-                                    this.getCardInfo(card.id);
-                                  }}
-                                >
-                                  {card.name}
-                                </Item>
-                              )
-                            }
-                          </Container>
-                        )
-
-                      })}
-                    </Container>
+                    this.state.cards.map((card)=>{
+                      return (
+                        <ItemContainer
+                          key={card.id + "1"}
+                        >
+                          {this.state.clickedCard === card.id?
+                            (
+                              <ClickedItem
+                                key={card.id}
+                              >
+                                {card.name}
+                              </ClickedItem>
+                            ):(
+                              <Item
+                                key={card.id}
+                                onClick={()=>{
+                                  this.setState({clickedCard: card.id});
+                                  this.getCardInfo(card.id);
+                                }}
+                              >
+                                {card.name}
+                              </Item>
+                            )
+                          }
+                        </ItemContainer>
+                      )
+                    })
                   )
                 }
               </BoxBody>
@@ -315,17 +291,23 @@ class DeckEditor extends React.Component{
                   (
                     ""
                   ):(
-                    <Container>
-                      <Item>
-                        Name: {this.state.cardInfo.name}
-                      </Item>
-                      <Item>
-                        Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
-                      </Item>
-                      <Item>
-                        Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
-                      </Item>
-                    </Container>
+
+                      [<ItemContainer>
+                        <ItemCardDetails>
+                          Name: {this.state.cardInfo.name}
+                        </ItemCardDetails>
+                      </ItemContainer>,
+                      <ItemContainer>
+                        <ItemCardDetails>
+                          Lat.: {formatLatLong(this.state.cardInfo.nCoordinate)}
+                        </ItemCardDetails>
+                      </ItemContainer>,
+                      <ItemContainer>
+                        <ItemCardDetails>
+                          Long.: {formatLatLong(this.state.cardInfo.eCoordinate)}
+                        </ItemCardDetails>
+                      </ItemContainer>]
+
                   )
                 }
               </BoxBody>
