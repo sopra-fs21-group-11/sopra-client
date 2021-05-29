@@ -329,7 +329,8 @@ class DeckCreator extends React.Component{
         this.props.history.push("/deckEditor");
       }catch(error){
         console.log(error);
-        NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
+        this.props.history.push("/deckEditor");
+        //NotificationManager.error('There was a server error','Sorry for the inconvenience',3000);
       }
 
     } else
