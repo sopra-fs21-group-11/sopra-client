@@ -21,11 +21,11 @@ Check out this project's [:computer: server repo](https://github.com/sopra-fs21-
 
 - **WebSocket** 🧦: Enables bidirectional communication between client and server. We used this to implement the game. 
 
-- **[React-js](https://reactjs.org/)** :rocket:: React-js is a framwork for building JavaScript user interfacesin a component-based way. 
+- **[React-js](https://reactjs.org/)** 🚀: React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
-- **[Spring Boot](https://spring.io/)** :boot:: Technology used for the backend.
+- **[Spring Boot](https://spring.io/)** 👢: Technology used for the backend.
 
-- [**JPA**](https://www.oracle.com/java/technologies/persistence-jsp.html): for card / deck and user database
+- [**JPA**](https://www.oracle.com/java/technologies/persistence-jsp.html) 💾: for card / deck and user database
 
 ## High-level components
 
@@ -108,6 +108,10 @@ A special thanks goes to our TA Raffi and the sopra team FS21.
 ## License
 
 The project is licensed under the Apache License 2.0. For more information check [this :page_with_curl:](https://github.com/sopra-fs21-group-11/sopra-client/blob/master/LICENSE) out.
+
+## Disclaimer on the extrnal API
+
+Given that heroku terminates all requests that take [longer than 30s](https://devcenter.heroku.com/articles/request-timeout), we were not able to fully exploit the usage of our external API. Fetching really large sets of places can in some cases take longer than 30s. We are aware of this but under the given circumstances were not able to resolve it. 
 
 
 
