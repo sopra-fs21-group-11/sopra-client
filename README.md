@@ -19,7 +19,7 @@ Check out this project's [:computer: server repo](https://github.com/sopra-fs21-
 
 ## Technologies 
 
-- **WebSocket** 🧦: Enables bidirectional communication between client and server. We used this to implement the game. 
+- **[WebSocket](https://stomp-js.github.io/stomp-websocket/)** 🧦: Enables bidirectional communication between client and server. We used this to implement the game. 
 
 - **[React-js](https://reactjs.org/)** 🚀: React-js is a framwork for building JavaScript user interfacesin a component-based way. 
 
@@ -85,7 +85,7 @@ This is the evaluation phase of the game. It shows the backsides of the cards an
 
 ### Deck creator
 
-In the deck creator, a user can customize decks.
+In the deck creator a user can customize decks.
 ![Editor](public/editor.png) 
 
 ## Roadmap
