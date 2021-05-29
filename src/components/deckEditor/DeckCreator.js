@@ -635,7 +635,7 @@ class DeckCreator extends React.Component{
             (
               [<Explaination>
                 All cards in the middle box will be in your deck when you save the deck. You can remove cards from your deck by clicking on the minus button
-                of a card in the middle box. Cards can be added by clicking on the plus buttons of the cards in the left box. Clicking on the card
+                of a card in the middle box. Cards can be added by clicking on the plus buttons of the cards in the left box. Clicking on the card name,
                 will reveal its details in the right box. A deck needs a least 10 cards
                 and can have at most 60 cards.
               </Explaination>,
